@@ -1,0 +1,129 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.container {
+  text-align: center;
+  background: white;
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+h1 {
+  /* color: #1e3a8a; Deep Clinical Blue */
+  color: #0284c7; /* Hospital sky blue */
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-start {
+  display: inline-block;
+  background-color: #0284c7; /* Medical Sky Blue */
+  color: white;
+  text-decoration: none;
+  padding: 0.8rem 2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+.btn-start:hover {
+  background-color: #0369a1;
+}
+
+/* Sidebar.html styles */
+
+.grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: "header header" "sidebar content" "footer footer";
+  height: 100vh;
+}
+
+.header {
+  grid-area: header;
+  background: #2c3e50;
+  color: white;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo a {
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sidebar {
+  grid-area: sidebar;
+  background: #34495e;
+  color: white;
+  overflow-y: auto;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li a {
+  display: block;
+  padding: 12px 20px;
+  color: #ecf0f1;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.sidebar li a:hover,
+.sidebar li a.active {
+  background: #a80f1b;
+}
+
+.sidebar li a i {
+  margin-right: 10px;
+  width: 20px;
+}
+
+.content {
+  grid-area: content;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.footer {
+  grid-area: footer;
+  background: #2c3e50;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-areas: "header" "sidebar" "content" "footer";
+  }
+}

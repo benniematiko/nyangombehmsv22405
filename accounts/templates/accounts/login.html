@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <h2 style="margin-bottom: 20px; text-align: center;">Hospital Management System</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px;">
+            <label>Username</label>
+            <input type="text" name="username" class="form-control" style="width: 100%; padding: 8px; margin-top: 5px;">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" style="width: 100%; padding: 8px; margin-top: 5px;">
+        </div>
+        <button type="submit" style="width: 100%; padding: 10px; background: #a80f1b; color: white; border: none; cursor: pointer;">Login</button>
+    </form>
+</div>
+{% endblock %}

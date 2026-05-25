@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard | Eagles Mission Hospital{% endblock %}
+
+{% block content %}
+<div class="hms-dashboard-fullwidth">
+    
+    <div class="dash-meta-header">
+        <div class="meta-title-group">
+            <h1>Administrative Dashboard</h1>
+            <p class="meta-subtitle">Eagles Mission Hospital Management Information System</p>
+        </div>
+        <div class="system-time-stamp">
+            <i class="fa fa-clock-o"></i> System Terminal Active
+        </div>
+    </div>
+
+    <div class="hms-asymmetric-split">
+        
+        <div class="hms-left-column">
+            
+            <div class="mini-tile tile-blue">
+                <div class="tile-body">
+                    <span class="tile-label">Total Outpatients</span>
+                    <h2 class="tile-number">1,284</h2>
+                </div>
+                <div class="tile-icon-box"><i class="fa fa-user-md"></i></div>
+            </div>
+
+            <div class="mini-tile tile-green">
+                <div class="tile-body">
+                    <span class="tile-label">Active Inpatients</span>
+                    <h2 class="tile-number">342</h2>
+                </div>
+                <div class="tile-icon-box"><i class="fa fa-bed"></i></div>
+            </div>
+
+            <div class="hms-data-card margin-top-20">
+                <div class="card-caption">
+                    <h3><i class="fa fa-building-o"></i> Unit Occupancy</h3>
+                </div>
+                <div class="card-container">
+                    <div class="unit-load-list">
+                        <div class="unit-load-item">
+                            <div class="unit-meta">
+                                <span class="unit-name">ICU Capacity</span>
+                                <span class="unit-percentage">90%</span>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill fill-red" style="width: 90%"></div></div>
+                        </div>
+                        <div class="unit-load-item">
+                            <div class="unit-meta">
+                                <span class="unit-name">OPD Caseload</span>
+                                <span class="unit-percentage">65%</span>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill fill-blue" style="width: 65%"></div></div>
+                        </div>
+                        <div class="unit-load-item">
+                            <div class="unit-meta">
+                                <span class="unit-name">Main Pharmacy</span>
+                                <span class="unit-percentage">42%</span>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill fill-amber" style="width: 42%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hms-right-column">
+            <div class="hms-data-card">
+                <div class="card-caption">
+                    <h3><i class="fa fa-list-alt"></i> Live Admissions Monitor</h3>
+                    <span class="caption-action">Real-time Feed</span>
+                </div>
+                <div class="card-container">
+                    <table class="hms-data-table">
+                        <thead>
+                            <tr>
+                                <th>Reg Number</th>
+                                <th>Patient Identity</th>
+                                <th>Target Unit</th>
+                                <th>Triage Priority</th>
+                                <th>System Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>EMH-2026-0941</strong></td>
+                                <td>Emmanuel Kiprop</td>
+                                <td>Emergency (OPD)</td>
+                                <td><span class="hms-pill status-critical">Priority Level 1</span></td>
+                                <td><span class="indicator-dot dot-active"></span> In Triage</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EMH-2026-0942</strong></td>
+                                <td>Mary Atieno</td>
+                                <td>General Ward - Male/Female</td>
+                                <td><span class="hms-pill status-stable">Priority Level 3</span></td>
+                                <td><span class="indicator-dot dot-pending"></span> Awaiting Doctor</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EMH-2026-0943</strong></td>
+                                <td>David Mutua</td>
+                                <td>Radiology Hub</td>
+                                <td><span class="hms-pill status-urgent">Priority Level 2</span></td>
+                                <td><span class="indicator-dot dot-active"></span> Imaging Queue</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EMH-2026-0944</strong></td>
+                                <td>Agnes Wanjiku</td>
+                                <td>Pediatrics Wing</td>
+                                <td><span class="hms-pill status-stable">Priority Level 3</span></td>
+                                <td><span class="indicator-dot dot-complete"></span> Discharged</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

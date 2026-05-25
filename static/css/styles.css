@@ -1,129 +1,442 @@
+/* ==========================================================================
+   1. Core Reset & Global Framework Topology Variables
+   ========================================================================== */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f7f6;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
+    font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    color: #334155;
+    min-height: 100vh;
 }
 
-.container {
-  text-align: center;
-  background: white;
-  padding: 3rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-h1 {
-  /* color: #1e3a8a; Deep Clinical Blue */
-  color: #0284c7; /* Hospital sky blue */
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.btn-start {
-  display: inline-block;
-  background-color: #0284c7; /* Medical Sky Blue */
-  color: white;
-  text-decoration: none;
-  padding: 0.8rem 2rem;
-  border-radius: 6px;
-  font-weight: 600;
-  transition: background 0.2s ease;
-}
-.btn-start:hover {
-  background-color: #0369a1;
-}
-
-/* Sidebar.html styles */
-
+/* ==========================================================================
+   2. Master Application Grid Structure (Sidebar + Content Architecture)
+   ========================================================================== */
 .grid {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  grid-template-rows: auto 1fr auto;
-  grid-template-areas: "header header" "sidebar content" "footer footer";
-  height: 100vh;
+    display: grid;
+    grid-template-columns: 260px 1fr; /* 260px Fixed Nav Left | 1fr Fills Remaining Canvas */
+    grid-template-rows: auto 1fr auto; /* Header | Content Body | Footer */
+    grid-template-areas:
+        "header header"
+        "sidebar content"
+        "footer footer";
+    min-height: 100vh;
+    width: 100%;
 }
 
+/* Header Grid Row Anchor */
 .header {
-  grid-area: header;
-  background: #2c3e50;
-  color: white;
-  padding: 15px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    grid-area: header;
+    background-color: #1e293b;
+    color: white;
+    padding: 15px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.logo a {
-  color: white;
-  text-decoration: none;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.sidebar {
-  grid-area: sidebar;
-  background: #34495e;
-  color: white;
-  overflow-y: auto;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li a {
-  display: block;
-  padding: 12px 20px;
-  color: #ecf0f1;
-  text-decoration: none;
-  transition: background 0.3s;
-}
-
-.sidebar li a:hover,
-.sidebar li a.active {
-  background: #a80f1b;
-}
-
-.sidebar li a i {
-  margin-right: 10px;
-  width: 20px;
-}
-
+/* Content Panel Grid Frame - Forced to fill 100% of remaining space */
 .content {
-  grid-area: content;
-  padding: 20px;
-  overflow-y: auto;
+    grid-area: content;
+    background-color: #f8fafc;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0; /* Cleared out restricting spaces so dashboard drops directly to the edge */
 }
 
+/* Footer Grid Row Anchor */
 .footer {
-  grid-area: footer;
-  background: #2c3e50;
-  color: white;
-  text-align: center;
-  padding: 10px;
-  font-size: 12px;
+    grid-area: footer;
+    background-color: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 24px;
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
 }
 
+/* Responsive adjustments if the navigation drops down */
 @media (max-width: 768px) {
-  .grid {
-    grid-template-columns: 1fr;
-    grid-template-areas: "header" "sidebar" "content" "footer";
-  }
+    .grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "header"
+            "sidebar"
+            "content"
+            "footer";
+    }
+}
+
+/* ==========================================================================
+   3. Isolated Elegant Login Portal Layout Structure
+   ========================================================================== */
+
+/* Apply this class directly to the <body> tag ONLY inside login.html */
+.login-page-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f7f6;
+    margin: 0;
+}
+
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+}
+
+.portal-card {
+    background: #ffffff;
+    padding: 3rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    max-width: 420px;
+    width: 100%;
+    border-top: 4px solid #0284c7; /* Hospital Sky Blue Accent Line */
+    transition: transform 0.3s ease;
+}
+
+.portal-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #0284c7;
+    display: inline-block;
+}
+
+.portal-card h1 {
+    font-size: 1.75rem;
+    color: #1e293b;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.tagline {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+/* Login Form Controls */
+.form-group {
+    text-align: left;
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #334155;
+    background-color: #f8fafc;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-group input:focus {
+    outline: none;
+    background-color: #ffffff;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
+}
+
+.btn-submit {
+    display: block;
+    width: 100%;
+    background-color: #0284c7;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+}
+
+.btn-submit:hover {
+    background-color: #0369a1;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(2, 132, 199, 0.25);
+}
+
+/* ==========================================================================
+   4. High-Density Asymmetric Dashboard System (30% Left / 70% Right)
+   ========================================================================== */
+
+.hms-dashboard-fullwidth {
+    width: 100%;
+    padding: 20px;
+    background-color: #f8fafc;
+    min-height: calc(100vh - 120px);
+    box-sizing: border-box;
+}
+
+/* Base Headings Layout Elements */
+.dash-meta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 15px;
+    width: 100%;
+}
+
+.meta-title-group h1 {
+    font-size: 24px;
+    color: #0f172a;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.meta-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+}
+
+.system-time-stamp {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Asymmetric Grid Framework */
+.hms-asymmetric-split {
+    display: grid;
+    grid-template-columns: 30% 70%;
+    gap: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1120px) {
+    .hms-asymmetric-split {
+        grid-template-columns: 1fr; /* Drops down to a unified vertical block row on smaller screens */
+        gap: 20px;
+    }
+}
+
+.hms-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.hms-right-column {
+    width: 100%;
+}
+
+/* Mini Analytics Panels Metrics */
+.mini-tile {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.mini-tile::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.tile-blue::after { background-color: #0284c7; }
+.tile-green::after { background-color: #10b981; }
+.tile-amber::after { background-color: #f59e0b; }
+.tile-purple::after { background-color: #8b5cf6; }
+
+.tile-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.tile-number {
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.tile-icon-box {
+    font-size: 28px;
+    color: #cbd5e1;
+    opacity: 0.7;
+}
+
+/* Operational Display Cards */
+.hms-data-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.card-caption {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.card-caption h3 {
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: 700;
+    margin: 0;
+}
+
+.caption-action {
+    font-size: 11px;
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.card-container {
+    padding: 20px;
+}
+
+/* Comprehensive Data Tables Layout */
+.hms-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.hms-data-table th {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #475569;
+    font-weight: 700;
+    background: #f1f5f9;
+    padding: 10px 12px;
+    border-bottom: 2px solid #cbd5e1;
+}
+
+.hms-data-table td {
+    padding: 12px;
+    font-size: 13px;
+    color: #334155;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.hms-data-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Status Priority Pills elements */
+.hms-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-critical { background-color: #fee2e2; color: #ef4444; }
+.status-urgent { background-color: #fef3c7; color: #d97706; }
+.status-stable { background-color: #d1fae5; color: #10b981; }
+
+.indicator-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.dot-active { background-color: #3b82f6; }
+.dot-pending { background-color: #f59e0b; }
+.dot-complete { background-color: #10b981; }
+
+/* Operational Loading Bars Progress Widgets */
+.unit-load-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.unit-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+.progress-track {
+    background: #e2e8f0;
+    height: 6px;
+    border-radius: 10px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 10px;
+}
+
+.fill-red { background-color: #ef4444; }
+.fill-blue { background-color: #0284c7; }
+.fill-amber { background-color: #f59e0b; }
+.fill-green { background-color: #10b981; }
+
+.margin-top-20 {
+    margin-top: 4px;
 }

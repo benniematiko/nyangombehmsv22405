@@ -1,17 +1,16 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Hospital Management System{% endblock %}</title>
+    <title>{% block title %}Eagles Hospital Management System{% endblock %}</title>
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -19,12 +18,14 @@
     <div class="grid">
         <div class="header">
             <div class="logo">
-                <a href="{% url 'dashboard' %}">🏥 Eagles Hospital</a>
+                <a href="" style="color: white; text-decoration: none; font-size: 20px; font-weight: bold;">🏥 Eagles Mission Hospital</a>
             </div>
-            <div class="user-info">
-                <span>Welcome, {{ request.user.first_name|default:request.user.username }}</span>
-                <a href="{% url 'accounts:logout' %}" style="color: white;">Logout</a>
-            </div>
+            {% if request.user.is_authenticated %}
+                <div class="user-info">
+                    <span>Welcome, {{ request.user.first_name|default:request.user.username }}</span>
+                    <a href="{% url 'accounts:logout' %}" style="color: white;">Logout</a>
+                </div>
+            {% endif %}
         </div>
         
         {% include "sidebar.html" %}
@@ -36,7 +37,8 @@
                 {% endfor %}
             {% endif %}
             
-            {% block content %}{% endblock %}
+            {% block content %}          
+            {% endblock %}
         </main>
         
         <div class="footer">

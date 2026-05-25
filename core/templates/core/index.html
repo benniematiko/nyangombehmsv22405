@@ -1,18 +1,22 @@
 {% load static %}  
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProClinic HMS</title>
+    <title>Eagles Mission Hospital</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
 
-    <h1>ProClinic Hospital Management System</h1>
-    <p> Digitizing your healthcare processes and services </p>
-    <p><a href="/admin/">Start here</a></p>
+    <div class="portal-card">
+        <div class="portal-icon">🏥</div>
+        <h1>ProClinic Hospital Management System</h1>
+        <p class="tagline">Digitizing your healthcare processes and medical services safely and seamlessly.</p>
+        
+        <p>
+            <a href="{% url 'accounts:login' %}" class="btn-enter">Start here</a>
+    </div>
 
 </body>
 </html>

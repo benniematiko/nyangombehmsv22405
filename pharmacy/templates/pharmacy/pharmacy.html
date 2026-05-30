@@ -18,18 +18,12 @@
     <div class="ledger-action-row">
       <h2>Pharmacy Bill</h2>
       <div class="ledger-btn-group">
-        <!-- <a href="{% url 'pharmacy:pharmacygeneratebill' %}">
-        <button type="button" class="btn-hms-primary">
-          <i class="fa fa-file-text-o"></i> Generate Bill
-        </button>
-        </a> -->
+        
         <a href="{% url 'pharmacy:pharmacygeneratebill' %}" class="btn-hms-primary">
           <i class="fa fa-file-text-o"></i> Generate Bill
         </a>
-        <a href="{% url 'pharmacy:pharmacymedicines' %}">
-        <button type="button" class="btn-hms-secondary">
-          <i class="fa fa-medkit"></i> Medicines
-        </button>
+        <a href="{% url 'pharmacy:pharmacymedicines' %}" class="btn-hms-secondary">        
+          <i class="fa fa-medkit"></i> Medicines      
         </a>
       </div>
     </div>

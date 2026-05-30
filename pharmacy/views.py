@@ -12,3 +12,13 @@ def pharmacy_generate_bill_view(request):
 def pharmacy_medicines_view(request):
     # Points to templates/pharmacy/pharmacymedicines.html
     return render(request, 'pharmacy/pharmacymedicines.html')
+
+
+def import_medicines(request):
+    return render(request, 'pharmacy/importmedicines.html')
+
+def add_medicines(request):
+    return render(request, 'pharmacy/addmedicines.html')
+
+def purchase_medicines(request):
+    return render(request, 'pharmacy/purchasemedicines.html')

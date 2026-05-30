@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),                  # Main landing page
@@ -17,7 +19,13 @@ urlpatterns = [
     # path('expenses/', include('expenses.urls')),
     # path('appointments/', include('appointments.urls')),
     # path('radiology/', include('radiology.urls')),
+
+
 ]
+
+
+
+
 
 
 

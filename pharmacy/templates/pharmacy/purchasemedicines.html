@@ -1,44 +1,32 @@
 {% extends "base.html" %}
-{% block title %} Pharmacy Management | Eagles Mission Hospital{% endblock %}
+{% block title %} Pharmacy Purchase History | Eagles Mission Hospital{% endblock %}
 {% block content %}
 
 <div class="pharmacy-container-layout">
   
   <div class="pharmacy-panel-header">
     <div class="panel-title-group">
-      <h1><i class="fa fa-plus-square"></i> Pharmacy Department</h1>
-      <p class="panel-subtitle">Inventory, stock levels, categories, and formulation trackers</p>
+      <h1><i class="fa fa-shopping-cart"></i> Pharmacy Department</h1>
+      <p class="panel-subtitle">Log, audit, track, and manage all external supplier medicine purchases</p>
     </div>
   </div>
 
   <div class="pharmacy-billing-section">
     
     <div class="ledger-action-row">
-      <h2>Medicines Stock</h2>
+      <h2>Medicines Purchase List</h2>
 
-      <div class="ledger-btn-group">
-        <a href="{% url 'pharmacy:importmedicines' %}" class="btn-hms-primary">
-          <i class="fa fa-upload"></i> Import Medicines
-        </a>
-        <a href="{% url 'pharmacy:addmedicine' %}" class="btn-hms-primary">
-          <i class="fa fa-plus"></i> Add Medicines
-        </a>
+      <div class="ledger-btn-group">         
         <a href="{% url 'pharmacy:purchasemedicines' %}" class="btn-hms-secondary">         
           <i class="fa fa-shopping-cart"></i> Purchase      
         </a>
       </div>
     </div>
-    
-    <div class="bulk-actions-toolbar">
-      <button type="button" id="deleteSelectedBtn" class="btn-hms-danger" title="Permanently drop selected ledger data rows">
-        <i class="fa fa-trash-o"></i> Delete Selected
-      </button>
-    </div>
 
     <div class="ledger-utility-row">
       <div class="search-wrapper-block">
         <label for="ledgerSearch">Search</label>
-        <input type="text" id="ledgerSearch" class="search-input-field" placeholder="Filter by medicine, company, or category...">
+        <input type="text" id="ledgerSearch" class="search-input-field" placeholder="Filter by Purchase No, Bill No, or Supplier...">
       </div>
       
       <div class="export-pagination-group">
@@ -59,51 +47,51 @@
     </div>
 
     <div class="table-fixed-container">
-      <table class="hms-table">
+      <table class="hms-table hms-purchase-table">
         <thead>
           <tr>
-            <th><input type="checkbox" id="selectAllLedgers"></th>
-            <th>Medicine Name</th>
-            <th>Medicine Company</th>
-            <th>Medicine Composition</th>
-            <th>Medicine Category</th>
-            <th>Medicine Group</th>
-            <th>Unit</th>
-            <th class="text-right">Available Qty</th>
+            <th>Pharmacy Purchase No</th>
+            <th>Purchase Date</th>
+            <th>Bill No</th>
+            <th>Supplier Name</th>
+            <th class="text-right">Total (sh)</th>
+            <th class="text-right">Tax (sh)</th>
+            <th class="text-right">Discount (sh)</th>
+            <th class="text-right">Net Amount (sh)</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><input type="checkbox" class="ledger-checkbox" value="MED-001"></td>
-            <td><strong>Paracetamol 500mg</strong></td>
-            <td>Beta Healthcare</td>
-            <td>Acetaminophen</td>
-            <td>Analgesics</td>
-            <td>General OTC</td>
-            <td>Tablet</td>
-            <td class="text-right qty-bold">2,450</td>
+            <td><strong>PUR-2026-001</strong></td>
+            <td>28/05/2026</td>
+            <td><span class="badge-bill">BL-99321</span></td>
+            <td>Beta Healthcare Kenya</td>
+            <td class="text-right qty-bold">120,000.00</td>
+            <td class="text-right qty-bold">19,200.00</td>
+            <td class="text-right qty-bold">5,000.00</td>
+            <td class="text-right qty-bold">134,200.00</td>
           </tr>
           
           <tr>
-            <td><input type="checkbox" class="ledger-checkbox" value="MED-002"></td>
-            <td><strong>Amoxicillin 500mg</strong></td>
+            <td><strong>PUR-2026-002</strong></td>
+            <td>29/05/2026</td>
+            <td><span class="badge-bill">INV-44012</span></td>
             <td>Cosmos Limited</td>
-            <td>Amoxicillin Trihydrate</td>
-            <td>Antibiotics</td>
-            <td>Prescription Only</td>
-            <td>Capsule</td>
-            <td class="text-right qty-bold">1,200</td>
+            <td class="text-right qty-bold">85,500.00</td>
+            <td class="text-right qty-bold">13,680.00</td>
+            <td class="text-right qty-bold">0.00</td>
+            <td class="text-right qty-bold">99,180.00</td>
           </tr>
 
           <tr>
-            <td><input type="checkbox" class="ledger-checkbox" value="MED-003"></td>
-            <td><strong>Cetirizine 10mg</strong></td>
-            <td>GlaxoSmithKline</td>
-            <td>Cetirizine Dihydrochloride</td>
-            <td>Antihistamines</td>
-            <td>General OTC</td>
-            <td>Tablet</td>
-            <td class="text-right qty-bold">850</td>
+            <td><strong>PUR-2026-003</strong></td>
+            <td>30/05/2026</td>
+            <td><span class="badge-bill">GSK-8831</span></td>
+            <td>GlaxoSmithKline East Africa</td>
+            <td class="text-right qty-bold">210,000.00</td>
+            <td class="text-right qty-bold">33,600.00</td>
+            <td class="text-right qty-bold">15,000.00</td>
+            <td class="text-right qty-bold">228,600.00</td>
           </tr>
         </tbody>
       </table>
@@ -111,7 +99,7 @@
 
     <div class="ledger-pagination-row">
       <div class="pagination-counter-info">
-        Records: <strong>1</strong> to <strong>100</strong> of <strong>3,723</strong>
+        Records: <strong>1</strong> to <strong>10</strong> of <strong>412</strong>
       </div>
       
       <div class="pagination-nav-controls">
@@ -123,7 +111,7 @@
           <button type="button" class="btn-page-num">2</button>
           <button type="button" class="btn-page-num">3</button>
           <span class="page-ellipsis-spacer">...</span>
-          <button type="button" class="btn-page-num">38</button>
+          <button type="button" class="btn-page-num">42</button>
         </div>
 
         <button type="button" class="btn-page-nav" title="Next Page"><i class="fa fa-angle-right"></i></button>
@@ -133,12 +121,5 @@
 
   </div>
 </div>
-
-<script>
-  document.getElementById('selectAllLedgers').addEventListener('change', function() {
-    const checkboxes = document.querySelectorAll('.ledger-checkbox');
-    checkboxes.forEach(cb => cb.checked = this.checked);
-  });
-</script>
 
 {% endblock %}

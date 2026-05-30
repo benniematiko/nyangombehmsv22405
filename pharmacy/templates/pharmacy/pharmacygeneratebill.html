@@ -16,7 +16,7 @@
           </select>
         </div>
 
-        <button type="button" class="btn-header-action-add" title="Register New Patient Structure">
+        <button type="button" class="btn-header-action-add" id="openPatientModalBtn" title="Register New Patient Structure">
           <i class="fa fa-plus"></i> New Patient
         </button>
 
@@ -27,7 +27,7 @@
 
       </div>
 
-      <a href="{% url 'pharmacy:pharmacymedicines' %}" class="btn-header-close-route" title="Close and Abort Billing Process">
+      <a href="{% url 'pharmacy:pharmacy_home' %}" class="btn-header-close-route" title="Close and Abort Billing Process">
         <i class="fa fa-times"></i>
       </a>
     </div>
@@ -41,6 +41,7 @@
       </div>
 
       <div class="medicine-entry-grid-panel">
+        
         <div class="entry-inputs-flex-row">
           
           <div class="field-input-wrapper">
@@ -89,11 +90,20 @@
             <input type="text" class="hms-form-input" placeholder="0.00" readonly name="row_amount[]" required>
           </div>
 
-          <button type="button" class="btn-append-row" title="Append item line to current invoice stack">
-            <i class="fa fa-plus"></i> Add
-          </button>
+          <div class="field-input-wrapper alignment-control-wrapper">
+            <button type="button" class="btn-row-remove" title="Remove this line-item line entry">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
 
         </div>
+
+        <div class="entry-actions-row-toolbar">
+          <button type="button" class="btn-append-row" title="Append item line to current invoice stack">
+            <i class="fa fa-plus"></i> Add Medicine Line
+          </button>
+        </div>
+
       </div>
 
       <div class="billing-split-summary-layout">
@@ -117,7 +127,7 @@
 
           </div>
 
-          <div class="field-input-wrapper" style="margin-top: 12px;">
+          <div class="field-input-wrapper">
             <label for="billingNoteTextarea">Billing Comments / Prescription Notes</label>
             <textarea id="billingNoteTextarea" class="hms-form-textarea" rows="4" placeholder="Type internal billing transaction log files, dispensing directions or notes here..." name="billing_notes"></textarea>
           </div>
@@ -150,9 +160,13 @@
               <label for="invoicePaymentMode">Payment Mode</label>
               <select id="invoicePaymentMode" class="hms-form-select financial-input-element" name="payment_mode" style="text-align-last: right;" required>
                 <option value="Cash">Cash Ledger</option>
+                <option value="Bank Transfer">Transfer to Bank Account </option>
+                <option value="UPI">UPI </option>
                 <option value="M-Pesa">M-Pesa Mobile Rail</option>
                 <option value="Insurance">Corporate Insurance Cover</option>
                 <option value="Card">Visa/MasterCard Terminal</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 
@@ -175,7 +189,154 @@
         </div>
 
       </div>
-    </div> </form>
+    </div>
+  </form>
+</div>
+
+<div id="patientRegistrationModal" class="hms-modal-overlay">
+  <div class="hms-modal-card">
+    
+    <div class="hms-modal-header">
+      <h3><i class="fa fa-user-plus"></i> Comprehensive Patient Registry Profile</h3>
+      <button type="button" id="closePatientModalBtn" class="hms-modal-close-x">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+    
+    <form id="ajaxPatientRegistrationForm" enctype="multipart/form-data">
+      <div class="hms-modal-body">
+        
+        <div class="modal-row-two-col">
+          <div class="field-input-wrapper">
+            <label for="modalPatientName">Patient Full Name <span>*</span></label>
+            <input type="text" id="modalPatientName" class="hms-form-input" placeholder="First, Middle & Surname" required>
+          </div>
+          <div class="field-input-wrapper">
+            <label for="modalGuardianName">Guardian's Name</label>
+            <input type="text" id="modalGuardianName" class="hms-form-input" placeholder="Parent or Next of Kin Name">
+          </div>
+        </div>
+
+        <div class="modal-row-demographics-grid">
+          <div class="field-input-wrapper">
+            <label for="modalPatientGender">Gender <span>*</span></label>
+            <select id="modalPatientGender" class="hms-form-select" required>
+              <option value="">Select...</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field-input-wrapper">
+            <label for="modalPatientDob">Date of Birth <span>*</span></label>
+            <input type="date" id="modalPatientDob" class="hms-form-input" required>
+          </div>
+          
+          <div class="field-input-wrapper">
+            <label>Calculated Age Status</label>
+            <div class="modal-age-subgrid-row">
+              <input type="text" id="modalPatientAgeYrs" class="hms-form-input modal-age-field" placeholder="YY" readonly>
+              <input type="text" id="modalPatientAgeMths" class="hms-form-input modal-age-field" placeholder="MM" readonly>
+              <input type="text" id="modalPatientAgeDays" class="hms-form-input modal-age-field" placeholder="DD" readonly>
+            </div>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="modalBloodGroup">Blood Group</label>
+            <select id="modalBloodGroup" class="hms-form-select">
+              <option value="">Select...</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+          <div class="field-input-wrapper">
+            <label for="modalMaritalStatus">Marital Status</label>
+            <select id="modalMaritalStatus" class="hms-form-select">
+              <option value="">Select...</option>
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Divorced">Divorced</option>
+              <option value="Widowed">Widowed</option>
+            </select>
+          </div>
+          <div class="field-input-wrapper">
+            <label for="modalPatientPhoto">Patient Photo</label>
+            <input type="file" id="modalPatientPhoto" class="hms-form-input modal-photo-input" accept="image/*">
+          </div>
+        </div>
+
+        <div class="modal-row-three-col">
+          <div class="field-input-wrapper">
+            <label for="modalPatientPhone">Phone Number <span>*</span></label>
+            <input type="tel" id="modalPatientPhone" class="hms-form-input" placeholder="e.g. 07XXXXXXXX" required>
+          </div>
+          <div class="field-input-wrapper">
+            <label for="modalPatientEmail">Email Address</label>
+            <input type="email" id="modalPatientEmail" class="hms-form-input" placeholder="example@domain.com">
+          </div>
+          <div class="field-input-wrapper">
+            <label for="modalPatientAddress">Physical Address</label>
+            <input type="text" id="modalPatientAddress" class="hms-form-input" placeholder="Town, Estate, House/Plot Number">
+          </div>
+        </div>
+
+        <div class="modal-row-two-col">
+          <div class="field-input-wrapper">
+            <label for="modalPatientRemarks">Remarks</label>
+            <textarea id="modalPatientRemarks" class="hms-form-textarea" rows="2" placeholder="Clinical observations, presentation overview notes..."></textarea>
+          </div>
+          <div class="field-input-wrapper">
+            <label for="modalPatientAllergies">Known Allergies / Drug Sensitivities</label>
+            <textarea id="modalPatientAllergies" class="hms-form-textarea" rows="2" placeholder="List any known food or pharmaceutical item allergies (e.g., Penicillin)..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-row-insurance">
+          <div class="field-input-wrapper">
+            <label for="modalInsuranceProvider">Insurance Provider</label>
+            <select id="modalInsuranceProvider" class="hms-form-select">
+              <option value="">Select Insurance Firm...</option>
+              <option value="NHIF / SHIF">NHIF / SHIF National Scheme</option>
+              <option value="AAR Insurance">AAR Insurance</option>
+              <option value="Jubilee Insurance">Jubilee Corporate Cover</option>
+              <option value="APA Insurance">APA Insurance Portfolio</option>
+              <option value="CIC Insurance">CIC Medical Scheme</option>
+              <option value="Britam">Britam Health Cover</option>
+            </select>
+          </div>
+          <div class="field-input-wrapper">
+            <label for="modalInsuranceId">Insurance Policy ID / Card No</label>
+            <input type="text" id="modalInsuranceId" class="hms-form-input" placeholder="Policy scheme account verification string...">
+          </div>
+          <div class="field-input-wrapper">
+            <label for="modalInsuranceValidity">Insurance Validity</label>
+            <input type="date" id="modalInsuranceValidity" class="hms-form-input">
+          </div>
+        </div>
+
+        <div class="modal-row-two-col">
+          <div class="field-input-wrapper">
+            <label for="modalNationalId">National Identity Card / Passport Number</label>
+            <input type="text" id="modalNationalId" class="hms-form-input" placeholder="National ID framework verification digit...">
+          </div>
+          <div></div>
+        </div>
+
+      </div>
+
+      <div class="hms-modal-footer">
+        <button type="button" id="cancelPatientModalBtn" class="btn-modal-secondary">Cancel Process</button>
+        <button type="submit" class="btn-modal-primary"><i class="fa fa-save"></i> Save Patient Profile</button>
+      </div>
+    </form>
+
+  </div>
 </div>
 
 <script>
@@ -195,6 +356,122 @@
         doctorInputMirror.value = this.value;
       });
     }
+
+    // ==========================================================================
+    // MODAL WINDOW WINDOW CONTROLLER & LOGIC INTERACTIVE ROUTINES
+    // ==========================================================================
+    const modalOverlay = document.getElementById('patientRegistrationModal');
+    const openModalTrigger = document.getElementById('openPatientModalBtn');
+    const closeModalTrigger = document.getElementById('closePatientModalBtn');
+    const cancelModalTrigger = document.getElementById('cancelPatientModalBtn');
+    const innerAjaxForm = document.getElementById('ajaxPatientRegistrationForm');
+    
+    const dobInput = document.getElementById('modalPatientDob');
+    const ageYrsOutput = document.getElementById('modalPatientAgeYrs');
+    const ageMthsOutput = document.getElementById('modalPatientAgeMths');
+    const ageDaysOutput = document.getElementById('modalPatientAgeDays');
+
+    // Display overlay element target viewport window
+    openModalTrigger.addEventListener('click', function() {
+      modalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+
+    // Dismiss overlay viewport resets
+    function dismissRegistrationModal() {
+      modalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+      innerAjaxForm.reset();
+      ageYrsOutput.value = '';
+      ageMthsOutput.value = '';
+      ageDaysOutput.value = '';
+    }
+
+    closeModalTrigger.addEventListener('click', dismissRegistrationModal);
+    cancelModalTrigger.addEventListener('click', dismissRegistrationModal);
+
+    modalOverlay.addEventListener('click', function(event) {
+      if (event.target === modalOverlay) {
+        dismissRegistrationModal();
+      }
+    });
+
+    // AUTOMATIC AGE, MONTH & DAY CALCULATOR CORE ENGINE
+    dobInput.addEventListener('change', function() {
+      if (!this.value) {
+        ageYrsOutput.value = '';
+        ageMthsOutput.value = '';
+        ageDaysOutput.value = '';
+        return;
+      }
+      
+      const birthDate = new Date(this.value);
+      const today = new Date();
+      
+      let years = today.getFullYear() - birthDate.getFullYear();
+      let months = today.getMonth() - birthDate.getMonth();
+      let days = today.getDate() - birthDate.getDate();
+      
+      // If days evaluation is in negative values, roll back to prior month metrics
+      if (days < 0) {
+        months--;
+        // Determine the total index boundary limit days count belonging to previous month offset
+        const previousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        days += previousMonth.getDate();
+      }
+      
+      // If months evaluation falls short below zero, sync down structural calculations year loop metrics
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+      
+      // Prevent anomalies if data selection maps inside futuristic intervals
+      if (years < 0) {
+        ageYrsOutput.value = "0 Y";
+        ageMthsOutput.value = "0 M";
+        ageDaysOutput.value = "0 D";
+      } else {
+        ageYrsOutput.value = years + " Y";
+        ageMthsOutput.value = months + " M";
+        ageDaysOutput.value = days + " D";
+      }
+    });
+
+    // Form operational save event catcher intercept
+    innerAjaxForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      const dynamicFormData = new FormData();
+      
+      dynamicFormData.append('fullName', document.getElementById('modalPatientName').value);
+      dynamicFormData.append('guardianName', document.getElementById('modalGuardianName').value);
+      dynamicFormData.append('gender', document.getElementById('modalPatientGender').value);
+      dynamicFormData.append('dob', dobInput.value);
+      dynamicFormData.append('ageYears', ageYrsOutput.value);
+      dynamicFormData.append('ageMonths', ageMthsOutput.value);
+      dynamicFormData.append('ageDays', ageDaysOutput.value);
+      dynamicFormData.append('bloodGroup', document.getElementById('modalBloodGroup').value);
+      dynamicFormData.append('maritalStatus', document.getElementById('modalMaritalStatus').value);
+      dynamicFormData.append('phone', document.getElementById('modalPatientPhone').value);
+      dynamicFormData.append('email', document.getElementById('modalPatientEmail').value);
+      dynamicFormData.append('address', document.getElementById('modalPatientAddress').value);
+      dynamicFormData.append('remarks', document.getElementById('modalPatientRemarks').value);
+      dynamicFormData.append('allergies', document.getElementById('modalPatientAllergies').value);
+      dynamicFormData.append('insuranceProvider', document.getElementById('modalInsuranceProvider').value);
+      dynamicFormData.append('insuranceId', document.getElementById('modalInsuranceId').value);
+      dynamicFormData.append('insuranceValidity', document.getElementById('modalInsuranceValidity').value);
+      dynamicFormData.append('nationalId', document.getElementById('modalNationalId').value);
+      
+      const photoFile = document.getElementById('modalPatientPhoto').files[0];
+      if (photoFile) {
+        dynamicFormData.append('photo', photoFile);
+      }
+
+      console.log("Structured data packet consolidated successfully.");
+      alert("Patient structural records consolidated for backend commit!");
+      dismissRegistrationModal();
+    });
   });
 </script>
 {% endblock %}

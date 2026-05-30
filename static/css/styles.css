@@ -73,61 +73,84 @@ body {
 }
 
 /* ==========================================================================
-   3. Isolated Elegant Login Portal Layout Structure
+   3. Isolated Elegant Portal Layouts (Landing Page & Login Architecture)
    ========================================================================== */
 
-/* Apply this class directly to the <body> tag ONLY inside login.html */
-.login-page-body {
+/* Structural Layout Centering Engines */
+.landing-page-body, .login-page-body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     background-color: #f4f7f6;
     margin: 0;
-}
-
-.login-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 100%;
     padding: 20px;
 }
 
+/* Core Panel Container Box Shared Configuration */
 .portal-card {
     background: #ffffff;
     padding: 3rem 2.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     text-align: center;
-    max-width: 420px;
+    max-width: 440px;
     width: 100%;
-    border-top: 4px solid #0284c7; /* Hospital Sky Blue Accent Line */
+    border-top: 4px solid #810810; /* System signature crimson accent color */
     transition: transform 0.3s ease;
 }
 
 .portal-icon {
     font-size: 3rem;
     margin-bottom: 1rem;
-    color: #0284c7;
     display: inline-block;
 }
 
 .portal-card h1 {
-    font-size: 1.75rem;
+    font-size: 1.6rem;
     color: #1e293b;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
 }
 
 .tagline {
     color: #64748b;
     font-size: 0.95rem;
     margin-bottom: 2rem;
-    line-height: 1.5;
+    line-height: 1.6;
+}
+
+/* Index / Landing Page Specific Entry Button */
+.btn-enter {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #810810; /* System signature crimson accent color */
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 0.85rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(129, 8, 16, 0.15);
+}
+
+.btn-enter:hover {
+    background-color: #61040a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(129, 8, 16, 0.25);
 }
 
 /* Login Form Controls */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
 .form-group {
     text-align: left;
     margin-bottom: 1.25rem;
@@ -156,14 +179,14 @@ body {
 .form-group input:focus {
     outline: none;
     background-color: #ffffff;
-    border-color: #0284c7;
-    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
+    border-color: #810810;
+    box-shadow: 0 0 0 4px rgba(129, 8, 16, 0.12);
 }
 
 .btn-submit {
     display: block;
     width: 100%;
-    background-color: #0284c7;
+    background-color: #810810;
     color: #ffffff;
     border: none;
     border-radius: 6px;
@@ -173,13 +196,13 @@ body {
     cursor: pointer;
     margin-top: 1.5rem;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+    box-shadow: 0 4px 12px rgba(129, 8, 16, 0.15);
 }
 
 .btn-submit:hover {
-    background-color: #0369a1;
+    background-color: #61040a;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(2, 132, 199, 0.25);
+    box-shadow: 0 6px 16px rgba(129, 8, 16, 0.25);
 }
 
 
@@ -303,7 +326,7 @@ body {
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
 }
-.tile-blue-gradient::after { background-color: #0284c7; }
+.tile-blue-gradient::after { background-color: #810810; }
 .tile-red-gradient::after { background-color: #ef4444; }
 .tile-green-gradient::after { background-color: #10b981; }
 
@@ -348,7 +371,6 @@ body {
    Sidebar Workspace Framework Component Layouts
    ========================================================================== */
 .sidebar {
-    /*background-color: #1e293b;  Premium dark slate profile */
     color: #94a3b8;
     height: 100vh;
     position: sticky;
@@ -388,11 +410,9 @@ body {
     align-items: center;
     gap: 14px;
     padding: 11px 16px;
-    /* color: #94a3b8; */
     color: #000000; 
     text-decoration: none;
     font-size: 14px;
-    /* font-weight: 500; */
     border-radius: 0;
     position: relative;
     transition: all 0.2s ease-in-out;
@@ -404,7 +424,6 @@ body {
     width: 20px;
     text-align: center;
     color: #000000;
-    /* color: #64748b; */
     transition: color 0.2s ease-in-out;
 }
 
@@ -438,4 +457,740 @@ body {
 .sidebar::-webkit-scrollbar-thumb {
     background: #334155;
     border-radius: 10px;
+}
+
+
+/* ==========================================================================
+   PHARMACY APPLICATION COMPONENT STYLES
+   ========================================================================== */
+
+/* Main Base Layout Canvas Container */
+.pharmacy-container-layout {
+    width: 100%;
+    padding: 20px;
+    background-color: #f8fafc;
+    min-height: calc(100vh - 120px);
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Module Section Header Panel */
+.pharmacy-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
+}
+
+.panel-title-group h1 {
+    font-size: 20px;
+    color: #0f172a;
+    font-weight: 700;
+    margin: 0 0 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.panel-title-group h1 i {
+    color: #810810; /* System signature crimson accent color */
+}
+
+.panel-subtitle {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Ledger Structural Card Body */
+.pharmacy-billing-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    padding: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   ROW 1 & ROW 2: ACTION AND UTILITY NAVIGATION BARS
+   ========================================================================== */
+
+/* Row 1: Module Title & Primary Actions Layout Row */
+.ledger-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 14px;
+}
+
+.ledger-action-row h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.ledger-btn-group {
+    display: flex;
+    gap: 8px;
+}
+
+/* Action Button: Crimson Primary Variant */
+.btn-hms-primary {
+    background-color: #810810;
+    color: #ffffff;
+    border: none;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-hms-primary:hover {
+    background-color: #61040a;
+}
+
+/* Action Button: Neutral Light Secondary Variant */
+.btn-hms-secondary {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-hms-secondary:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+/* Row 2: Search Entry Form & File Export Toolbars Layout Row */
+.ledger-utility-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.search-wrapper-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 30%;
+}
+
+.search-wrapper-block label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+}
+
+.search-input-field {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    outline: none;
+    color: #334155;
+}
+
+.search-input-field:focus {
+    border-color: #810810;
+    box-shadow: 0 0 0 2px rgba(129, 8, 16, 0.1);
+}
+
+.export-pagination-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.entries-dropdown-select {
+    padding: 5px 8px;
+    font-size: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    color: #334155;
+    background-color: #ffffff;
+    outline: none;
+}
+
+.entries-dropdown-select:focus {
+    border-color: #810810;
+}
+
+.export-icon-buttons-container {
+    display: flex;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.btn-export-icon {
+    background-color: #ffffff;
+    color: #475569;
+    border: none;
+    border-right: 1px solid #cbd5e1;
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-export-icon:last-child {
+    border-right: none;
+}
+
+.btn-export-icon:hover {
+    background-color: #f8fafc;
+    color: #810810;
+}
+
+/* ==========================================================================
+   HIGH-DENSITY NON-SCROLLABLE LEDGER SYSTEM
+   ========================================================================== */
+
+.table-fixed-container {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.hms-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 12px;
+    table-layout: fixed; /* Freezes browser width rendering engine constraints */
+}
+
+/* Strict Mathematical Ratio Splits Constraining Columns to Exactly 100% combined width */
+.hms-table th:nth-child(1), .hms-table td:nth-child(1) { width: 10%; } /* Bill No */
+.hms-table th:nth-child(2), .hms-table td:nth-child(2) { width: 8%; }  /* Case ID */
+.hms-table th:nth-child(3), .hms-table td:nth-child(3) { width: 8%; }  /* Date */
+.hms-table th:nth-child(4), .hms-table td:nth-child(4) { width: 14%; } /* Patient Name */
+.hms-table th:nth-child(5), .hms-table td:nth-child(5) { width: 12%; } /* Doctor Name */
+.hms-table th:nth-child(6), .hms-table td:nth-child(6) { width: 9%; }  /* Discount */
+.hms-table th:nth-child(7), .hms-table td:nth-child(7) { width: 10%; } /* Net Amt */
+.hms-table th:nth-child(8), .hms-table td:nth-child(8) { width: 10%; } /* Paid Amt */
+.hms-table th:nth-child(9), .hms-table td:nth-child(9) { width: 10%; } /* Refund Amt */
+.hms-table th:nth-child(10), .hms-table td:nth-child(10) { width: 9%; }/* Balance Amt */
+
+.hms-table th {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.3px;
+    padding: 10px 8px;
+    border-bottom: 2px solid #cbd5e1;
+}
+
+.hms-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    /* Active Text Truncation Safety Valves */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hms-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ==========================================================================
+   MICRO-UTILITIES & FINANCIAL RENDERING RULES
+   ========================================================================== */
+
+.text-right {
+    text-align: right;
+}
+
+.badge-bill {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.balance-clear {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.balance-due {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   LEDGER PAGINATION DASHBOARD LAYOUT
+   ========================================================================== */
+
+.ledger-pagination-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Left Metric Display Counters */
+.pagination-counter-info {
+    font-size: 12px;
+    color: #475569;
+}
+
+.pagination-counter-info strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* Right Clickable Buttons Interface Wrapper */
+.pagination-nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.page-numeric-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Control Buttons Structural Logic */
+.btn-page-nav, .btn-page-num {
+    background-color: #ffffff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+/* Hover Configurations */
+.btn-page-nav:not([disabled]):hover, .btn-page-num:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+/* System Active States (e.g. Current Viewing Page) */
+.btn-page-num.active-page {
+    background-color: #810810; /* System signature crimson accent */
+    border-color: #810810;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: default;
+}
+
+/* System Disabled States (e.g. First page cannot go back further) */
+.btn-page-nav:disabled {
+    background-color: #f8fafc;
+    color: #cbd5e1;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+}
+
+/* Text Spacer '...' Layout Rules */
+.page-ellipsis-spacer {
+    font-size: 12px;
+    color: #64748b;
+    padding: 0 4px;
+    cursor: default;
+}
+
+/* ==========================================================================
+   5. HIGH-DENSITY DYNAMIC BILL GENERATION INTERFACE STYLES
+   ========================================================================== */
+
+.billing-canvas-container {
+    width: 100%;
+    margin: 0;
+    padding: 0; /* Clear container padding to allow top action bar to flush completely */
+    background-color: #f8fafc;
+    min-height: calc(100vh - 120px);
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ROW 1: System Branding Header Actions Bar */
+.billing-top-action-bar {
+    background-color: #810810; /* System Signature Crimson Accent */
+    color: #ffffff;
+    padding: 12px 20px;
+    margin-top: 0; /* Explicitly strip top margins */
+    border-radius: 0; /* Flat layout edges for full width bleed look */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Secondary Container to handle layout spacing cleanly below full width header */
+.billing-content-body-wrapper {
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.billing-left-inputs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-grow: 1;
+    max-width: 85%;
+}
+
+.billing-header-field-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-grow: 1;
+}
+
+.billing-header-field-group label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    color: #fecdd3;
+}
+
+.billing-header-input {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: #ffffff;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.billing-header-input::placeholder {
+    color: #fda4af;
+}
+
+.billing-header-input:focus {
+    background-color: #ffffff;
+    color: #0f172a;
+    border-color: #ffffff;
+}
+
+.btn-header-action-add {
+    background-color: #ffffff;
+    color: #810810;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-header-action-add:hover {
+    background-color: #ffe4e6;
+}
+
+.btn-header-close-route {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.btn-header-close-route:hover {
+    transform: scale(1.15);
+    color: #fecdd3;
+}
+
+/* ROW 2: Primary Meta Metrics Row */
+.billing-meta-metrics-row {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px 6px 0 0; /* Smooth top corners for content card entry */
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.meta-metric-pill {
+    font-size: 12px;
+    color: #475569;
+}
+
+.meta-metric-pill strong {
+    color: #0f172a;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+/* ROW 3: Dense Operational Ledger Dynamic Row Form */
+.medicine-entry-grid-panel {
+    background: #ffffff;
+    border-left: 1px solid #cbd5e1;
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    border-radius: 0 0 6px 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.entry-inputs-flex-row {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 8px;
+    align-items: end;
+    width: 100%;
+}
+
+.field-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.field-input-wrapper label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.field-input-wrapper label span {
+    color: #dc2626;
+}
+
+.hms-form-select, .hms-form-input, .hms-form-textarea {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    outline: none;
+    color: #334155;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+
+.hms-form-select:focus, .hms-form-input:focus, .hms-form-textarea:focus {
+    border-color: #810810;
+}
+
+.hms-form-input:read-only {
+    background-color: #f1f5f9;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.btn-append-row {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 31px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.btn-append-row:hover {
+    background-color: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+/* SECTION 4: Dual Multi-Column Split Framework */
+.billing-split-summary-layout {
+    display: grid;
+    grid-template-columns: 55% 45%;
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: start;
+}
+
+.summary-left-card-block {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.doctor-inputs-subgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.summary-right-ledger-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.financial-ledger-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.financial-row-item {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    align-items: center;
+}
+
+.financial-row-item label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.financial-input-element {
+    text-align: right;
+    font-weight: 600;
+}
+
+.financial-input-element:read-only {
+    font-family: monospace;
+    font-size: 13px;
+    color: #0f172a;
+}
+
+/* SECTION 5: Master Terminal Action Commit Toolbar */
+.billing-terminal-action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 14px;
+    margin-top: 14px;
+}
+
+.btn-terminal-save-print {
+    background-color: #1e293b;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-terminal-save-print:hover {
+    background-color: #0f172a;
+}
+
+.btn-terminal-save {
+    background-color: #810810;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-terminal-save:hover {
+    background-color: #61040a;
+}
+
+/* ==========================================================================
+   6. FULL-SCREEN CANVAS LAYOUT OVERRIDES (NO SIDEBAR SYSTEM)
+   ========================================================================== */
+.grid.full-canvas-view {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+        "header"
+        "content"
+        "footer" !important;
+}
+
+.grid.full-canvas-view .sidebar {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
 }

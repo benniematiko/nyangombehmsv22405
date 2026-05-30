@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %} Generate Pharmacy Bill | Eagles Mission Hospital{% endblock %}
+{% block content %}
+
+<div class="billing-canvas-container">
+  <form method="POST" id="pharmacyBillGenerationForm">
+    {% csrf_token %}
+
+    <div class="billing-top-action-bar">
+      <div class="billing-left-inputs">
+        
+        <div class="billing-header-field-group">
+          <label for="patientSelector">Patient *</label>
+          <select id="patientSelector" name="patient" class="billing-header-input" required>
+            <option value="">Select Patient Name from Database...</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn-header-action-add" title="Register New Patient Structure">
+          <i class="fa fa-plus"></i> New Patient
+        </button>
+
+        <div class="billing-header-field-group">
+          <label for="prescriptionSearch">Prescription</label>
+          <input type="text" id="prescriptionSearch" class="billing-header-input" placeholder="Scan or type prescription query ID...">
+        </div>
+
+      </div>
+
+      <a href="{% url 'pharmacy:pharmacymedicines' %}" class="btn-header-close-route" title="Close and Abort Billing Process">
+        <i class="fa fa-times"></i>
+      </a>
+    </div>
+
+    <div class="billing-content-body-wrapper">
+
+      <div class="billing-meta-metrics-row">
+        <div class="meta-metric-pill">Bill No: <strong>PH-26-004</strong></div>
+        <div class="meta-metric-pill">Case ID: <strong>-- Auto Generated --</strong></div>
+        <div class="meta-metric-pill">Date & Time: <strong>29/05/2026 14:21 EAT</strong></div>
+      </div>
+
+      <div class="medicine-entry-grid-panel">
+        <div class="entry-inputs-flex-row">
+          
+          <div class="field-input-wrapper">
+            <label>Medicine Category <span>*</span></label>
+            <select class="hms-form-select" name="med_category[]" required>
+              <option value="">Select...</option>
+            </select>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label>Medicine Name <span>*</span></label>
+            <select class="hms-form-select" name="med_name[]" required>
+              <option value="">Select Name...</option>
+            </select>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label>Batch No <span>*</span></label>
+            <select class="hms-form-select" name="batch_no[]" required>
+              <option value="">Select Batch...</option>
+            </select>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label>Expiry Date</label>
+            <input type="text" class="hms-form-input" placeholder="YYYY-MM-DD" readonly name="expiry_date[]">
+          </div>
+
+          <div class="field-input-wrapper">
+            <label>Qty | Avail Qty <span>*</span></label>
+            <input type="text" class="hms-form-input" placeholder="0 | [0]" readonly name="quantity_status[]" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label>Sale Price (sh) <span>*</span></label>
+            <input type="text" class="hms-form-input" placeholder="0.00" readonly name="sale_price[]" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label>Tax <span>*</span></label>
+            <input type="number" step="0.01" class="hms-form-input" placeholder="%" name="tax_percent[]" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label>Amount (sh) <span>*</span></label>
+            <input type="text" class="hms-form-input" placeholder="0.00" readonly name="row_amount[]" required>
+          </div>
+
+          <button type="button" class="btn-append-row" title="Append item line to current invoice stack">
+            <i class="fa fa-plus"></i> Add
+          </button>
+
+        </div>
+      </div>
+
+      <div class="billing-split-summary-layout">
+        
+        <div class="summary-left-card-block">
+          <div class="doctor-inputs-subgrid">
+            
+            <div class="field-input-wrapper">
+              <label for="hospitalDoctorSelect">Hospital Doctor</label>
+              <select id="hospitalDoctorSelect" class="hms-form-select" name="hospital_doctor">
+                <option value="">Select Consultant Physician...</option>
+                <option value="Dr. K. Omwamba">Dr. K. Omwamba</option>
+                <option value="Dr. S. Nafula">Dr. S. Nafula</option>
+              </select>
+            </div>
+
+            <div class="field-input-wrapper">
+              <label for="doctorNameMirrorInput">Doctor Name</label>
+              <input type="text" id="doctorNameMirrorInput" class="hms-form-input" placeholder="Doctor name reflection text profile..." name="doctor_name_meta">
+            </div>
+
+          </div>
+
+          <div class="field-input-wrapper" style="margin-top: 12px;">
+            <label for="billingNoteTextarea">Billing Comments / Prescription Notes</label>
+            <textarea id="billingNoteTextarea" class="hms-form-textarea" rows="4" placeholder="Type internal billing transaction log files, dispensing directions or notes here..." name="billing_notes"></textarea>
+          </div>
+        </div>
+
+        <div class="summary-right-ledger-card">
+          <div class="financial-ledger-stack">
+            
+            <div class="financial-row-item">
+              <label for="invoiceTotalBase">Total (Kshs)</label>
+              <input type="text" id="invoiceTotalBase" class="hms-form-input financial-input-element" value="0.00" readonly name="total_base_amount">
+            </div>
+
+            <div class="financial-row-item">
+              <label for="invoiceDiscountInput">Discount</label>
+              <input type="number" step="0.01" id="invoiceDiscountInput" class="hms-form-input financial-input-element" placeholder="0.00" name="discount_absolute">
+            </div>
+
+            <div class="financial-row-item">
+              <label for="invoiceTaxCalculated">Tax (Kshs)</label>
+              <input type="text" id="invoiceTaxCalculated" class="hms-form-input financial-input-element" value="0.00" readonly name="tax_calculated_amount">
+            </div>
+
+            <div class="financial-row-item">
+              <label for="invoiceNetAmount">Net Amount (Kshs)</label>
+              <input type="text" id="invoiceNetAmount" class="hms-form-input financial-input-element" value="0.00" readonly name="net_total_amount">
+            </div>
+
+            <div class="financial-row-item">
+              <label for="invoicePaymentMode">Payment Mode</label>
+              <select id="invoicePaymentMode" class="hms-form-select financial-input-element" name="payment_mode" style="text-align-last: right;" required>
+                <option value="Cash">Cash Ledger</option>
+                <option value="M-Pesa">M-Pesa Mobile Rail</option>
+                <option value="Insurance">Corporate Insurance Cover</option>
+                <option value="Card">Visa/MasterCard Terminal</option>
+              </select>
+            </div>
+
+            <div class="financial-row-item">
+              <label for="invoicePaymentAmount">Payment Amount (Kshs)</label>
+              <input type="number" step="0.01" id="invoicePaymentAmount" class="hms-form-input financial-input-element" placeholder="0.00" name="payment_amount_collected" required>
+            </div>
+
+          </div>
+
+          <div class="billing-terminal-action-row">
+            <button type="submit" name="action_save_print" class="btn-terminal-save-print">
+              <i class="fa fa-print"></i> Save & Print
+            </button>
+            <button type="submit" name="action_save" class="btn-terminal-save">
+              <i class="fa fa-save"></i> Save Invoice
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div> </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Break down out-of-scope view sidebars dynamically to achieve 100% template scaling width
+    const masterGridContainer = document.querySelector('.grid');
+    if (masterGridContainer) {
+      masterGridContainer.classList.add('full-canvas-view');
+    }
+
+    // 2. Reflect Selected Practitioner profiles automatically
+    const doctorSelect = document.getElementById('hospitalDoctorSelect');
+    const doctorInputMirror = document.getElementById('doctorNameMirrorInput');
+
+    if (doctorSelect && doctorInputMirror) {
+      doctorSelect.addEventListener('change', function() {
+        doctorInputMirror.value = this.value;
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %} Pharmacy Management | Eagles Mission Hospital{% endblock %}
+{% block content %}
+
+
+
+<div class="pharmacy-container-layout">
+  
+  <div class="pharmacy-panel-header">
+    <div class="panel-title-group">
+      <h1><i class="fa fa-plus-square"></i> Pharmacy Department</h1>
+      <p class="panel-subtitle">Financial transactions, billing ledgers, and dispensing records tracker</p>
+    </div>
+  </div>
+
+  <div class="pharmacy-billing-section">
+    
+    <div class="ledger-action-row">
+      <h2>Pharmacy Bill</h2>
+      <div class="ledger-btn-group">
+        <!-- <a href="{% url 'pharmacy:pharmacygeneratebill' %}">
+        <button type="button" class="btn-hms-primary">
+          <i class="fa fa-file-text-o"></i> Generate Bill
+        </button>
+        </a> -->
+        <a href="{% url 'pharmacy:pharmacygeneratebill' %}" class="btn-hms-primary">
+          <i class="fa fa-file-text-o"></i> Generate Bill
+        </a>
+        <a href="{% url 'pharmacy:pharmacymedicines' %}">
+        <button type="button" class="btn-hms-secondary">
+          <i class="fa fa-medkit"></i> Medicines
+        </button>
+        </a>
+      </div>
+    </div>
+
+    <div class="ledger-utility-row">
+      <div class="search-wrapper-block">
+        <label for="ledgerSearch">Search</label>
+        <input type="text" id="ledgerSearch" class="search-input-field" placeholder="Filter by bill, patient, or provider...">
+      </div>
+      
+      <div class="export-pagination-group">
+        <select class="entries-dropdown-select" aria-label="Records display pagination configuration">
+          <option value="10">Display 10 records</option>
+          <option value="20">Display 20 records</option>
+          <option value="100">Display 100 records</option>
+        </select>
+        
+        <div class="export-icon-buttons-container">
+          <button type="button" class="btn-export-icon" title="Copy Table Data"><i class="fa fa-copy"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to Excel"><i class="fa fa-file-excel-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to CSV"><i class="fa fa-file-text-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to PDF"><i class="fa fa-file-pdf-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Print Table"><i class="fa fa-print"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-fixed-container">
+      <table class="hms-table">
+        <thead>
+          <tr>
+            <th>Bill No</th>
+            <th>Case ID</th>
+            <th>Date</th>
+            <th>Patient Name</th>
+            <th>Doctor Name</th>
+            <th class="text-right">Discount</th>
+            <th class="text-right">Net Amt</th>
+            <th class="text-right">Paid Amt</th>
+            <th class="text-right">Refund</th>
+            <th class="text-right">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge-bill">PH-26-001</span></td>
+            <td>CS-98421</td>
+            <td>28/05/2026</td>
+            <td title="Emmanuel Kiprop">Emmanuel Kiprop</td>
+            <td title="Dr. K. Omwamba">Dr. K. Omwamba</td>
+            <td class="text-right">150.00</td>
+            <td class="text-right">2,450.00</td>
+            <td class="text-right">2,450.00</td>
+            <td class="text-right">0.00</td>
+            <td class="text-right balance-clear">0.00</td>
+          </tr>
+          
+          <tr>
+            <td><span class="badge-bill">PH-26-002</span></td>
+            <td>CS-98455</td>
+            <td>28/05/2026</td>
+            <td title="Mary Atieno Onyango">Mary Atieno Onyango</td>
+            <td title="Dr. S. Nafula">Dr. S. Nafula</td>
+            <td class="text-right">0.00</td>
+            <td class="text-right">4,200.00</td>
+            <td class="text-right">3,000.00</td>
+            <td class="text-right">0.00</td>
+            <td class="text-right balance-due">1,200.00</td>
+          </tr>
+
+          <tr>
+            <td><span class="badge-bill">PH-26-003</span></td>
+            <td>CS-98490</td>
+            <td>28/05/2026</td>
+            <td title="David Mutua">David Mutua</td>
+            <td title="Dr. J. Njuguna">Dr. J. Njuguna</td>
+            <td class="text-right">50.00</td>
+            <td class="text-right">850.00</td>
+            <td class="text-right">850.00</td>
+            <td class="text-right">0.00</td>
+            <td class="text-right balance-clear">0.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <!-- Pagination -->
+       
+       <div class="table-fixed-container">
+      <table class="hms-table">
+         </table>
+    </div>
+
+    <div class="ledger-pagination-row">
+      <div class="pagination-counter-info">
+        Records: <strong>1</strong> to <strong>100</strong> of <strong>3,723</strong>
+      </div>
+      
+      <div class="pagination-nav-controls">
+        <button type="button" class="btn-page-nav" title="First Page" disabled><i class="fa fa-angle-double-left"></i></button>
+        <button type="button" class="btn-page-nav" title="Previous Page" disabled><i class="fa fa-angle-left"></i></button>
+        
+        <div class="page-numeric-links">
+          <button type="button" class="btn-page-num active-page">1</button>
+          <button type="button" class="btn-page-num">2</button>
+          <button type="button" class="btn-page-num">3</button>
+          <span class="page-ellipsis-spacer">...</span>
+          <button type="button" class="btn-page-num">38</button>
+        </div>
+
+        <button type="button" class="btn-page-nav" title="Next Page"><i class="fa fa-angle-right"></i></button>
+        <button type="button" class="btn-page-nav" title="Last Page"><i class="fa fa-angle-double-right"></i></button>
+      </div>
+    </div>
+
+
+
+
+
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

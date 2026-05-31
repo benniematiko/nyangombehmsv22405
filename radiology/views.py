@@ -1,3 +1,4 @@
 from django.shortcuts import render
 
-# Create your views here.
+def radiology_home(request):   
+    return render(request, 'radiology/radiology.html')

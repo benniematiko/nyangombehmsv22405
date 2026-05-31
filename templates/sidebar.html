@@ -10,39 +10,29 @@
             </a>
         </li>
         <li>
-            <a href="">
+            <a href="{% url 'billing:billing_home' %}">
                 <i class="fa fa-user-circle"></i> <span>Billing</span>
             </a>
         </li>
         <li>
-            <a href="">
+            <a href="{% url 'appointments:appointments_home' %}">
                 <i class="fa fa-calendar"></i> <span>Appointments</span>
             </a>
         </li>
-        <!-- <li>
-            <a href="">
-                <i class="fa fa-users"></i> <span>Patients</span>
-            </a>
-        </li> -->
-       
+               
 
         <li>
-            <a href="">
-                <i class="fa fa-stethoscope"></i> <span>Outpatient (OPD)</span>
+            <a href="{% url 'opd:opd_home' %}">
+                <i class="fa fa-stethoscope"></i> <span>OPD - Out Patient</span>
             </a>
         </li>
         <li>
-            <a href="">
-                <i class="fa fa-bed"></i> <span>Inpatient (IPD)</span>
+            <a href="{% url 'ipd:ipd_home' %}">
+                <i class="fa fa-bed"></i> <span>IPD - In Patient</span>
             </a>
-        </li>
-        
+        </li>       
 
-        <!-- <li>
-            <a href="{% url 'pharmacy:pharmacy_home' %}">
-                <i class="fa fa-plus-square"></i> <span>Pharmacy</span>
-            </a>
-        </li> -->
+     
 
         <li class="{% if request.resolver_match.app_name == 'pharmacy' %}active{% endif %}">
             <a href="{% url 'pharmacy:pharmacy_home' %}">
@@ -52,12 +42,12 @@
 
 
         <li>
-            <a href="">
+            <a href="{% url 'laboratory:laboratory_home' %}">
                 <i class="fa fa-flask"></i> <span>Laboratory</span>
             </a>
         </li>
         <li>
-            <a href="">
+            <a href="{% url 'radiology:radiology_home' %}">
                 <i class="fa fa-film"></i> <span>Radiology</span>
             </a>
         </li>

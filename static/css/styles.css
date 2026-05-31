@@ -664,7 +664,7 @@ body {
 }
 
 /* ==========================================================================
-   HIGH-DENSITY NON-SCROLLABLE LEDGER SYSTEM (UPDATED FOR 8-COLUMN STOCK & PURCHASE VIEWS)
+   HIGH-DENSITY NON-SCROLLABLE LEDGER SYSTEM (UPDATED FOR 8 & 10 COLUMN VIEWS)
    ========================================================================== */
 .table-fixed-container {
     width: 100%;
@@ -699,6 +699,18 @@ body {
 .hms-purchase-table th:nth-child(6), .hms-purchase-table td:nth-child(6) { width: 8%; }  /* Tax (sh) */
 .hms-purchase-table th:nth-child(7), .hms-purchase-table td:nth-child(7) { width: 10%; } /* Discount (sh) */
 .hms-purchase-table th:nth-child(8), .hms-purchase-table td:nth-child(8) { width: 12%; } /* Net Amount (sh) */
+
+/* Specific Mathematical Ratio Splits for 10-Column Patient/Doctor Billing Ledger Views */
+.hms-billing-log-table th:nth-child(1), .hms-billing-log-table td:nth-child(1) { width: 8%; }  /* Bill No */
+.hms-billing-log-table th:nth-child(2), .hms-billing-log-table td:nth-child(2) { width: 8%; }  /* Case ID */
+.hms-billing-log-table th:nth-child(3), .hms-billing-log-table td:nth-child(3) { width: 10%; } /* Date */
+.hms-billing-log-table th:nth-child(4), .hms-billing-log-table td:nth-child(4) { width: 18%; } /* Patient Name */
+.hms-billing-log-table th:nth-child(5), .hms-billing-log-table td:nth-child(5) { width: 16%; } /* Doctor Name */
+.hms-billing-log-table th:nth-child(6), .hms-billing-log-table td:nth-child(6) { width: 8%; }  /* Discount */
+.hms-billing-log-table th:nth-child(7), .hms-billing-log-table td:nth-child(7) { width: 8%; }  /* Net Amt */
+.hms-billing-log-table th:nth-child(8), .hms-billing-log-table td:nth-child(8) { width: 8%; }  /* Paid Amt */
+.hms-billing-log-table th:nth-child(9), .hms-billing-log-table td:nth-child(9) { width: 8%; }  /* Refund */
+.hms-billing-log-table th:nth-child(10), .hms-billing-log-table td:nth-child(10) { width: 8%; }/* Balance */
 
 .hms-table th {
     background-color: #f1f5f9;
@@ -993,14 +1005,23 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    overflow-x: auto; /* Allow horizontal scroll if viewport is very narrow */
 }
 
 .entry-inputs-flex-row {
     display: grid;
-    grid-template-columns: repeat(8, 1fr) 40px;
+    grid-template-columns: repeat(8, 1fr) 40px; /* Default: 8-column pharmacy bill layout */
     gap: 8px;
     align-items: end;
     width: 100%;
+}
+
+/* ==========================================================================
+   PURCHASE MEDICINE FORM — 12-COLUMN SINGLE ROW OVERRIDE
+   Forces all 12 fields + remove button into one non-wrapping horizontal row
+   ========================================================================== */
+.purchase-single-ledger-row {
+    grid-template-columns: repeat(12, 1fr) 40px;
 }
 
 .field-input-wrapper {
@@ -1108,6 +1129,14 @@ body {
     width: 100%;
     box-sizing: border-box;
     align-items: start;
+}
+
+/* ==========================================================================
+   PURCHASE PAGE — Equal 50/50 Summary Layout Override
+   Aligns the summary section to the same full width as the entry grid panel
+   ========================================================================== */
+.billing-split-summary-layout.split-two-equal {
+    grid-template-columns: 1fr 1fr;
 }
 
 .summary-left-card-block {
@@ -1304,4 +1333,110 @@ body {
 
 .hms-modal-close-x:hover {
     color: #ffffff;
+}
+
+
+/* Billling  Styling */
+
+/* Custom Dashboard Matrix Adjustments */
+.dashboard-billing-grid {
+    gap: 24px !important;
+    align-items: start !important;
+}
+
+.dashboard-module-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-search-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-top: 4px solid #0056b3 !important;
+}
+
+.dashboard-card-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* Horizontal Line Breakdown Styling */
+.dashboard-separator {
+    border: 0;
+    height: 1px;
+    background: #e2e8f0;
+    margin: 0 0 20px 0;
+}
+
+/* Nav Item Grid Containers */
+.dashboard-links-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.m-bottom-16 {
+    margin-bottom: 16px;
+}
+
+/* Box Nav Links */
+.dashboard-nav-box {
+    text-align: center;
+    justify-content: center !important;
+    padding: 16px 8px !important;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.dashboard-nav-box:hover {
+    border-color: #0056b3 !important;
+    background-color: #f8fafc;
+}
+
+.dashboard-nav-box i {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 1.25rem;
+}
+
+/* Color Theme Helpers */
+.icon-primary {
+    color: #0056b3;
+}
+
+.icon-danger {
+    color: #e74c3c;
+}
+
+.required-indicator {
+    color: #e74c3c;
+}
+
+/* Search Bar Alignments */
+.search-input-flex-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.search-input-flex-group .hms-form-input {
+    flex: 1;
+    margin: 0 !important;
+}
+
+.search-execute-btn {
+    white-space: nowrap;
+    padding: 0 20px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: auto;
 }

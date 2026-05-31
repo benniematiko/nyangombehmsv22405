@@ -11,11 +11,12 @@ urlpatterns = [
     # CRITICAL ADDITION: This explicitly registers the 'dashboard' namespace
     path('dashboard/', include('dashboard.urls')),  
     path('pharmacy/', include('pharmacy.urls')), 
+    path('billing/', include('billing.urls')),
+    path('opd/', include('opd.urls')),
+    path('laboratory/', include('laboratory.urls')),
 
-    # path('laboratory/', include('laboratory.urls')),
-    # path('opd/', include('opd.urls')),
+    
     # path('ipd/', include('ipd.urls')),
-    # path('billing/', include('billing.urls')),
     # path('expenses/', include('expenses.urls')),
     # path('appointments/', include('appointments.urls')),
     # path('radiology/', include('radiology.urls')),

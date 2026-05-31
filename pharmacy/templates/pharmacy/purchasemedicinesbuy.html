@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %} Generate Pharmacy Bill | Eagles Mission Hospital{% endblock %}
+{% block content %}
+
+<div class="billing-canvas-container">
+  <form method="POST" id="purchaseMedicineForm" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <!-- Top Action Bar -->
+    <div class="billing-top-action-bar">
+      <div class="billing-left-inputs">
+        <div class="billing-header-field-group purchase-supplier-group">
+          <label for="supplier_select">Supplier <span>*</span></label>
+          <select id="supplier_select" name="supplier" class="billing-header-input" required>
+            <option value="" disabled selected>Select Supplier from Registry...</option>
+          </select>
+        </div>
+      </div>
+      <a href="{% url 'pharmacy:purchasemedicines' %}" class="btn-header-close-route" title="Close Page">
+        <i class="fa fa-times"></i>
+      </a>
+    </div>
+
+    <!-- Main Workspace Content Body -->
+    <div class="billing-content-body-wrapper">
+        
+      <!-- Metadata Header Area -->
+      <div class="billing-meta-metrics-row split-two-equal">
+        <div class="meta-metric-pill">Purchase No: <strong>-- Auto Generated --</strong></div>
+        <div class="meta-metric-pill">Date & Time: <strong>31/05/2026 12:45 EAT</strong></div>
+      </div>
+
+      <!-- 12-Column High Density Purchase Form Entry Grid -->
+      <div class="medicine-entry-grid-panel">
+        <div class="entry-inputs-flex-row purchase-single-ledger-row">
+            
+          <div class="field-input-wrapper">
+            <label for="med_category">Medicine Category <span>*</span></label>
+            <select id="med_category" name="med_category[]" class="hms-form-select" required>
+              <option value="" disabled selected>Select...</option>
+            </select>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="med_name">Medicine Name <span>*</span></label>
+            <select id="med_name" name="med_name[]" class="hms-form-select" required>
+              <option value="" disabled selected>Select...</option>
+            </select>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="batch_no">Batch No <span>*</span></label>
+            <input type="text" id="batch_no" name="batch_no[]" class="hms-form-input" placeholder="Batch No" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="expiry_date">Expiry Date <span>*</span></label>
+            <input type="date" id="expiry_date" name="expiry_date[]" class="hms-form-input" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="mrp">MRP (shs) <span>*</span></label>
+            <input type="number" id="mrp" name="mrp[]" step="0.01" class="hms-form-input text-right" placeholder="0.00" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="batch_amount">Batch Amt (shs)</label>
+            <input type="number" id="batch_amount" name="batch_amount[]" step="0.01" class="hms-form-input text-right" placeholder="0.00">
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="sale_price">Sale Price (shs) <span>*</span></label>
+            <input type="number" id="sale_price" name="sale_price[]" step="0.01" class="hms-form-input text-right" placeholder="0.00" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="packing_qty">Pkg Qty <span>*</span></label>
+            <input type="number" id="packing_qty" name="packing_qty[]" class="hms-form-input" placeholder="10" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="quantity">Qty <span>*</span></label>
+            <input type="number" id="quantity" name="quantity[]" class="hms-form-input" placeholder="Qty" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="purchase_price">Purc. Price (shs) <span>*</span></label>
+            <input type="number" id="purchase_price" name="purchase_price[]" step="0.01" class="hms-form-input text-right" placeholder="0.00" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="tax">Tax (%) <span>*</span></label>
+            <input type="number" id="tax" name="tax_percent[]" step="0.01" class="hms-form-input" placeholder="%" required>
+          </div>
+
+          <div class="field-input-wrapper">
+            <label for="amount">Amount (shs) <span>*</span></label>
+            <input type="number" id="amount" name="row_amount[]" step="0.01" class="hms-form-input text-right financial-input-element" placeholder="0.00" readonly>
+          </div>
+
+          <!-- Column 13: Action Controls -->
+          <div class="field-input-wrapper alignment-control-wrapper">
+            <button type="button" class="btn-row-remove" title="Remove Row">
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Dynamic Appendix Trigger Row -->
+        <!-- <div class="entry-actions-row-toolbar">
+          <button type="button" class="btn-append-row">
+            <i class="fa fa-plus"></i> Add Item To Ledger
+          </button>
+        </div> -->
+      </div>
+
+      <!-- Split Summary Financial Dashboard Area -->
+      <div class="billing-split-summary-layout split-two-equal">
+          
+        <!-- Left Side Remarks Block -->
+        <div class="summary-left-card-block">
+          <div class="field-input-wrapper no-margin">
+            <label for="purchase_note">Note</label>
+            <textarea id="purchase_note" name="purchase_note" class="hms-form-textarea" rows="4" placeholder="Enter purchase order specifications or remarks..."></textarea>
+          </div>
+          
+          <div class="field-input-wrapper margin-top-16">
+            <label for="document_attachment">Attach Document</label>
+            <input type="file" id="document_attachment" name="document_attachment" class="hms-form-input">
+          </div>
+        </div>
+
+        <!-- Right Side Financial Calculation Column -->
+        <div class="summary-right-ledger-card">
+          <div class="financial-ledger-stack">
+            <div class="financial-row-item">
+              <label for="total_amount">Total (shs)</label>
+              <input type="number" id="total_amount" name="total_amount" class="hms-form-input text-right financial-input-element" value="0.00" readonly>
+            </div>
+
+            <div class="financial-row-item">
+              <label for="discount_amount">Discount (shs)</label>
+              <input type="number" id="discount_amount" name="discount_amount" step="0.01" class="hms-form-input text-right" placeholder="0.00">
+            </div>
+
+            <div class="financial-row-item">
+              <label for="tax_summary">Tax (shs)</label>
+              <input type="number" id="tax_summary" name="tax_summary" class="hms-form-input text-right financial-input-element" value="0.00" readonly>
+            </div>
+
+            <div class="financial-row-item">
+              <label for="net_amount" class="bold-label">Net Amount (shs)</label>
+              <input type="number" id="net_amount" name="net_amount" class="hms-form-input text-right financial-input-element net-total-box" value="0.00" readonly>
+            </div>
+
+            <div class="financial-row-item">
+                <label for="payment_mode">Payment Mode</label>
+                <select id="payment_mode" name="payment_mode" class="hms-form-select financial-input-element">
+                    <option value="Cash">Cash</option>
+                    <option value="M-Pesa">M-Pesa</option>
+                    <option value="Bank">Bank</option>
+                </select>
+                </div>
+
+                <div class="financial-row-item">
+                <label for="payment_amount">Payment Amount (shs)</label>
+                <input type="number" id="payment_amount" name="payment_amount" step="0.01" class="hms-form-input financial-input-element" placeholder="0.00">
+            </div>
+
+            <div class="financial-row-item">
+              <label for="payment_note">Payment Note</label>
+              <input type="text" id="payment_note" name="payment_note" class="hms-form-input" placeholder="Ref no etc.">
+            </div>
+          </div>
+
+          <!-- Terminal Execution Strip -->
+          <div class="billing-terminal-action-row full-width-terminal">
+            <button type="submit" class="btn-terminal-save">
+              <i class="fa fa-save"></i> Save Purchase Entry
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Collapse sidebar and expand content area to full canvas width
+    const masterGridContainer = document.querySelector('.grid');
+    if (masterGridContainer) {
+      masterGridContainer.classList.add('full-canvas-view');
+    }
+  });
+</script>
+
+{% endblock %}

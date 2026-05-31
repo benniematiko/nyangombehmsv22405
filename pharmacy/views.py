@@ -22,3 +22,8 @@ def add_medicines(request):
 
 def purchase_medicines(request):
     return render(request, 'pharmacy/purchasemedicines.html')
+
+
+
+def purchase_medicines_buy(request):
+    return render(request, 'pharmacy/purchasemedicinesbuy.html')

@@ -1,3 +1,4 @@
 from django.shortcuts import render
 
-# Create your views here.
+def appointments_home(request):
+    return render(request, 'appointments/appointments.html')

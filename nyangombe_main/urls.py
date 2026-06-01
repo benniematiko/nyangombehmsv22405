@@ -13,14 +13,12 @@ urlpatterns = [
     path('pharmacy/', include('pharmacy.urls')), 
     path('billing/', include('billing.urls')),
     path('opd/', include('opd.urls')),
-    path('laboratory/', include('laboratory.urls')),
+    path('laboratory/', include('laboratory.urls')),    
+    path('ipd/', include('ipd.urls')),
+    path('appointments/', include('appointments.urls')),
+    path('radiology/', include('radiology.urls')),
 
-    
-    # path('ipd/', include('ipd.urls')),
     # path('expenses/', include('expenses.urls')),
-    # path('appointments/', include('appointments.urls')),
-    # path('radiology/', include('radiology.urls')),
-
 
 ]
 

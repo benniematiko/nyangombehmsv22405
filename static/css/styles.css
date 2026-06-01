@@ -850,6 +850,154 @@ body {
     cursor: default;
 }
 
+
+
+
+/* Added styles +++++++++++++++++++++++++++++++++++++++++ */
+
+
+/* ==========================================================================
+   Eagles Mission Hospital - Pharmacy Dynamic Table Styles
+   ========================================================================== */
+
+/* Table Row Actions Anchor Mechanics */
+.hms-billing-log-table tbody tr {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.hms-billing-log-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Row Inline Specific Overrides */
+.case-id-cell {
+    font-weight: 600;
+}
+
+.patient-name-text {
+    font-weight: 700;
+}
+
+.financial-digits-bold {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.financial-digits-paid {
+    color: #16a34a;
+}
+
+.balance-cell {
+    font-weight: 600;
+}
+
+.empty-table-placeholder {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+}
+
+/* Message Alert Rails Styles */
+.hms-alert-container {
+    margin: 0 0 20px 0;
+}
+
+.hms-alert-banner {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.alert-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.alert-success {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #7dd3fc;
+}
+
+/* ==========================================================================
+   Hover Popover Context Overlay Engine
+   ========================================================================== */
+
+.row-hover-popover {
+    display: none;
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 4px;
+    white-space: nowrap;
+}
+
+/* Trigger Visibility Handler Matrix */
+.hms-billing-log-table tbody tr:hover .row-hover-popover {
+    display: inline-flex;
+    display: -webkit-flex;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+/* Popover Element Micro Buttons */
+.popover-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.popover-btn-view {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.popover-btn-view:hover {
+    background: #dbeafe;
+}
+
+.popover-btn-show {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.popover-btn-show:hover {
+    background: #dcfce7;
+}
+
+.popover-btn-print {
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+.popover-btn-print:hover {
+    background: #f1f5f9;
+}
+
+
+
+
+
 /* ==========================================================================
    5. HIGH-DENSITY DYNAMIC BILL GENERATION INTERFACE STYLES
    ========================================================================== */
@@ -1439,4 +1587,107 @@ body {
     align-items: center;
     gap: 8px;
     height: auto;
+}
+
+
+
+/* billing page added styles for box links */
+
+
+/* Container for the dynamic module link sections */
+.dashboard-links-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px; /* Spacing between the card boxes */
+}
+
+.m-bottom-16 {
+    margin-bottom: 16px;
+}
+
+/* Re-engineered Box Nav Link Squares */
+.dashboard-nav-box {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+    /* Lock structural dimensional square constraints */
+    width: 140px !important;
+    height: 140px !important;
+    
+    /* Clean visible border outlines */
+    border: 1px solid #cbd5e1 !important; 
+    /* border-radius: 4px !important; */
+    background-color: #ffffff;
+    
+    padding: 24px !important;
+    text-decoration: none;
+    color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+/* Hover State Interactions */
+.dashboard-nav-box:hover {
+    border-color: #0056b3 !important;
+    background-color: #f8fafc;
+    box-shadow: 0 4px 12px rgba(0, 86, 179, 0.08);
+    transform: translateY(-2px);
+}
+
+/* Typography & Icon layout scales within squares */
+.dashboard-nav-box i {
+    display: block;
+    font-size: 2.5rem; /* Large high-contrast icon look */
+    margin-bottom: 16px;
+}
+
+.dashboard-nav-box strong {
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Color Identity Helpers */
+.icon-primary {
+    color: #0056b3;
+}
+
+.icon-danger {
+    color: #e74c3c;
+}
+
+
+/* right column styling on billing page */
+/* Strict horizontal track configuration */
+.hms-inline-search-container {
+    display: grid !important;
+    /* Column 1: Fit label precisely | Column 2: Stretch input | Column 3: Fit button precisely */
+    grid-template-columns: max-content 1fr max-content !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Explicit styling overrides to guarantee single line rendering */
+.hms-inline-search-container .inline-label {
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.hms-inline-search-container .inline-input {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.hms-inline-search-container .inline-btn {
+    margin: 0 !important;
+    white-space: nowrap !important;
 }

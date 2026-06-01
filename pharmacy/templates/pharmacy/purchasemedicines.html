@@ -47,7 +47,7 @@
     </div>
 
     <div class="table-fixed-container">
-      <table class="hms-table hms-purchase-table">
+      <table class="hms-table hms-purchase-table hms-billing-log-table">
         <thead>
           <tr>
             <th>Pharmacy Purchase No</th>
@@ -61,45 +61,45 @@
           </tr>
         </thead>
         <tbody>
+          {% for purchase in purchases %}
           <tr>
-            <td><strong>PUR-2026-001</strong></td>
-            <td>28/05/2026</td>
-            <td><span class="badge-bill">BL-99321</span></td>
-            <td>Beta Healthcare Kenya</td>
-            <td class="text-right qty-bold">120,000.00</td>
-            <td class="text-right qty-bold">19,200.00</td>
-            <td class="text-right qty-bold">5,000.00</td>
-            <td class="text-right qty-bold">134,200.00</td>
+            <td><strong>{{ purchase.purchase_number }}</strong></td>
+            <td>{{ purchase.purchase_date|date:"d/m/Y" }}</td>
+            <td><span class="badge-bill">{{ purchase.supplier_bill_number }}</span></td>
+            <td title="{{ purchase.supplier_name }}">{{ purchase.supplier_name }}</td>
+            <td class="text-right qty-bold financial-digits">{{ purchase.total_amount }}</td>
+            <td class="text-right qty-bold financial-digits">{{ purchase.tax_amount }}</td>
+            <td class="text-right qty-bold financial-digits">{{ purchase.discount_amount }}</td>
+            <td class="text-right qty-bold financial-digits-bold balance-cell">
+              {{ purchase.net_amount }}
+              
+              <div class="row-hover-popover">
+                <a href="#" class="popover-btn popover-btn-view" title="View Purchase Details">
+                  <i class="fa fa-eye"></i> View
+                </a>
+                <a href="#" class="popover-btn popover-btn-show" title="Show Inventory Receipt">
+                  <i class="fa fa-folder-open"></i> Show
+                </a>
+                <button type="button" class="popover-btn popover-btn-print" title="Print Invoice" onclick="window.print(); event.stopPropagation();">
+                  <i class="fa fa-print"></i> Print
+                </button>
+              </div>
+            </td>
           </tr>
-          
+          {% empty %}
           <tr>
-            <td><strong>PUR-2026-002</strong></td>
-            <td>29/05/2026</td>
-            <td><span class="badge-bill">INV-44012</span></td>
-            <td>Cosmos Limited</td>
-            <td class="text-right qty-bold">85,500.00</td>
-            <td class="text-right qty-bold">13,680.00</td>
-            <td class="text-right qty-bold">0.00</td>
-            <td class="text-right qty-bold">99,180.00</td>
+            <td colspan="8" class="empty-table-placeholder">
+              No medical supply purchase histories found in the database.
+            </td>
           </tr>
-
-          <tr>
-            <td><strong>PUR-2026-003</strong></td>
-            <td>30/05/2026</td>
-            <td><span class="badge-bill">GSK-8831</span></td>
-            <td>GlaxoSmithKline East Africa</td>
-            <td class="text-right qty-bold">210,000.00</td>
-            <td class="text-right qty-bold">33,600.00</td>
-            <td class="text-right qty-bold">15,000.00</td>
-            <td class="text-right qty-bold">228,600.00</td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
 
     <div class="ledger-pagination-row">
       <div class="pagination-counter-info">
-        Records: <strong>1</strong> to <strong>10</strong> of <strong>412</strong>
+        Records: <strong>1</strong> to <strong>{{ purchases.count }}</strong> of <strong>{{ purchases.count }}</strong>
       </div>
       
       <div class="pagination-nav-controls">
@@ -108,14 +108,10 @@
         
         <div class="page-numeric-links">
           <button type="button" class="btn-page-num active-page">1</button>
-          <button type="button" class="btn-page-num">2</button>
-          <button type="button" class="btn-page-num">3</button>
-          <span class="page-ellipsis-spacer">...</span>
-          <button type="button" class="btn-page-num">42</button>
         </div>
 
-        <button type="button" class="btn-page-nav" title="Next Page"><i class="fa fa-angle-right"></i></button>
-        <button type="button" class="btn-page-nav" title="Last Page"><i class="fa fa-angle-double-right"></i></button>
+        <button type="button" class="btn-page-nav" title="Next Page" disabled><i class="fa fa-angle-right"></i></button>
+        <button type="button" class="btn-page-nav" title="Last Page" disabled><i class="fa fa-angle-double-right"></i></button>
       </div>
     </div>
 

@@ -19,8 +19,8 @@ body {
    ========================================================================== */
 .grid {
     display: grid;
-    grid-template-columns: 14% 1fr; /* 260px Fixed Nav Left | 1fr Fills Remaining Canvas */
-    grid-template-rows: auto 1fr auto; /* Header | Content Body | Footer */
+    grid-template-columns: 14% 1fr;
+    grid-template-rows: auto 1fr auto;
     grid-template-areas:
         "header header"
         "sidebar content"
@@ -29,7 +29,6 @@ body {
     width: 100%;
 }
 
-/* Header Grid Row Anchor */
 .header {
     grid-area: header;
     background-color: #1e293b;
@@ -40,16 +39,14 @@ body {
     align-items: center;
 }
 
-/* Content Panel Grid Frame - Forced to fill 100% of remaining space */
 .content {
     grid-area: content;
     background-color: #f8fafc;
     width: 100%;
     box-sizing: border-box;
-    padding: 0; /* Cleared out restricting spaces so dashboard drops directly to the edge */
+    padding: 0;
 }
 
-/* Footer Grid Row Anchor */
 .footer {
     grid-area: footer;
     background-color: #ffffff;
@@ -60,7 +57,6 @@ body {
     color: #64748b;
 }
 
-/* Responsive adjustments if the navigation drops down */
 @media (max-width: 768px) {
     .grid {
         grid-template-columns: 1fr;
@@ -75,8 +71,6 @@ body {
 /* ==========================================================================
    3. Isolated Elegant Portal Layouts (Landing Page & Login Architecture)
    ========================================================================== */
-
-/* Structural Layout Centering Engines */
 .landing-page-body, .login-page-body {
     display: flex;
     justify-content: center;
@@ -88,7 +82,6 @@ body {
     padding: 20px;
 }
 
-/* Core Panel Container Box Shared Configuration */
 .portal-card {
     background: #ffffff;
     padding: 3rem 2.5rem;
@@ -97,7 +90,7 @@ body {
     text-align: center;
     max-width: 440px;
     width: 100%;
-    border-top: 4px solid #810810; /* System signature crimson accent color */
+    border-top: 4px solid #810810;
     transition: transform 0.3s ease;
 }
 
@@ -122,11 +115,10 @@ body {
     line-height: 1.6;
 }
 
-/* Index / Landing Page Specific Entry Button */
 .btn-enter {
     display: inline-block;
     text-decoration: none;
-    background-color: #810810; /* System signature crimson accent color */
+    background-color: #810810;
     color: #ffffff;
     border-radius: 6px;
     padding: 0.85rem 2.5rem;
@@ -143,7 +135,6 @@ body {
     box-shadow: 0 6px 16px rgba(129, 8, 16, 0.25);
 }
 
-/* Login Form Controls */
 .login-wrapper {
     display: flex;
     justify-content: center;
@@ -206,7 +197,7 @@ body {
 }
 
 /* ==========================================================================
-   4. High-Density Asymmetric Dashboard System (30% Left / 70% Right)
+   4. High-Density Asymmetric Dashboard System
    ========================================================================== */
 .hms-dashboard-fullwidth {
     width: 100%;
@@ -217,7 +208,6 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Base Headings Layout Elements */
 .dash-meta-header {
     display: flex;
     justify-content: space-between;
@@ -254,7 +244,6 @@ body {
     gap: 6px;
 }
 
-/* Comprehensive Departmental Matrix Grid Layout */
 .hms-financial-matrix-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -263,14 +252,12 @@ body {
     box-sizing: border-box;
 }
 
-/* Clickable Interface Wrapper Component Link Actions */
 .dashboard-clickable-tile-wrapper {
     text-decoration: none !important;
     display: block;
     outline: none;
 }
 
-/* Base Financial Matrix Mini Tiles Layout */
 .mini-tile {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -284,7 +271,6 @@ body {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Elegant Static Icon Box Frameworks */
 .tile-icon-box {
     width: 48px;
     height: 48px;
@@ -297,23 +283,10 @@ body {
     transition: transform 0.25s ease;
 }
 
-/* Custom Individual Icon Background Styles */
-.tile-blue-gradient .tile-icon-box {
-    background-color: #f0fdf4; /* Very soft emerald tint */
-    color: #16a34a;
-}
+.tile-blue-gradient .tile-icon-box  { background-color: #f0fdf4; color: #16a34a; }
+.tile-red-gradient .tile-icon-box   { background-color: #fef2f2; color: #dc2626; }
+.tile-green-gradient .tile-icon-box { background-color: #eff6ff; color: #2563eb; }
 
-.tile-red-gradient .tile-icon-box {
-    background-color: #fef2f2; /* Soft red tint */
-    color: #dc2626;
-}
-
-.tile-green-gradient .tile-icon-box {
-    background-color: #eff6ff; /* Soft blue tint */
-    color: #2563eb;
-}
-
-/* Left Accent Strip Fallbacks to match original theme accents */
 .mini-tile::after {
     content: '';
     position: absolute;
@@ -324,11 +297,10 @@ body {
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
 }
-.tile-blue-gradient::after { background-color: #810810; }
-.tile-red-gradient::after { background-color: #ef4444; }
+.tile-blue-gradient::after  { background-color: #810810; }
+.tile-red-gradient::after   { background-color: #ef4444; }
 .tile-green-gradient::after { background-color: #10b981; }
 
-/* Structural Text Configurations inside the Row */
 .tile-body {
     display: flex;
     flex-direction: column;
@@ -352,11 +324,10 @@ body {
     letter-spacing: -0.3px;
 }
 
-/* Minimalist Clean Hover Interface Interaction */
 .dashboard-clickable-tile-wrapper:hover .mini-tile {
     transform: translateY(-4px);
     border-color: #cbd5e1;
-    box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.06), 
+    box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.06),
                 0 4px 6px -2px rgba(15, 23, 42, 0.03);
 }
 
@@ -368,39 +339,34 @@ body {
    Sidebar Workspace Framework Component Layouts
    ========================================================================== */
 .sidebar {
-    background-color: #1e293b;
-    color: #94a3b8;
+    background-color: #f8fafc;
+    color: black;
     height: 100vh;
     position: sticky;
     top: 0;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    border-right: 0.2px solid #334155;
-}
-
-.sidebar-brand {
-    padding: 24px;
-    background-color: #0f172a;
-    border-bottom: 1px solid #1e293b;
+    border-right: 1px solid #e2e8f0;
 }
 
 .sidebar-brand h2 {
-    color: #ffffff;
+    color: #881414;
     font-size: 20px;
     font-weight: 700;
     letter-spacing: 0.5px;
     margin: 0;
+    padding: 24px;
 }
 
-.sidebar-menu {
-    list-style-type: none;
-    padding: 12px 0;
-    margin: 0;
+.sidebar-menu { 
+    list-style-type: none; 
+    padding: 0 0 12px 0;  
+    margin: 0; 
 }
 
-.sidebar-menu li {
-    padding: 2px 0;
+.sidebar-menu li { 
+    padding: 2px 0; 
 }
 
 .sidebar-menu a {
@@ -408,7 +374,7 @@ body {
     align-items: center;
     gap: 14px;
     padding: 11px 16px;
-    color: #94a3b8; 
+    color: black;
     text-decoration: none;
     font-size: 14px;
     border-radius: 0;
@@ -420,44 +386,28 @@ body {
     font-size: 16px;
     width: 20px;
     text-align: center;
-    color: #94a3b8;
+    color: #475569;
     transition: color 0.2s ease-in-out;
 }
 
-.sidebar-menu a:hover {
-    background-color: #810810;
-    color: #ffffff;
-}
-
-.sidebar-menu a:hover i {
-    color: #ffffff;
-}
-
+.sidebar-menu a:hover,
 .sidebar-menu a.active {
     background-color: #810810;
     color: #ffffff;
 }
 
+.sidebar-menu a:hover i,
 .sidebar-menu a.active i {
     color: #ffffff;
 }
 
-.sidebar::-webkit-scrollbar {
-    width: 5px;
-}
-.sidebar::-webkit-scrollbar-track {
-    background: #1e293b;
-}
-.sidebar::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 10px;
-}
+.sidebar::-webkit-scrollbar       { width: 5px; }
+.sidebar::-webkit-scrollbar-track { background: #f1f5f9; }
+.sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
 /* ==========================================================================
    PHARMACY APPLICATION COMPONENT STYLES
    ========================================================================== */
-
-/* Main Base Layout Canvas Container */
 .pharmacy-container-layout {
     width: 100%;
     padding: 20px;
@@ -467,7 +417,14 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Module Section Header Panel */
+/* Full width override for consistent layout */
+.template-fullwidth-override {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
 .pharmacy-panel-header {
     display: flex;
     justify-content: space-between;
@@ -487,17 +444,14 @@ body {
     gap: 8px;
 }
 
-.panel-title-group h1 i {
-    color: #810810;
+.panel-title-group h1 i { color: #810810; }
+
+.panel-subtitle { 
+    font-size: 12px; 
+    color: #64748b; 
+    margin: 4px 0 0 0;
 }
 
-.panel-subtitle {
-    font-size: 12px;
-    color: #64748b;
-    margin: 0;
-}
-
-/* Ledger Structural Card Body */
 .pharmacy-billing-section {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -509,7 +463,7 @@ body {
 }
 
 /* ==========================================================================
-   ROW 1 & ROW 2: ACTION AND UTILITY NAVIGATION BARS
+   ACTION AND UTILITY NAVIGATION BARS
    ========================================================================== */
 .ledger-action-row {
     display: flex !important;
@@ -543,7 +497,7 @@ body {
     background-color: #810810;
     color: #ffffff;
     border: none;
-    padding: 6px 12px;
+    padding: 6px 14px;
     font-size: 12px;
     font-weight: 600;
     border-radius: 4px;
@@ -555,8 +509,10 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.btn-hms-primary:hover {
+.btn-hms-primary:hover { 
     background-color: #61040a;
+    color: #ffffff;
+    text-decoration: none;
 }
 
 .btn-hms-secondary {
@@ -575,10 +531,7 @@ body {
     transition: all 0.2s ease;
 }
 
-.btn-hms-secondary:hover {
-    background-color: #e2e8f0;
-    color: #0f172a;
-}
+.btn-hms-secondary:hover { background-color: #e2e8f0; color: #0f172a; }
 
 .ledger-utility-row {
     display: flex;
@@ -609,6 +562,7 @@ body {
     border-radius: 4px;
     outline: none;
     color: #334155;
+    transition: all 0.2s ease;
 }
 
 .search-input-field:focus {
@@ -616,11 +570,7 @@ body {
     box-shadow: 0 0 0 2px rgba(129, 8, 16, 0.1);
 }
 
-.export-pagination-group {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
+.export-pagination-group { display: flex; align-items: center; gap: 16px; }
 
 .entries-dropdown-select {
     padding: 5px 8px;
@@ -632,9 +582,7 @@ body {
     outline: none;
 }
 
-.entries-dropdown-select:focus {
-    border-color: #810810;
-}
+.entries-dropdown-select:focus { border-color: #810810; }
 
 .export-icon-buttons-container {
     display: flex;
@@ -654,17 +602,11 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.btn-export-icon:last-child {
-    border-right: none;
-}
-
-.btn-export-icon:hover {
-    background-color: #f8fafc;
-    color: #810810;
-}
+.btn-export-icon:last-child { border-right: none; }
+.btn-export-icon:hover { background-color: #f8fafc; color: #810810; }
 
 /* ==========================================================================
-   HIGH-DENSITY NON-SCROLLABLE LEDGER SYSTEM (UPDATED FOR 8 & 10 COLUMN VIEWS)
+   HIGH-DENSITY LEDGER TABLE SYSTEM
    ========================================================================== */
 .table-fixed-container {
     width: 100%;
@@ -672,45 +614,177 @@ body {
     overflow-x: auto;
 }
 
+.containment-fullwidth {
+    width: 100% !important;
+    overflow-x: auto;
+}
+
+.table-element-fullwidth {
+    width: 100% !important;
+    min-width: 100%;
+}
+
 .hms-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
     font-size: 12px;
-    table-layout: fixed; /* Freezes browser width rendering constraints */
 }
 
-/* Strict Mathematical Ratio Splits Mapping exactly to 100% total viewport grid dimensions (Medicines Stock) */
-.hms-table th:nth-child(1), .hms-table td:nth-child(1) { width: 4%; }   /* Checkbox */
-.hms-table th:nth-child(2), .hms-table td:nth-child(2) { width: 22%; }  /* Medicine Name */
-.hms-table th:nth-child(3), .hms-table td:nth-child(3) { width: 16%; }  /* Medicine Company */
-.hms-table th:nth-child(4), .hms-table td:nth-child(4) { width: 18%; }  /* Medicine Composition */
-.hms-table th:nth-child(5), .hms-table td:nth-child(5) { width: 14%; }  /* Medicine Category */
-.hms-table th:nth-child(6), .hms-table td:nth-child(6) { width: 14%; }  /* Medicine Group */
-.hms-table th:nth-child(7), .hms-table td:nth-child(7) { width: 6%; }   /* Unit */
-.hms-table th:nth-child(8), .hms-table td:nth-child(8) { width: 10%; }  /* Available Qty */
+/* ==========================================================================
+   MEDICINE STOCK TABLE — Rebalanced column widths
+   ========================================================================== */
+.hms-table th:nth-child(1), .hms-table td:nth-child(1) { width: 4%; }
+.hms-table th:nth-child(2), .hms-table td:nth-child(2) { width: 20%; }
+.hms-table th:nth-child(3), .hms-table td:nth-child(3) { width: 14%; }
+.hms-table th:nth-child(4), .hms-table td:nth-child(4) { width: 15%; }
+.hms-table th:nth-child(5), .hms-table td:nth-child(5) { width: 11%; }
+.hms-table th:nth-child(6), .hms-table td:nth-child(6) { width: 12%; }
+.hms-table th:nth-child(7), .hms-table td:nth-child(7) { width: 6%; }
+.hms-table th:nth-child(8), .hms-table td:nth-child(8) { width: 18%; }
 
-/* Unique CSS mapping splits for the 8-Column Purchase History Log (Anti-Collision Modifier) */
-.hms-purchase-table th:nth-child(1), .hms-purchase-table td:nth-child(1) { width: 15%; } /* Purchase No */
-.hms-purchase-table th:nth-child(2), .hms-purchase-table td:nth-child(2) { width: 12%; } /* Purchase Date */
-.hms-purchase-table th:nth-child(3), .hms-purchase-table td:nth-child(3) { width: 11%; } /* Bill No */
-.hms-purchase-table th:nth-child(4), .hms-purchase-table td:nth-child(4) { width: 22%; } /* Supplier Name */
-.hms-purchase-table th:nth-child(5), .hms-purchase-table td:nth-child(5) { width: 10%; } /* Total (sh) */
-.hms-purchase-table th:nth-child(6), .hms-purchase-table td:nth-child(6) { width: 8%; }  /* Tax (sh) */
-.hms-purchase-table th:nth-child(7), .hms-purchase-table td:nth-child(7) { width: 10%; } /* Discount (sh) */
-.hms-purchase-table th:nth-child(8), .hms-purchase-table td:nth-child(8) { width: 12%; } /* Net Amount (sh) */
+/* ==========================================================================
+   PURCHASE HISTORY TABLE - ENHANCED STYLES
+   ========================================================================== */
+.hms-purchase-table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+}
 
-/* Specific Mathematical Ratio Splits for 10-Column Patient/Doctor Billing Ledger Views */
-.hms-billing-log-table th:nth-child(1), .hms-billing-log-table td:nth-child(1) { width: 8%; }  /* Bill No */
-.hms-billing-log-table th:nth-child(2), .hms-billing-log-table td:nth-child(2) { width: 8%; }  /* Case ID */
-.hms-billing-log-table th:nth-child(3), .hms-billing-log-table td:nth-child(3) { width: 10%; } /* Date */
-.hms-billing-log-table th:nth-child(4), .hms-billing-log-table td:nth-child(4) { width: 18%; } /* Patient Name */
-.hms-billing-log-table th:nth-child(5), .hms-billing-log-table td:nth-child(5) { width: 16%; } /* Doctor Name */
-.hms-billing-log-table th:nth-child(6), .hms-billing-log-table td:nth-child(6) { width: 8%; }  /* Discount */
-.hms-billing-log-table th:nth-child(7), .hms-billing-log-table td:nth-child(7) { width: 8%; }  /* Net Amt */
-.hms-billing-log-table th:nth-child(8), .hms-billing-log-table td:nth-child(8) { width: 8%; }  /* Paid Amt */
-.hms-billing-log-table th:nth-child(9), .hms-billing-log-table td:nth-child(9) { width: 8%; }  /* Refund */
-.hms-billing-log-table th:nth-child(10), .hms-billing-log-table td:nth-child(10) { width: 8%; }/* Balance */
+/* Column width definitions */
+.hms-purchase-table .col-purchase-no {
+    width: 13%;
+    min-width: 100px;
+}
+
+.hms-purchase-table .col-purchase-date {
+    width: 10%;
+    min-width: 85px;
+}
+
+.hms-purchase-table .col-bill-no {
+    width: 10%;
+    min-width: 80px;
+}
+
+.hms-purchase-table .col-supplier {
+    width: 22%;
+    min-width: 150px;
+}
+
+.hms-purchase-table .col-total {
+    width: 10%;
+    min-width: 85px;
+}
+
+.hms-purchase-table .col-tax {
+    width: 9%;
+    min-width: 75px;
+}
+
+.hms-purchase-table .col-discount {
+    width: 10%;
+    min-width: 85px;
+}
+
+.hms-purchase-table .col-net {
+    width: 16%;
+    min-width: 130px;
+}
+
+/* Header styling with multi-line support */
+.hms-purchase-table th {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    padding: 12px 8px;
+    border-bottom: 2px solid #cbd5e1;
+    vertical-align: middle;
+    line-height: 1.4;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+/* Allow header text to wrap naturally */
+.hms-purchase-table th br {
+    display: block;
+    content: "";
+    margin: 2px 0;
+}
+
+/* Cell styling */
+.hms-purchase-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Allow supplier name to wrap if needed */
+.hms-purchase-table .supplier-name-cell {
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 200px;
+    line-height: 1.4;
+}
+
+/* Purchase number styling */
+.purchase-number-cell strong {
+    color: #810810;
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+/* Balance cell with popover positioning */
+.hms-purchase-table td:last-child {
+    position: relative;
+    padding-right: 115px;
+}
+
+/* Hover popover for purchase table */
+.hms-purchase-table tbody tr {
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.hms-purchase-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.hms-purchase-table tbody tr:hover .row-hover-popover {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+/* Adjust popover position for purchase table */
+.hms-purchase-table .row-hover-popover {
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* ==========================================================================
+   BILLING LOG TABLE STYLES
+   ========================================================================== */
+.hms-billing-log-table th:nth-child(1),  .hms-billing-log-table td:nth-child(1)  { width: 8%; }
+.hms-billing-log-table th:nth-child(2),  .hms-billing-log-table td:nth-child(2)  { width: 8%; }
+.hms-billing-log-table th:nth-child(3),  .hms-billing-log-table td:nth-child(3)  { width: 10%; }
+.hms-billing-log-table th:nth-child(4),  .hms-billing-log-table td:nth-child(4)  { width: 18%; }
+.hms-billing-log-table th:nth-child(5),  .hms-billing-log-table td:nth-child(5)  { width: 16%; }
+.hms-billing-log-table th:nth-child(6),  .hms-billing-log-table td:nth-child(6)  { width: 8%; }
+.hms-billing-log-table th:nth-child(7),  .hms-billing-log-table td:nth-child(7)  { width: 8%; }
+.hms-billing-log-table th:nth-child(8),  .hms-billing-log-table td:nth-child(8)  { width: 8%; }
+.hms-billing-log-table th:nth-child(9),  .hms-billing-log-table td:nth-child(9)  { width: 8%; }
+.hms-billing-log-table th:nth-child(10), .hms-billing-log-table td:nth-child(10) { width: 8%; }
 
 .hms-table th {
     background-color: #f1f5f9;
@@ -728,50 +802,46 @@ body {
     border-bottom: 1px solid #e2e8f0;
     color: #334155;
     vertical-align: middle;
-    /* Active Text Truncation Safety Valves */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.hms-table tbody tr:hover {
-    background-color: #f8fafc;
+.hms-table tbody tr:hover { background-color: #f8fafc; }
+
+/* Table micro-utilities */
+.text-right    { text-align: right; }
+.qty-bold      { font-weight: 700; color: #0f172a; font-family: monospace; font-size: 13px; }
+.badge-bill    { 
+    background-color: #e0f2fe; 
+    color: #0369a1; 
+    padding: 3px 8px; 
+    border-radius: 4px; 
+    font-weight: 700; 
+    font-family: monospace; 
+    font-size: 11px; 
+    display: inline-block;
+    white-space: nowrap;
+}
+.balance-clear { color: #16a34a; font-weight: 600; }
+.balance-due   { color: #dc2626; font-weight: 600; }
+
+/* Financial digits styling */
+.financial-digits {
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: -0.3px;
 }
 
-/* Micro Utilities and Financial/Quantity Formatting Rules */
-.text-right {
-    text-align: right;
-}
-
-.qty-bold {
+.financial-digits-bold {
     font-weight: 700;
     color: #0f172a;
     font-family: monospace;
-    font-size: 13px;
-}
-
-.badge-bill {
-    background-color: #e0f2fe;
-    color: #0369a1;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: 700;
-    font-family: monospace;
-    font-size: 11px;
-}
-
-.balance-clear {
-    color: #16a34a;
-    font-weight: 600;
-}
-
-.balance-due {
-    color: #dc2626;
-    font-weight: 600;
+    font-size: 12px;
 }
 
 /* ==========================================================================
-   LEDGER PAGINATION DASHBOARD LAYOUT
+   LEDGER PAGINATION
    ========================================================================== */
 .ledger-pagination-row {
     display: flex;
@@ -782,27 +852,10 @@ body {
     border-top: 1px solid #e2e8f0;
 }
 
-.pagination-counter-info {
-    font-size: 12px;
-    color: #475569;
-}
-
-.pagination-counter-info strong {
-    color: #0f172a;
-    font-weight: 600;
-}
-
-.pagination-nav-controls {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.page-numeric-links {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
+.pagination-counter-info        { font-size: 12px; color: #475569; }
+.pagination-counter-info strong { color: #0f172a; font-weight: 600; }
+.pagination-nav-controls        { display: flex; align-items: center; gap: 6px; }
+.page-numeric-links             { display: flex; align-items: center; gap: 4px; }
 
 .btn-page-nav, .btn-page-num {
     background-color: #ffffff;
@@ -813,19 +866,21 @@ body {
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 28px;
     height: 28px;
     box-sizing: border-box;
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 
 .btn-page-nav:not([disabled]):hover, .btn-page-num:hover {
     background-color: #f1f5f9;
     border-color: #94a3b8;
     color: #0f172a;
+    text-decoration: none;
 }
 
 .btn-page-num.active-page {
@@ -843,65 +898,54 @@ body {
     cursor: not-allowed;
 }
 
-.page-ellipsis-spacer {
-    font-size: 12px;
-    color: #64748b;
-    padding: 0 4px;
-    cursor: default;
+.page-ellipsis-spacer { font-size: 12px; color: #64748b; padding: 0 4px; cursor: default; }
+
+.pagination-nav-controls a.btn-page-nav,
+.pagination-nav-controls a.btn-page-num {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-
-
-
-/* Added styles +++++++++++++++++++++++++++++++++++++++++ */
-
+.pagination-nav-controls a.btn-page-nav:hover,
+.pagination-nav-controls a.btn-page-num:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+    text-decoration: none;
+}
 
 /* ==========================================================================
-   Eagles Mission Hospital - Pharmacy Dynamic Table Styles
+   PHARMACY DYNAMIC TABLE ROW & POPOVER STYLES
    ========================================================================== */
-
-/* Table Row Actions Anchor Mechanics */
 .hms-billing-log-table tbody tr {
     position: relative;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
-.hms-billing-log-table tbody tr:hover {
-    background-color: #f8fafc;
-}
+.hms-billing-log-table tbody tr:hover { background-color: #f8fafc; }
 
-/* Row Inline Specific Overrides */
-.case-id-cell {
-    font-weight: 600;
-}
-
-.patient-name-text {
-    font-weight: 700;
-}
-
-.financial-digits-bold {
-    font-weight: 600;
-    color: #0f172a;
-}
-
-.financial-digits-paid {
-    color: #16a34a;
-}
-
-.balance-cell {
-    font-weight: 600;
-}
+.case-id-cell          { font-weight: 600; }
+.patient-name-text     { font-weight: 700; }
+.financial-digits-paid { color: #16a34a; }
+.balance-cell          { font-weight: 600; }
 
 .empty-table-placeholder {
     text-align: center;
     padding: 40px;
     color: #94a3b8;
+    font-size: 13px;
 }
 
-/* Message Alert Rails Styles */
-.hms-alert-container {
-    margin: 0 0 20px 0;
+.empty-table-placeholder i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.hms-alert-container { 
+    margin: 0 0 20px 0; 
 }
 
 .hms-alert-banner {
@@ -911,22 +955,10 @@ body {
     font-weight: 500;
 }
 
-.alert-danger {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fca5a5;
-}
+.alert-danger  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.alert-success { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
 
-.alert-success {
-    background: #e0f2fe;
-    color: #0369a1;
-    border: 1px solid #7dd3fc;
-}
-
-/* ==========================================================================
-   Hover Popover Context Overlay Engine
-   ========================================================================== */
-
+/* Hover Popover */
 .row-hover-popover {
     display: none;
     position: absolute;
@@ -942,16 +974,12 @@ body {
     white-space: nowrap;
 }
 
-/* Trigger Visibility Handler Matrix */
 .hms-billing-log-table tbody tr:hover .row-hover-popover {
-    display: inline-flex;
-    display: -webkit-flex;
     display: flex;
     gap: 4px;
     align-items: center;
 }
 
-/* Popover Element Micro Buttons */
 .popover-btn {
     padding: 6px 12px;
     font-size: 0.8rem;
@@ -966,37 +994,42 @@ body {
     transition: all 0.15s ease;
 }
 
-.popover-btn-view {
-    background: #eff6ff;
-    color: #2563eb;
+.popover-btn-view  { background: #eff6ff; color: #2563eb; }
+.popover-btn-view:hover  { background: #dbeafe; }
+.popover-btn-show  { background: #f0fdf4; color: #16a34a; }
+.popover-btn-show:hover  { background: #dcfce7; }
+.popover-btn-print { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
+.popover-btn-print:hover { background: #f1f5f9; }
+
+/* ==========================================================================
+   PURCHASE MEDICINE FORM - ROW STYLES
+   ========================================================================== */
+#medicine-ledger-rows .purchase-single-ledger-row {
+    margin-bottom: 16px;
 }
 
-.popover-btn-view:hover {
-    background: #dbeafe;
+#medicine-ledger-rows .purchase-single-ledger-row label {
+    display: none;
 }
 
-.popover-btn-show {
-    background: #f0fdf4;
-    color: #16a34a;
+#medicine-ledger-rows .purchase-single-ledger-row:first-child label {
+    display: block;
+    margin-bottom: 6px;
 }
 
-.popover-btn-show:hover {
-    background: #dcfce7;
+#medicine-ledger-rows .purchase-single-ledger-row:first-child .alignment-control-wrapper {
+    margin-top: 24px; 
 }
 
-.popover-btn-print {
-    background: #f8fafc;
-    color: #475569;
-    border: 1px solid #cbd5e1;
+#medicine-ledger-rows .purchase-single-ledger-row .alignment-control-wrapper {
+    display: flex;
+    align-items: center;
+    height: 100%;
 }
 
-.popover-btn-print:hover {
-    background: #f1f5f9;
+.purchase-single-ledger-row {
+    grid-template-columns: repeat(12, 1fr) 40px;
 }
-
-
-
-
 
 /* ==========================================================================
    5. HIGH-DENSITY DYNAMIC BILL GENERATION INTERFACE STYLES
@@ -1025,11 +1058,7 @@ body {
     box-sizing: border-box;
 }
 
-.billing-content-body-wrapper {
-    padding: 20px;
-    width: 100%;
-    box-sizing: border-box;
-}
+.billing-content-body-wrapper { padding: 20px; width: 100%; box-sizing: border-box; }
 
 .billing-left-inputs {
     display: flex;
@@ -1067,9 +1096,7 @@ body {
     transition: all 0.2s ease;
 }
 
-.billing-header-input::placeholder {
-    color: #fda4af;
-}
+.billing-header-input::placeholder { color: #fda4af; }
 
 .billing-header-input:focus {
     background-color: #ffffff;
@@ -1093,9 +1120,7 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.btn-header-action-add:hover {
-    background-color: #ffe4e6;
-}
+.btn-header-action-add:hover { background-color: #ffe4e6; }
 
 .btn-header-close-route {
     background: transparent;
@@ -1111,10 +1136,7 @@ body {
     transition: transform 0.2s ease;
 }
 
-.btn-header-close-route:hover {
-    transform: scale(1.15);
-    color: #fecdd3;
-}
+.btn-header-close-route:hover { transform: scale(1.15); color: #fecdd3; }
 
 .billing-meta-metrics-row {
     background-color: #ffffff;
@@ -1128,16 +1150,8 @@ body {
     box-sizing: border-box;
 }
 
-.meta-metric-pill {
-    font-size: 12px;
-    color: #475569;
-}
-
-.meta-metric-pill strong {
-    color: #0f172a;
-    font-weight: 700;
-    margin-left: 4px;
-}
+.meta-metric-pill { font-size: 12px; color: #475569; }
+.meta-metric-pill strong { color: #0f172a; font-weight: 700; margin-left: 4px; }
 
 .medicine-entry-grid-panel {
     background: #ffffff;
@@ -1153,35 +1167,19 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    overflow-x: auto; /* Allow horizontal scroll if viewport is very narrow */
+    overflow-x: auto;
 }
 
 .entry-inputs-flex-row {
     display: grid;
-    grid-template-columns: repeat(8, 1fr) 40px; /* Default: 8-column pharmacy bill layout */
+    grid-template-columns: repeat(8, 1fr) 40px;
     gap: 8px;
     align-items: end;
     width: 100%;
 }
 
-/* ==========================================================================
-   PURCHASE MEDICINE FORM — 12-COLUMN SINGLE ROW OVERRIDE
-   Forces all 12 fields + remove button into one non-wrapping horizontal row
-   ========================================================================== */
-.purchase-single-ledger-row {
-    grid-template-columns: repeat(12, 1fr) 40px;
-}
-
-.field-input-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.alignment-control-wrapper {
-    justify-content: flex-end;
-    align-items: center;
-}
+.field-input-wrapper { display: flex; flex-direction: column; gap: 4px; }
+.alignment-control-wrapper { justify-content: flex-end; align-items: center; }
 
 .field-input-wrapper label {
     font-size: 11px;
@@ -1192,9 +1190,7 @@ body {
     overflow: hidden;
 }
 
-.field-input-wrapper label span {
-    color: #dc2626;
-}
+.field-input-wrapper label span { color: #dc2626; }
 
 .hms-form-select, .hms-form-input, .hms-form-textarea {
     width: 100%;
@@ -1279,10 +1275,6 @@ body {
     align-items: start;
 }
 
-/* ==========================================================================
-   PURCHASE PAGE — Equal 50/50 Summary Layout Override
-   Aligns the summary section to the same full width as the entry grid panel
-   ========================================================================== */
 .billing-split-summary-layout.split-two-equal {
     grid-template-columns: 1fr 1fr;
 }
@@ -1302,9 +1294,7 @@ body {
     margin-bottom: 14px;
 }
 
-.summary-left-card-block .field-input-wrapper {
-    margin-top: 12px;
-}
+.summary-left-card-block .field-input-wrapper { margin-top: 12px; }
 
 .summary-right-ledger-card {
     background: #ffffff;
@@ -1314,12 +1304,7 @@ body {
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
 }
 
-.financial-ledger-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 16px;
-}
+.financial-ledger-stack { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 
 .financial-row-item {
     display: grid;
@@ -1327,16 +1312,8 @@ body {
     align-items: center;
 }
 
-.financial-row-item label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #475569;
-}
-
-.financial-input-element {
-    text-align: right;
-    font-weight: 600;
-}
+.financial-row-item label { font-size: 12px; font-weight: 600; color: #475569; }
+.financial-input-element  { text-align: right; font-weight: 600; }
 
 .financial-input-element:read-only {
     font-family: monospace;
@@ -1368,9 +1345,7 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.btn-terminal-save-print:hover {
-    background-color: #0f172a;
-}
+.btn-terminal-save-print:hover { background-color: #0f172a; }
 
 .btn-terminal-save {
     background-color: #810810;
@@ -1387,12 +1362,67 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.btn-terminal-save:hover {
-    background-color: #61040a;
+.btn-terminal-save:hover { background-color: #61040a; }
+
+/* ==========================================================================
+   STOCK LEVEL DISPLAY & STATUS BADGE SYSTEM
+   ========================================================================== */
+.stock-level-display {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+.badge-status-alert {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+.status-reorder-critical {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fee2e2;
+}
+
+.status-reorder {
+    background-color: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.status-danger-alert {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fee2e2;
+}
+
+.qty-count-zero    { color: #ef4444; font-weight: 700; }
+.qty-count-warning { color: #d97706; font-weight: 700; }
+.qty-count-optimal { color: #0f172a; }
+
+.hms-table th:first-child,
+.checkbox-fit-cell {
+    width: 1%;
+    white-space: nowrap;
+    padding-right: 4px !important;
+}
+
+.hms-table th:nth-child(2),
+.hms-table td:nth-child(2) {
+    padding-left: 12px !important;
 }
 
 /* ==========================================================================
-   6. FULL-SCREEN CANVAS LAYOUT OVERRIDES (NO SIDEBAR SYSTEM)
+   6. FULL-SCREEN CANVAS LAYOUT OVERRIDES (NO SIDEBAR)
    ========================================================================== */
 .grid.full-canvas-view {
     grid-template-columns: 1fr !important;
@@ -1409,7 +1439,7 @@ body {
 }
 
 /* ==========================================================================
-   7. MODAL DIALOG DISPLAY FRAMEWORK COMPONENT
+   7. MODAL DIALOG FRAMEWORK
    ========================================================================== */
 .hms-modal-overlay {
     position: fixed;
@@ -1428,10 +1458,7 @@ body {
     transition: opacity 0.25s ease-in-out;
 }
 
-.hms-modal-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-}
+.hms-modal-overlay.active { opacity: 1; pointer-events: auto; }
 
 .hms-modal-card {
     background: #ffffff;
@@ -1444,9 +1471,7 @@ body {
     transition: transform 0.25s ease-in-out;
 }
 
-.hms-modal-overlay.active .hms-modal-card {
-    transform: translateY(0);
-}
+.hms-modal-overlay.active .hms-modal-card { transform: translateY(0); }
 
 .hms-modal-header {
     background-color: #810810;
@@ -1479,18 +1504,90 @@ body {
     transition: color 0.2s ease;
 }
 
-.hms-modal-close-x:hover {
+.hms-modal-close-x:hover { color: #ffffff; }
+
+.hms-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(90vh - 120px);
+}
+
+.hms-modal-footer {
+    padding: 14px 20px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.btn-modal-primary {
+    background-color: #810810;
     color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
 }
 
+.btn-modal-primary:hover { background-color: #61040a; }
 
-/* Billling  Styling */
-
-/* Custom Dashboard Matrix Adjustments */
-.dashboard-billing-grid {
-    gap: 24px !important;
-    align-items: start !important;
+.btn-modal-secondary {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
+
+.btn-modal-secondary:hover { background-color: #e2e8f0; color: #0f172a; }
+
+.modal-row-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.modal-row-three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.modal-row-demographics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.modal-row-insurance {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.modal-age-subgrid-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.modal-age-field       { text-align: center; }
+.modal-photo-input     { padding: 4px 8px; font-size: 11px; }
+
+/* ==========================================================================
+   8. BILLING MODULE DASHBOARD & NAV BOX STYLES
+   ========================================================================== */
+.dashboard-billing-grid { gap: 24px !important; align-items: start !important; }
 
 .dashboard-module-card {
     background: #ffffff;
@@ -1504,81 +1601,71 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    border-top: 4px solid #0056b3 !important;
+    border-top: 4px solid #810810 !important;
 }
 
-.dashboard-card-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #2c3e50;
-    font-weight: 600;
-}
+.dashboard-card-header h3 { margin: 0; font-size: 1.2rem; color: #1e293b; font-weight: 600; }
 
-/* Horizontal Line Breakdown Styling */
-.dashboard-separator {
-    border: 0;
-    height: 1px;
-    background: #e2e8f0;
-    margin: 0 0 20px 0;
-}
+.dashboard-separator { border: 0; height: 1px; background: #e2e8f0; margin: 0 0 20px 0; }
 
-/* Nav Item Grid Containers */
+.m-bottom-16 { margin-bottom: 16px; }
+.m-bottom-24 { margin-bottom: 24px; }
+
+/* ==========================================================================
+   DASHBOARD MODULE NAV BOX SQUARES (140px × 140px)
+   ========================================================================== */
 .dashboard-links-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
-.m-bottom-16 {
-    margin-bottom: 16px;
-}
-
-/* Box Nav Links */
 .dashboard-nav-box {
-    text-align: center;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
     justify-content: center !important;
-    padding: 16px 8px !important;
+    width: 140px !important;
+    height: 140px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background-color: #ffffff;
+    padding: 24px !important;
     text-decoration: none;
-    color: inherit;
-    transition: all 0.2s ease-in-out;
+    color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: all 0.25s ease-in-out;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .dashboard-nav-box:hover {
-    border-color: #0056b3 !important;
-    background-color: #f8fafc;
+    border-color: #810810 !important;
+    background-color: #fff8f8;
+    box-shadow: 0 4px 12px rgba(129, 8, 16, 0.08);
+    transform: translateY(-2px);
 }
 
-.dashboard-nav-box i {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 1.25rem;
-}
+.dashboard-nav-box i      { display: block; font-size: 1.6rem; margin-bottom: 10px; }
+.dashboard-nav-box strong { font-size: 0.8rem; font-weight: 600; text-align: center; color: #1e293b; line-height: 1.3; }
 
-/* Color Theme Helpers */
-.icon-primary {
-    color: #0056b3;
-}
+/* ==========================================================================
+   COLOR IDENTITY & INDICATOR HELPERS
+   ========================================================================== */
+.icon-primary       { color: #810810; }
+.icon-danger        { color: #e74c3c; }
+.required-indicator { color: #dc2626; }
 
-.icon-danger {
-    color: #e74c3c;
-}
-
-.required-indicator {
-    color: #e74c3c;
-}
-
-/* Search Bar Alignments */
+/* ==========================================================================
+   INLINE SEARCH BAR
+   ========================================================================== */
 .search-input-flex-group {
     display: flex;
     gap: 8px;
     margin-top: 6px;
 }
 
-.search-input-flex-group .hms-form-input {
-    flex: 1;
-    margin: 0 !important;
-}
+.search-input-flex-group .hms-form-input { flex: 1; margin: 0 !important; }
 
 .search-execute-btn {
     white-space: nowrap;
@@ -1589,83 +1676,8 @@ body {
     height: auto;
 }
 
-
-
-/* billing page added styles for box links */
-
-
-/* Container for the dynamic module link sections */
-.dashboard-links-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px; /* Spacing between the card boxes */
-}
-
-.m-bottom-16 {
-    margin-bottom: 16px;
-}
-
-/* Re-engineered Box Nav Link Squares */
-.dashboard-nav-box {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    
-    /* Lock structural dimensional square constraints */
-    width: 140px !important;
-    height: 140px !important;
-    
-    /* Clean visible border outlines */
-    border: 1px solid #cbd5e1 !important; 
-    /* border-radius: 4px !important; */
-    background-color: #ffffff;
-    
-    padding: 24px !important;
-    text-decoration: none;
-    color: #334155;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-    transition: all 0.25s ease-in-out;
-    cursor: pointer;
-    box-sizing: border-box;
-}
-
-/* Hover State Interactions */
-.dashboard-nav-box:hover {
-    border-color: #0056b3 !important;
-    background-color: #f8fafc;
-    box-shadow: 0 4px 12px rgba(0, 86, 179, 0.08);
-    transform: translateY(-2px);
-}
-
-/* Typography & Icon layout scales within squares */
-.dashboard-nav-box i {
-    display: block;
-    font-size: 2.5rem; /* Large high-contrast icon look */
-    margin-bottom: 16px;
-}
-
-.dashboard-nav-box strong {
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-align: center;
-}
-
-/* Color Identity Helpers */
-.icon-primary {
-    color: #0056b3;
-}
-
-.icon-danger {
-    color: #e74c3c;
-}
-
-
-/* right column styling on billing page */
-/* Strict horizontal track configuration */
 .hms-inline-search-container {
     display: grid !important;
-    /* Column 1: Fit label precisely | Column 2: Stretch input | Column 3: Fit button precisely */
     grid-template-columns: max-content 1fr max-content !important;
     align-items: center !important;
     gap: 12px !important;
@@ -1673,21 +1685,70 @@ body {
     box-sizing: border-box;
 }
 
-/* Explicit styling overrides to guarantee single line rendering */
-.hms-inline-search-container .inline-label {
-    margin: 0 !important;
-    padding: 0 !important;
-    white-space: nowrap !important;
-    font-size: 0.95rem;
-    font-weight: 600;
+.hms-inline-search-container .inline-label { margin: 0 !important; padding: 0 !important; white-space: nowrap !important; font-size: 0.95rem; font-weight: 600; }
+.hms-inline-search-container .inline-input { width: 100% !important; margin: 0 !important; }
+.hms-inline-search-container .inline-btn   { margin: 0 !important; white-space: nowrap !important; }
+
+/* ==========================================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+@media (max-width: 1200px) {
+    .hms-purchase-table .col-supplier {
+        min-width: 120px;
+    }
+    
+    .hms-purchase-table .col-net {
+        min-width: 150px;
+    }
+    
+    .hms-purchase-table td:last-child {
+        padding-right: 100px;
+    }
 }
 
-.hms-inline-search-container .inline-input {
-    width: 100% !important;
-    margin: 0 !important;
+@media (max-width: 992px) {
+    .containment-fullwidth {
+        overflow-x: auto;
+    }
+    
+    .hms-purchase-table {
+        min-width: 900px;
+    }
 }
 
-.hms-inline-search-container .inline-btn {
-    margin: 0 !important;
-    white-space: nowrap !important;
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+@media print {
+    .ledger-action-row,
+    .ledger-utility-row,
+    .ledger-pagination-row,
+    .row-hover-popover,
+    .btn-hms-primary,
+    .btn-hms-secondary,
+    .export-icon-buttons-container,
+    .search-wrapper-block,
+    .sidebar,
+    .header,
+    .footer {
+        display: none !important;
+    }
+    
+    .pharmacy-billing-section {
+        padding: 0;
+        border: none;
+    }
+    
+    .hms-purchase-table th,
+    .hms-purchase-table td {
+        border: 1px solid #ddd;
+    }
+    
+    .grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .content {
+        padding: 0 !important;
+    }
 }

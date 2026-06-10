@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %} Pharmacy Purchase History | Eagles Mission Hospital{% endblock %}
+{% block title %} Pharmacy Purchase History | Eagles Mission Hospital {% endblock %}
 {% block content %}
 
-<div class="pharmacy-container-layout">
+<div class="pharmacy-container-layout template-fullwidth-override">
   
   <div class="pharmacy-panel-header">
     <div class="panel-title-group">
@@ -11,14 +11,23 @@
     </div>
   </div>
 
+  {% if messages %}
+    <div class="hms-alert-container">
+      {% for message in messages %}
+        <div class="hms-alert-banner {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
   <div class="pharmacy-billing-section">
     
     <div class="ledger-action-row">
       <h2>Medicines Purchase List</h2>
-
-      <div class="ledger-btn-group">         
-        <a href="{% url 'pharmacy:purchasemedicinesbuy' %}" class="btn-hms-secondary">         
-          <i class="fa fa-shopping-cart"></i> Purchase Medicine     
+      <div class="ledger-btn-group">
+        <a href="{% url 'pharmacy:purchasemedicinesbuy' %}" class="btn-hms-primary">
+          <i class="fa fa-plus-circle"></i> Purchase Medicine
         </a>
       </div>
     </div>
@@ -46,42 +55,43 @@
       </div>
     </div>
 
-    <div class="table-fixed-container">
-      <table class="hms-table hms-purchase-table hms-billing-log-table">
+    <div class="table-fixed-container containment-fullwidth">
+      <table class="hms-table hms-purchase-table table-element-fullwidth">
         <thead>
           <tr>
-            <th>Pharmacy Purchase No</th>
-            <th>Purchase Date</th>
-            <th>Bill No</th>
-            <th>Supplier Name</th>
-            <th class="text-right">Total (sh)</th>
-            <th class="text-right">Tax (sh)</th>
-            <th class="text-right">Discount (sh)</th>
-            <th class="text-right">Net Amount (sh)</th>
+            <th class="col-purchase-no">Pharmacy<br>Purchase No</th>
+            <th class="col-purchase-date">Purchase<br>Date</th>
+            <th class="col-bill-no">Bill No</th>
+            <th class="col-supplier">Supplier Name</th>
+            <th class="col-total text-right">Total<br>(sh)</th>
+            <th class="col-tax text-right">Tax<br>(sh)</th>
+            <th class="col-discount text-right">Discount<br>(sh)</th>
+            <th class="col-net text-right">Net Amount<br>(sh)</th>
           </tr>
         </thead>
         <tbody>
           {% for purchase in purchases %}
           <tr>
-            <td><strong>{{ purchase.purchase_number }}</strong></td>
+            <td class="purchase-number-cell"><strong>{{ purchase.purchase_number }}</strong></td>
             <td>{{ purchase.purchase_date|date:"d/m/Y" }}</td>
             <td><span class="badge-bill">{{ purchase.supplier_bill_number }}</span></td>
-            <td title="{{ purchase.supplier_name }}">{{ purchase.supplier_name }}</td>
-            <td class="text-right qty-bold financial-digits">{{ purchase.total_amount }}</td>
-            <td class="text-right qty-bold financial-digits">{{ purchase.tax_amount }}</td>
-            <td class="text-right qty-bold financial-digits">{{ purchase.discount_amount }}</td>
-            <td class="text-right qty-bold financial-digits-bold balance-cell">
-              {{ purchase.net_amount }}
+            <td class="supplier-name-cell" title="{{ purchase.supplier.name }}">{{ purchase.supplier.name|truncatechars:30 }}</td>
+            
+            <td class="text-right qty-bold financial-digits">{{ purchase.total_amount|floatformat:2 }}</td>
+            <td class="text-right qty-bold financial-digits">{{ purchase.tax_amount|floatformat:2 }}</td>
+            <td class="text-right qty-bold financial-digits">{{ purchase.discount_amount|floatformat:2 }}</td>
+            <td class="text-right financial-digits-bold balance-cell">
+              {{ purchase.net_amount|floatformat:2 }}
               
               <div class="row-hover-popover">
                 <a href="#" class="popover-btn popover-btn-view" title="View Purchase Details">
-                  <i class="fa fa-eye"></i> View
+                  <i class="fa fa-eye"></i>
                 </a>
                 <a href="#" class="popover-btn popover-btn-show" title="Show Inventory Receipt">
-                  <i class="fa fa-folder-open"></i> Show
+                  <i class="fa fa-folder-open"></i> 
                 </a>
                 <button type="button" class="popover-btn popover-btn-print" title="Print Invoice" onclick="window.print(); event.stopPropagation();">
-                  <i class="fa fa-print"></i> Print
+                  <i class="fa fa-print"></i> 
                 </button>
               </div>
             </td>
@@ -89,7 +99,7 @@
           {% empty %}
           <tr>
             <td colspan="8" class="empty-table-placeholder">
-              No medical supply purchase histories found in the database.
+              <i class="fa fa-info-circle"></i> No medical supply purchase histories found in the database.
             </td>
           </tr>
           {% endfor %}
@@ -99,19 +109,34 @@
 
     <div class="ledger-pagination-row">
       <div class="pagination-counter-info">
-        Records: <strong>1</strong> to <strong>{{ purchases.count }}</strong> of <strong>{{ purchases.count }}</strong>
+        Showing <strong>{{ purchases.start_index|default:1 }}</strong> to <strong>{{ purchases.end_index|default:purchases.count }}</strong> of <strong>{{ purchases.count }}</strong> entries
       </div>
-      
       <div class="pagination-nav-controls">
-        <button type="button" class="btn-page-nav" title="First Page" disabled><i class="fa fa-angle-double-left"></i></button>
-        <button type="button" class="btn-page-nav" title="Previous Page" disabled><i class="fa fa-angle-left"></i></button>
+        {% if purchases.has_previous %}
+          <a href="?page=1" class="btn-page-nav" title="First Page"><i class="fa fa-angle-double-left"></i></a>
+          <a href="?page={{ purchases.previous_page_number }}" class="btn-page-nav" title="Previous Page"><i class="fa fa-angle-left"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-left"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-left"></i></button>
+        {% endif %}
         
         <div class="page-numeric-links">
-          <button type="button" class="btn-page-num active-page">1</button>
+          {% for num in purchases.paginator.page_range %}
+            {% if purchases.number == num %}
+              <button type="button" class="btn-page-num active-page">{{ num }}</button>
+            {% elif num > purchases.number|add:'-3' and num < purchases.number|add:'3' %}
+              <a href="?page={{ num }}" class="btn-page-num">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
         </div>
 
-        <button type="button" class="btn-page-nav" title="Next Page" disabled><i class="fa fa-angle-right"></i></button>
-        <button type="button" class="btn-page-nav" title="Last Page" disabled><i class="fa fa-angle-double-right"></i></button>
+        {% if purchases.has_next %}
+          <a href="?page={{ purchases.next_page_number }}" class="btn-page-nav" title="Next Page"><i class="fa fa-angle-right"></i></a>
+          <a href="?page={{ purchases.paginator.num_pages }}" class="btn-page-nav" title="Last Page"><i class="fa fa-angle-double-right"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-right"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-right"></i></button>
+        {% endif %}
       </div>
     </div>
 

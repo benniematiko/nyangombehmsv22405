@@ -14,14 +14,16 @@
   <div class="pharmacy-billing-section">
     
     <div class="ledger-action-row">
-      <h2>Pharmacy Bill</h2>
+      <h2>OPD Bill</h2>
       <div class="ledger-btn-group">
-        <a href="{% url 'pharmacy:pharmacygeneratebill' %}" class="btn-hms-primary">
-          <i class="fa fa-file-text-o"></i> Generate Bill
-        </a>
-        <a href="{% url 'pharmacy:pharmacymedicines' %}" class="btn-hms-secondary">        
-          <i class="fa fa-medkit"></i> Medicines      
-        </a>
+
+        
+        <a href="" class="btn-hms-primary">
+          <i class="fa fa-file-text-o"></i> + Add Patient
+        </a> 
+
+        
+
       </div>
     </div>
 
@@ -48,61 +50,46 @@
       </div>
     </div>
 
+    <div>
+      <a href="">OPD VIEW</a> |
+      <a href="">PATIENT VIEW</a>
+
+    </div>
+
+
+
     <div class="table-fixed-container">
       <table class="hms-table hms-billing-log-table">
         <thead>
           <tr>
-            <th>Bill No</th>
-            <th>Case ID</th>
-            <th>Date</th>
+            <th>OPD No</th>
             <th>Patient Name</th>
-            <th>Doctor Name</th>
-            <th class="text-right">Discount</th>
-            <th class="text-right">Net Amt</th>
-            <th class="text-right">Paid Amt</th>
-            <th class="text-right">Refund</th>
-            <th class="text-right">Balance</th>
+            <th>Case ID</th>
+            <th>Appointment Date</th>
+            <th>Consultant</th>
+            <th>Reference</th>
+            <th>Symptoms</th>
+            <th>Is Antenatal</th> 
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><span class="badge-bill">PH-26-001</span></td>
-            <td>CS-98421</td>
-            <td>28/05/2026</td>
-            <td title="Emmanuel Kiprop">Emmanuel Kiprop</td>
-            <td title="Dr. K. Omwamba">Dr. K. Omwamba</td>
-            <td class="text-right financial-digits">150.00</td>
-            <td class="text-right financial-digits">2,450.00</td>
-            <td class="text-right financial-digits">2,450.00</td>
-            <td class="text-right financial-digits">0.00</td>
-            <td class="text-right balance-clear">0.00</td>
-          </tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>         
           
-          <tr>
-            <td><span class="badge-bill">PH-26-002</span></td>
-            <td>CS-98455</td>
-            <td>28/05/2026</td>
-            <td title="Mary Atieno Onyango">Mary Atieno Onyango</td>
-            <td title="Dr. S. Nafula">Dr. S. Nafula</td>
-            <td class="text-right financial-digits">0.00</td>
-            <td class="text-right financial-digits">4,200.00</td>
-            <td class="text-right financial-digits">3,000.00</td>
-            <td class="text-right financial-digits">0.00</td>
-            <td class="text-right balance-due">1,200.00</td>
-          </tr>
+         
+          </tr>         
+         
 
-          <tr>
-            <td><span class="badge-bill">PH-26-003</span></td>
-            <td>CS-98490</td>
-            <td>28/05/2026</td>
-            <td title="David Mutua">David Mutua</td>
-            <td title="Dr. J. Njuguna">Dr. J. Njuguna</td>
-            <td class="text-right financial-digits">50.00</td>
-            <td class="text-right financial-digits">850.00</td>
-            <td class="text-right financial-digits">850.00</td>
-            <td class="text-right financial-digits">0.00</td>
-            <td class="text-right balance-clear">0.00</td>
-          </tr>
+          
         </tbody>
       </table>
     </div>

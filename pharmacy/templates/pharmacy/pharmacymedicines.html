@@ -59,7 +59,7 @@
     </div>
 
     <div class="table-fixed-container">
-      <table class="hms-table">
+      <table class="hms-table hms-billing-log-table">
         <thead>
           <tr>
             <th><input type="checkbox" id="selectAllLedgers"></th>
@@ -72,46 +72,65 @@
             <th class="text-right">Available Qty</th>
           </tr>
         </thead>
+        
+        
         <tbody>
+          {% for medicine in medicines %}
           <tr>
-            <td><input type="checkbox" class="ledger-checkbox" value="MED-001"></td>
-            <td><strong>Paracetamol 500mg</strong></td>
-            <td>Beta Healthcare</td>
-            <td>Acetaminophen</td>
-            <td>Analgesics</td>
-            <td>General OTC</td>
-            <td>Tablet</td>
-            <td class="text-right qty-bold">2,450</td>
-          </tr>
-          
-          <tr>
-            <td><input type="checkbox" class="ledger-checkbox" value="MED-002"></td>
-            <td><strong>Amoxicillin 500mg</strong></td>
-            <td>Cosmos Limited</td>
-            <td>Amoxicillin Trihydrate</td>
-            <td>Antibiotics</td>
-            <td>Prescription Only</td>
-            <td>Capsule</td>
-            <td class="text-right qty-bold">1,200</td>
-          </tr>
+            <td class="checkbox-fit-cell"><input type="checkbox" class="ledger-checkbox" value="MED-{{ medicine.id }}"></td>
+            <td><strong>{{ medicine.item_name }}</strong></td>
+            <td>{{ medicine.company_name }}</td>
+            <td>{{ medicine.generic_name|default:"—" }}</td>
+            <td>{{ medicine.category }}</td>
+            <td>{{ medicine.group }}</td>
+            <td>{{ medicine.unit_type }}</td>
+            
+            <td class="text-right qty-bold balance-cell">
+              <div class="stock-level-display">
+                
+                {% if medicine.is_out_of_stock %}
+                  <span class="badge-status-alert status-reorder-critical">Out of Stock, Reorder</span>
+                  <span class="qty-count-zero">0</span>
+                
+                {% elif medicine.needs_restock %}
+                  <span class="badge-status-alert status-reorder">Low Stock, Reorder</span>
+                  <span class="qty-count-warning">{{ medicine.quantity_in_stock }}</span>
+                
+                {% else %}
+                  <span class="qty-count-optimal">{{ medicine.quantity_in_stock }}</span>
+                {% endif %}
 
-          <tr>
-            <td><input type="checkbox" class="ledger-checkbox" value="MED-003"></td>
-            <td><strong>Cetirizine 10mg</strong></td>
-            <td>GlaxoSmithKline</td>
-            <td>Cetirizine Dihydrochloride</td>
-            <td>Antihistamines</td>
-            <td>General OTC</td>
-            <td>Tablet</td>
-            <td class="text-right qty-bold">850</td>
+              </div>
+
+              <div class="row-hover-popover">
+                <a href="#" class="popover-btn popover-btn-view" title="View Details">
+                  <i class="fa fa-eye"></i> 
+                </a>
+                <a href="#" class="popover-btn popover-btn-show" title="Show Stats">
+                  <i class="fa fa-folder-open"></i> 
+                </a>
+                <button type="button" class="popover-btn popover-btn-print" title="Print Info" onclick="window.print(); event.stopPropagation();">
+                  <i class="fa fa-print"></i> 
+                </button>
+              </div>
+            </td>
           </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="empty-table-placeholder">
+              No medicine inventory stock logs located in the database room sheets.
+            </td>
+          </tr>
+          {% endfor %}
         </tbody>
+
+
       </table>
     </div>
 
     <div class="ledger-pagination-row">
       <div class="pagination-counter-info">
-        Records: <strong>1</strong> to <strong>100</strong> of <strong>3,723</strong>
+        Records: <strong>1</strong> to <strong>{{ medicines.count }}</strong> of <strong>{{ medicines.count }}</strong>
       </div>
       
       <div class="pagination-nav-controls">
@@ -120,14 +139,10 @@
         
         <div class="page-numeric-links">
           <button type="button" class="btn-page-num active-page">1</button>
-          <button type="button" class="btn-page-num">2</button>
-          <button type="button" class="btn-page-num">3</button>
-          <span class="page-ellipsis-spacer">...</span>
-          <button type="button" class="btn-page-num">38</button>
         </div>
 
-        <button type="button" class="btn-page-nav" title="Next Page"><i class="fa fa-angle-right"></i></button>
-        <button type="button" class="btn-page-nav" title="Last Page"><i class="fa fa-angle-double-right"></i></button>
+        <button type="button" class="btn-page-nav" title="Next Page" disabled><i class="fa fa-angle-right"></i></button>
+        <button type="button" class="btn-page-nav" title="Last Page" disabled><i class="fa fa-angle-double-right"></i></button>
       </div>
     </div>
 
@@ -137,7 +152,7 @@
 <script>
   document.getElementById('selectAllLedgers').addEventListener('change', function() {
     const checkboxes = document.querySelectorAll('.ledger-checkbox');
-    checkboxes.forEach(cb => cb.checked = this.checked);
+    checkbox.forEach(cb => cb.checked = this.checked);
   });
 </script>
 

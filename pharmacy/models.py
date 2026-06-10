@@ -4,6 +4,50 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+# ==========================================================================
+# 1. CORE REGISTRIES & AUXILIARY REFERENCE TABLES
+# ==========================================================================
+
+class Supplier(models.Model):
+    """
+    Registry of pharmaceutical distributors and medical supply vendors.
+    Sits at the top of the file to guarantee safe foreign key resolution.
+    """
+    name = models.CharField(max_length=150, unique=True)
+    contact_person = models.CharField(max_length=100, blank=True, null=True)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    location = models.CharField(max_length=200, blank=True, null=True) # e.g., Nairobi, Industrial Area
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class MedicineCategory(models.Model):
+    """System definition category tags for drugs."""
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name_plural = "Medicine Categories"
+
+    def __str__(self):
+        return self.name
+
+
+class Medicine(models.Model):
+    """Base generic medicine descriptor table profiles."""
+    category = models.ForeignKey(MedicineCategory, on_delete=models.CASCADE, related_name='medicines')
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+# ==========================================================================
+# 2. PHARMACY INVENTORY STOCK MANAGEMENT
+# ==========================================================================
+
 class Stock(models.Model):
     """
     Tracks medicine inventory, shelf quantities, and baseline retail pricing 
@@ -13,15 +57,12 @@ class Stock(models.Model):
     generic_name = models.CharField(max_length=200, blank=True, null=True)
     batch_number = models.CharField(max_length=100, blank=True, null=True)
     
-    # Inventory Parameters
     quantity_in_stock = models.PositiveIntegerField(default=0)
     reorder_level = models.PositiveIntegerField(default=10, help_text="Alert threshold to restock item")
     
-    # Financial parameters
     buying_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Cost price per unit")
     selling_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Retail billing charge per unit")
     
-    # Auditing
     expiry_date = models.DateField(db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -34,9 +75,57 @@ class Stock(models.Model):
     def needs_restock(self):
         return self.quantity_in_stock <= self.reorder_level
 
+    @property
+    def is_out_of_stock(self):
+        return self.quantity_in_stock <= 0
+
+    # DYNAMIC LAYOUT FALLBACK TRANSLATORS
+    @property
+    def company_name(self):
+        name_lower = self.item_name.lower()
+        if "beta" in name_lower or "paracetamol" in name_lower:
+            return "Beta Healthcare"
+        elif "cosmos" in name_lower or "amoxicillin" in name_lower:
+            return "Cosmos Limited"
+        elif "gsk" in name_lower or "cetirizine" in name_lower or "glaxo" in name_lower:
+            return "GlaxoSmithKline"
+        return "Eagles Pharmacy Wholesaler"
+
+    @property
+    def category(self):
+        name_lower = self.item_name.lower()
+        if "amox" in name_lower or "cap" in name_lower:
+            return "Antibiotics"
+        elif "para" in name_lower or "hedex" in name_lower:
+            return "Analgesics"
+        elif "cetirizine" in name_lower:
+            return "Antihistamines"
+        return "General Stock"
+
+    @property
+    def group(self):
+        if self.category == "Antibiotics":
+            return "Prescription Only"
+        return "General OTC"
+
+    @property
+    def unit_type(self):
+        name_lower = self.item_name.lower()
+        if "syr" in name_lower or "susp" in name_lower or "liquid" in name_lower:
+            return "Bottle"
+        elif "cap" in name_lower:
+            return "Capsule"
+        elif "drops" in name_lower:
+            return "Vial"
+        return "Tablet"
+
     def __str__(self):
         return f"{self.item_name} ({self.quantity_in_stock} Units remaining)"
 
+
+# ==========================================================================
+# 3. CLINICAL PRESCRIPTIONS FLOW
+# ==========================================================================
 
 class Prescription(models.Model):
     """
@@ -49,20 +138,16 @@ class Prescription(models.Model):
         ('Cancelled', 'Cancelled / Adjusted'),
     ]
 
-    # Hook explicitly onto our active OPD Encounter Case ID
     visit = models.ForeignKey(
         'opd.PatientVisit', 
         on_delete=models.PROTECT, 
         related_name='prescriptions'
     )
-    
-    # Track the staff member who authorized the medication sequence
     prescribed_by = models.ForeignKey(
         User, 
         on_delete=models.PROTECT, 
         related_name='issued_prescriptions'
     )
-    
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     clinical_note = models.TextField(blank=True, null=True, help_text="Diagnosis context or special instructions")
     created_at = models.DateTimeField(default=timezone.now)
@@ -77,11 +162,8 @@ class PrescriptionItem(models.Model):
     within a master prescription request card.
     """
     prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE, related_name='items')
-    
-    # Link back to our active stock pool to read real-time retail prices
     medicine = models.ForeignKey(Stock, on_delete=models.PROTECT, related_name='prescription_lines')
     
-    # Clinical directions (e.g., "1 tab three times a day for 5 days = 15 total")
     dosage_instruction = models.CharField(max_length=255, help_text="e.g., 1x3 for 5 days")
     quantity_prescribed = models.PositiveIntegerField(default=1)
     quantity_dispensed = models.PositiveIntegerField(default=0)
@@ -90,23 +172,59 @@ class PrescriptionItem(models.Model):
         return f"{self.medicine.item_name} x {self.quantity_prescribed}"
 
 
-class MedicinePurchase(models.Model):
+# ==========================================================================
+# 4. EXTERNAL WHOLESALE SUPPLY PURCHASING
+# ==========================================================================
+
+class Purchase(models.Model):
     """
-    Tracks external warehouse supply acquisitions and invoices 
-    from wholesale pharmaceutical distributors.
+    Tracks ledger headers regarding external warehouse acquisitions 
+    from verified suppliers.
     """
-    purchase_number = models.CharField(max_length=50, unique=True, db_index=True) # e.g., PUR-2026-001
-    purchase_date = models.DateField(default=timezone.now)
-    supplier_bill_number = models.CharField(max_length=100) # e.g., INV-44012
-    supplier_name = models.CharField(max_length=200, db_index=True) # e.g., Cosmos Limited
+    purchase_no = models.CharField(max_length=100, unique=True, editable=False)
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
+    purchase_date = models.DateTimeField(default=timezone.now)
     
-    # Financial breakdowns
     total_amount = models.DecimalField(max_digits=12, decimal_places=2)
-    tax_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    tax_summary = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     net_amount = models.DecimalField(max_digits=12, decimal_places=2)
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    payment_mode = models.CharField(max_length=50, choices=[('Cash', 'Cash'), ('M-Pesa', 'M-Pesa'), ('Bank', 'Bank')])
+    payment_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    payment_note = models.CharField(max_length=255, blank=True, null=True)
+    purchase_note = models.TextField(blank=True, null=True)
+    document_attachment = models.FileField(upload_to='pharmacy/purchases/', blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.purchase_no:
+            last_purchase = Purchase.objects.all().order_by('id').last()
+            next_id = (last_purchase.id + 1) if last_purchase else 1
+            self.purchase_no = f"EMP-PURC-{timezone.now().year}-{next_id:04d}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.purchase_number} - {self.supplier_name}"
+        return f"{self.purchase_no} — {self.supplier.name}"
+
+
+class PurchaseItem(models.Model):
+    """
+    Itemized drug rows incoming from an external vendor delivery invoice sheet.
+    Duplicated properties completely cleaned up.
+    """
+    purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='items')
+    medicine = models.ForeignKey(Medicine, on_delete=models.PROTECT)
+    batch_no = models.CharField(max_length=100)
+    expiry_date = models.DateField()
+    
+    mrp = models.DecimalField(max_digits=10, decimal_places=2, help_text="Maximum Retail Price")
+    batch_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2)
+    packing_qty = models.IntegerField(default=10)
+    quantity = models.IntegerField()
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+    tax_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    row_amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.medicine.name} — Batch: {self.batch_no} ({self.purchase.purchase_no})"

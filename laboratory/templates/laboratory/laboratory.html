@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %} Pharmacy Management | Eagles Mission Hospital{% endblock %}
+{% block title %} Laboratory Management | Eagles Mission Hospital{% endblock %}
 {% block content %}
 
 <div class="pharmacy-container-layout">
@@ -14,13 +14,13 @@
   <div class="pharmacy-billing-section">
     
     <div class="ledger-action-row">
-      <h2>Pharmacy Bill</h2>
+      <h2>Laboratory Bill</h2>
       <div class="ledger-btn-group">
-        <a href="{% url 'pharmacy:pharmacygeneratebill' %}" class="btn-hms-primary">
-          <i class="fa fa-file-text-o"></i> Generate Bill
+        <a href="{% url 'laboratory:laboratorygeneratebill' %}" class="btn-hms-primary">
+          <i class="fa fa-file-text-o"></i> Generate a Bill
         </a>
-        <a href="{% url 'pharmacy:pharmacymedicines' %}" class="btn-hms-secondary">        
-          <i class="fa fa-medkit"></i> Medicines      
+        <a href="{% url 'laboratory:laboratorytestslist' %}" class="btn-hms-secondary">        
+          <i class="fa fa-medkit"></i> Laboratory Test  Lists      
         </a>
       </div>
     </div>

@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Stock, Prescription, PrescriptionItem
+from .models import Stock, Prescription, PrescriptionItem, Supplier
+
+
 
 class PrescriptionItemInline(admin.TabularInline):
     model = PrescriptionItem
@@ -25,3 +27,10 @@ class PrescriptionAdmin(admin.ModelAdmin):
     def get_patient_name(self, obj):
         return obj.visit.patient.full_name
     get_patient_name.short_description = 'Patient Name'
+
+
+
+@admin.register(Supplier)
+class SupplierAdmin(admin.ModelAdmin):
+    list_display = ('name', 'contact_person', 'phone_number', 'is_active')
+    search_fields = ('name', 'contact_person')

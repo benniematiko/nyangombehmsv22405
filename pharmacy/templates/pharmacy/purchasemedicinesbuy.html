@@ -2,17 +2,141 @@
 {% block title %} Generate Pharmacy Bill | Eagles Mission Hospital{% endblock %}
 {% block content %}
 
+<style>
+  /* Container Panel adjustments */
+  .medicine-entry-grid-panel {
+    width: 100%;
+    overflow-x: auto; /* Fallback horizontal scrollbar if screen is too narrow */
+    padding: 4px 0; /* Halved from 8px */
+  }
+
+  #medicine-ledger-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* Halved from 6px to bring rows closer vertically */
+    width: 100%;
+    min-width: 100%; /* Ensures fields don't smash into unreadable slivers on small screens */
+  }
+
+  /* Transform the ledger row into a single 100% width row layout */
+  .purchase-single-ledger-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end; /* Aligns all inputs perfectly at the baseline */
+    width: 100%;
+    gap: 3px; /* Halved from 6px to pull horizontal fields closer */
+    background: #fff;
+    padding: 2px 4px; /* Halved from 4px padding-top/bottom to make rows tight */
+    border-radius: 2px;
+  }
+
+  /* Tightly control each individual input field wrapper */
+  .purchase-single-ledger-row .field-input-wrapper {
+    flex: 1; /* Distribute available width evenly by default */
+    display: flex;
+    flex-direction: column;
+    margin: 0 !important; /* Override layout margins */
+  }
+
+  /* Tailor-fit column sizing based on estimated text length */
+  .purchase-single-ledger-row .field-input-wrapper:has(select[name="med_name[]"]) {
+    flex: 2; /* Give medicine name more breathing room */
+    min-width: 130px;
+  }
+
+  .purchase-single-ledger-row .field-input-wrapper:has(input[type="date"]) {
+    flex: 1.5; /* Give expiry date slightly more space for the native widget */
+    min-width: 110px;
+  }
+
+  .purchase-single-ledger-row .field-input-wrapper:has(input[name="mrp[]"]),
+  .purchase-single-ledger-row .field-input-wrapper:has(select[name="med_category[]"]), 
+  .purchase-single-ledger-row .field-input-wrapper:has(input[name="tax_percent[]"]),
+  .purchase-single-ledger-row .field-input-wrapper:has(input[name="quantity[]"]),
+  .purchase-single-ledger-row .field-input-wrapper:has(input[name="packing_qty[]"]) 
+  {
+    flex: 0.8; /* Shrink numeric quantities and tax fields */
+    min-width: 60px;
+  }
+
+  /* Action alignment button column (Fluid width) */
+  .purchase-single-ledger-row .alignment-control-wrapper {
+    flex: 0 0 auto !important; /* Do not grow or shrink button column */
+    width: auto; /* Hugs the natural width of the font symbol */
+    display: flex;
+    align-items: flex-end; /* Drop the symbol down to match baseline of input fields */
+    justify-content: center;
+    padding-bottom: 2px; /* Halved from 4px to align with tighter container padding */
+  }
+
+  /* Label Refinements for single-row dense layouts */
+  .purchase-single-ledger-row .field-input-wrapper label {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 1px; /* Halved from 3px to tuck labels closely over fields */
+    white-space: nowrap; /* Prevents text fragmentation onto multiple lines */
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: #4a5568;
+  }
+
+  /* Form element inputs density corrections */
+  .purchase-single-ledger-row .hms-form-input,
+  .purchase-single-ledger-row .hms-form-select {
+    width: 100% !important;
+    height: 32px; /* Uniform low-profile height */
+    padding: 2px 6px !important;
+    font-size: 13px !important;
+    box-sizing: border-box;
+  }
+
+  /* Minimalist Action Icon Configurations */
+  .btn-row-add, .btn-row-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto; /* Stripped away heavy 32px structural bounding boxes */
+    height: 32px; /* Retained height to lock vertical formatting grid alignment */
+    padding: 0 4px; /* Safe tracking padding */
+    background: transparent !important; /* Strips background colors */
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  /* Clean Green + Icon */
+  .btn-row-add {
+    color: #2e7d32;
+  }
+  .btn-row-add:hover { 
+    color: #1b5e20; 
+    transform: scale(1.15); /* Pop out effect on interactive hover */
+  }
+
+  /* Clean Red X Icon */
+  .btn-row-remove {
+    color: #c62828;
+  }
+  .btn-row-remove:hover { 
+    color: #b71c1c; 
+    transform: scale(1.15); /* Pop out effect on interactive hover */
+  }
+</style>
+
 <div class="billing-canvas-container">
   <form method="POST" id="purchaseMedicineForm" enctype="multipart/form-data">
     {% csrf_token %}
     
-    <!-- Top Action Bar -->
     <div class="billing-top-action-bar">
       <div class="billing-left-inputs">
         <div class="billing-header-field-group purchase-supplier-group">
           <label for="supplier_select">Supplier <span>*</span></label>
           <select id="supplier_select" name="supplier" class="billing-header-input" required>
             <option value="" disabled selected>Select Supplier from Registry...</option>
+            {% for supplier in suppliers %}
+              <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+            {% endfor %}
           </select>
         </div>
       </div>
@@ -21,104 +145,99 @@
       </a>
     </div>
 
-    <!-- Main Workspace Content Body -->
     <div class="billing-content-body-wrapper">
         
-      <!-- Metadata Header Area -->
       <div class="billing-meta-metrics-row split-two-equal">
-        <div class="meta-metric-pill">Purchase No: <strong>-- Auto Generated --</strong></div>
-        <div class="meta-metric-pill">Date & Time: <strong>31/05/2026 12:45 EAT</strong></div>
+        <div class="meta-metric-pill">Purchase | Bill No: <strong>{{ next_purchase_no }}</strong></div>
+       
+        <div class="meta-metric-pill">Date & Time: <strong>{% now "d/m/Y H:i" %} EAT</strong></div>
       </div>
 
-      <!-- 12-Column High Density Purchase Form Entry Grid -->
       <div class="medicine-entry-grid-panel">
-        <div class="entry-inputs-flex-row purchase-single-ledger-row">
-            
-          <div class="field-input-wrapper">
-            <label for="med_category">Medicine Category <span>*</span></label>
-            <select id="med_category" name="med_category[]" class="hms-form-select" required>
-              <option value="" disabled selected>Select...</option>
-            </select>
-          </div>
+        <div id="medicine-ledger-rows">
+          <div class="entry-inputs-flex-row purchase-single-ledger-row">
+              
+            <div class="field-input-wrapper">
+              <label>Medicine Category <span>*</span></label>
+              <select name="med_category[]" class="hms-form-select med-category-select" required>
+                <option value="" disabled selected>Select...</option>
+                {% for category in categories %}
+                  <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="med_name">Medicine Name <span>*</span></label>
-            <select id="med_name" name="med_name[]" class="hms-form-select" required>
-              <option value="" disabled selected>Select...</option>
-            </select>
-          </div>
+            <div class="field-input-wrapper">
+              <label>Medicine Name <span>*</span></label>
+              <select name="med_name[]" class="hms-form-select med-name-select" required>
+                <option value="" disabled selected>Select...</option>
+              </select>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="batch_no">Batch No <span>*</span></label>
-            <input type="text" id="batch_no" name="batch_no[]" class="hms-form-input" placeholder="Batch No" required>
-          </div>
+            <div class="field-input-wrapper">
+              <label>Batch No <span>*</span></label>
+              <input type="text" name="batch_no[]" class="hms-form-input" placeholder="Batch No" required>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="expiry_date">Expiry Date <span>*</span></label>
-            <input type="date" id="expiry_date" name="expiry_date[]" class="hms-form-input" required>
-          </div>
+            <div class="field-input-wrapper">
+              <label>Expiry Date <span>*</span></label>
+              <input type="date" name="expiry_date[]" class="hms-form-input" required>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="mrp">MRP (shs) <span>*</span></label>
-            <input type="number" id="mrp" name="mrp[]" step="0.01" class="hms-form-input text-right" placeholder="0.00" required>
-          </div>
+            <div class="field-input-wrapper">
+              <label>MRP (shs) <span>*</span></label>
+              <input type="number" name="mrp[]" step="0.01" class="hms-form-input text-right" placeholder="0.00" required>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="batch_amount">Batch Amt (shs)</label>
-            <input type="number" id="batch_amount" name="batch_amount[]" step="0.01" class="hms-form-input text-right" placeholder="0.00">
-          </div>
+            <div class="field-input-wrapper">
+              <label>Batch Amt (shs)</label>
+              <input type="number" name="batch_amount[]" step="0.01" class="hms-form-input text-right" placeholder="0.00">
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="sale_price">Sale Price (shs) <span>*</span></label>
-            <input type="number" id="sale_price" name="sale_price[]" step="0.01" class="hms-form-input text-right" placeholder="0.00" required>
-          </div>
+            <div class="field-input-wrapper">
+              <label>Sale Price (shs) <span>*</span></label>
+              <input type="number" name="sale_price[]" step="0.01" class="hms-form-input text-right" placeholder="0.00" required>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="packing_qty">Pkg Qty <span>*</span></label>
-            <input type="number" id="packing_qty" name="packing_qty[]" class="hms-form-input" placeholder="10" required>
-          </div>
+            <div class="field-input-wrapper">
+              <label>Pkg Qty <span>*</span></label>
+              <input type="number" name="packing_qty[]" class="hms-form-input" placeholder="10" required>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="quantity">Qty <span>*</span></label>
-            <input type="number" id="quantity" name="quantity[]" class="hms-form-input" placeholder="Qty" required>
-          </div>
+            <div class="field-input-wrapper">
+              <label>Qty <span>*</span></label>
+              <input type="number" name="quantity[]" class="hms-form-input row-qty" placeholder="Qty" required>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="purchase_price">Purc. Price (shs) <span>*</span></label>
-            <input type="number" id="purchase_price" name="purchase_price[]" step="0.01" class="hms-form-input text-right" placeholder="0.00" required>
-          </div>
+            <div class="field-input-wrapper">
+              <label>Purc. Price (shs) <span>*</span></label>
+              <input type="number" name="purchase_price[]" step="0.01" class="hms-form-input text-right row-purc-price" placeholder="0.00" required>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="tax">Tax (%) <span>*</span></label>
-            <input type="number" id="tax" name="tax_percent[]" step="0.01" class="hms-form-input" placeholder="%" required>
-          </div>
+            <div class="field-input-wrapper">
+              <label>Tax (%) <span>*</span></label>
+              <input type="number" name="tax_percent[]" step="0.01" class="hms-form-input row-tax" placeholder="%" value="0.00" required>
+            </div>
 
-          <div class="field-input-wrapper">
-            <label for="amount">Amount (shs) <span>*</span></label>
-            <input type="number" id="amount" name="row_amount[]" step="0.01" class="hms-form-input text-right financial-input-element" placeholder="0.00" readonly>
-          </div>
+            <div class="field-input-wrapper">
+              <label>Amount (shs) <span>*</span></label>
+              <input type="number" name="row_amount[]" step="0.01" class="hms-form-input text-right row-calculated-amount financial-input-element" placeholder="0.00" readonly>
+              
+               
+            </div>
 
-          <!-- Column 13: Action Controls -->
-          <div class="field-input-wrapper alignment-control-wrapper">
-            <button type="button" class="btn-row-remove" title="Remove Row">
-              <i class="fa fa-plus"></i>
-            </button>
-          </div>
+            <div class="field-input-wrapper alignment-control-wrapper">
+              <span type="button" class="btn-row-add" title="Add Row">
+                <i class="fa fa-plus"></i>
+              </span>
+            </div>
 
+          </div>
         </div>
-
-        <!-- Dynamic Appendix Trigger Row -->
-        <!-- <div class="entry-actions-row-toolbar">
-          <button type="button" class="btn-append-row">
-            <i class="fa fa-plus"></i> Add Item To Ledger
-          </button>
-        </div> -->
       </div>
 
-      <!-- Split Summary Financial Dashboard Area -->
       <div class="billing-split-summary-layout split-two-equal">
           
-        <!-- Left Side Remarks Block -->
         <div class="summary-left-card-block">
           <div class="field-input-wrapper no-margin">
             <label for="purchase_note">Note</label>
@@ -131,7 +250,6 @@
           </div>
         </div>
 
-        <!-- Right Side Financial Calculation Column -->
         <div class="summary-right-ledger-card">
           <div class="financial-ledger-stack">
             <div class="financial-row-item">
@@ -141,7 +259,7 @@
 
             <div class="financial-row-item">
               <label for="discount_amount">Discount (shs)</label>
-              <input type="number" id="discount_amount" name="discount_amount" step="0.01" class="hms-form-input text-right" placeholder="0.00">
+              <input type="number" id="discount_amount" name="discount_amount" step="0.01" class="hms-form-input text-right" value="0.00" placeholder="0.00">
             </div>
 
             <div class="financial-row-item">
@@ -155,17 +273,17 @@
             </div>
 
             <div class="financial-row-item">
-                <label for="payment_mode">Payment Mode</label>
-                <select id="payment_mode" name="payment_mode" class="hms-form-select financial-input-element">
-                    <option value="Cash">Cash</option>
-                    <option value="M-Pesa">M-Pesa</option>
-                    <option value="Bank">Bank</option>
-                </select>
-                </div>
+              <label for="payment_mode">Payment Mode</label>
+              <select id="payment_mode" name="payment_mode" class="hms-form-select financial-input-element">
+                <option value="Cash">Cash</option>
+                <option value="M-Pesa">M-Pesa</option>
+                <option value="Bank">Bank</option>
+              </select>
+            </div>
 
-                <div class="financial-row-item">
-                <label for="payment_amount">Payment Amount (shs)</label>
-                <input type="number" id="payment_amount" name="payment_amount" step="0.01" class="hms-form-input financial-input-element" placeholder="0.00">
+            <div class="financial-row-item">
+              <label for="payment_amount">Payment Amount (shs)</label>
+              <input type="number" id="payment_amount" name="payment_amount" step="0.01" class="hms-form-input financial-input-element" placeholder="0.00">
             </div>
 
             <div class="financial-row-item">
@@ -174,7 +292,6 @@
             </div>
           </div>
 
-          <!-- Terminal Execution Strip -->
           <div class="billing-terminal-action-row full-width-terminal">
             <button type="submit" class="btn-terminal-save">
               <i class="fa fa-save"></i> Save Purchase Entry
@@ -190,12 +307,138 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Collapse sidebar and expand content area to full canvas width
+    // 1. Force layout canvas full width
     const masterGridContainer = document.querySelector('.grid');
     if (masterGridContainer) {
       masterGridContainer.classList.add('full-canvas-view');
     }
+
+    const rowsContainer = document.getElementById('medicine-ledger-rows');
+    
+    // Cache a clean template based on the first row
+    const rowTemplate = rowsContainer.querySelector('.purchase-single-ledger-row').cloneNode(true);
+    
+    // Clear initial input values in template clone baseline
+    rowTemplate.querySelectorAll('input').forEach(input => {
+      if(input.name !== 'tax_percent[]') input.value = '';
+    });
+    rowTemplate.querySelector('.med-name-select').innerHTML = '<option value="" disabled selected>Select...</option>';
+
+    // 🔥 FIX: Target the cloned span via its class name to transform it into a clean removal 'x' icon
+    const templateActionBtn = rowTemplate.querySelector('.btn-row-add');
+    if (templateActionBtn) {
+      templateActionBtn.className = 'btn-row-remove';
+      templateActionBtn.setAttribute('title', 'Remove Row');
+      templateActionBtn.innerHTML = '<i class="fa fa-times"></i>';
+    }
+
+    // 2. Add New Row Functionality (Triggered by the primary row's .btn-row-add button)
+    rowsContainer.addEventListener('click', function(e) {
+      if (e.target.classList.contains('btn-row-add') || e.target.parentElement.classList.contains('btn-row-add')) {
+        const newRow = rowTemplate.cloneNode(true);
+        rowsContainer.appendChild(newRow);
+      }
+    });
+
+    // 3. Remove Dynamic Appended Rows Functionality
+    rowsContainer.addEventListener('click', function(e) {
+      if (e.target.classList.contains('btn-row-remove') || e.target.parentElement.classList.contains('btn-row-remove')) {
+        const targetRow = e.target.closest('.purchase-single-ledger-row');
+        targetRow.remove();
+        calculateGrandTotals();
+      }
+    });
+
+    // 4. Cascading Select (Category -> Medicine Name with Loading Feedback)
+    rowsContainer.addEventListener('change', function(e) {
+      if (e.target.classList.contains('med-category-select')) {
+        const categoryId = e.target.value;
+        const row = e.target.closest('.purchase-single-ledger-row');
+        const medicineSelect = row.querySelector('.med-name-select');
+        
+        // ⏳ Visual loading text status indicator
+        medicineSelect.innerHTML = '<option value="" disabled selected>⏳ Loading medicines...</option>';
+        
+        // Fetch endpoint route cleanly mapped inside the app namespace
+        fetch(`/pharmacy/get-medicines-by-category/?category_id=${categoryId}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            medicineSelect.innerHTML = '<option value="" disabled selected>Select...</option>';
+            
+            if (data.length === 0) {
+              medicineSelect.innerHTML = '<option value="" disabled selected>No medicines found</option>';
+              return;
+            }
+
+            data.forEach(med => {
+              medicineSelect.innerHTML += `<option value="${med.id}">${med.name}</option>`;
+            });
+          })
+          .catch(err => {
+            console.error("Error loading medicines:", err);
+            medicineSelect.innerHTML = '<option value="" disabled selected>❌ Error loading...</option>';
+          });
+      }
+    });
+
+    // 5. Dynamic Financial Calculation Engine
+    rowsContainer.addEventListener('input', function(e) {
+      if (e.target.classList.contains('row-qty') || e.target.classList.contains('row-purc-price') || e.target.classList.contains('row-tax')) {
+        const row = e.target.closest('.purchase-single-ledger-row');
+        calculateRowAmount(row);
+      }
+    });
+
+    document.getElementById('discount_amount').addEventListener('input', calculateGrandTotals);
+
+    function calculateRowAmount(row) {
+      const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
+      const price = parseFloat(row.querySelector('.row-purc-price').value) || 0;
+      const taxPercent = parseFloat(row.querySelector('.row-tax').value) || 0;
+      
+      // Calculate row values factoring in individual tax parameters
+      const baseAmount = qty * price;
+      const taxAmount = baseAmount * (taxPercent / 100);
+      const totalRowAmount = baseAmount + taxAmount;
+      
+      // Inject tax-inclusive calculation directly into row amount field
+      row.querySelector('.row-calculated-amount').value = totalRowAmount.toFixed(2);
+      calculateGrandTotals();
+    }
+
+    function calculateGrandTotals() {
+      let totalAmountBeforeTax = 0;
+      let calculatedTaxTotal = 0;
+
+      const rows = rowsContainer.querySelectorAll('.purchase-single-ledger-row');
+      rows.forEach(row => {
+        const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.row-purc-price').value) || 0;
+        const taxPercent = parseFloat(row.querySelector('.row-tax').value) || 0;
+
+        const baseAmount = qty * price;
+        const taxAmount = baseAmount * (taxPercent / 100);
+
+        totalAmountBeforeTax += baseAmount;
+        calculatedTaxTotal += taxAmount;
+      });
+
+      const discountAmount = parseFloat(document.getElementById('discount_amount').value) || 0;
+      const netAmount = (totalAmountBeforeTax + calculatedTaxTotal) - discountAmount;
+
+      // Sync data changes cleanly into the form balance cards fields
+      document.getElementById('total_amount').value = totalAmountBeforeTax.toFixed(2);
+      document.getElementById('tax_summary').value = calculatedTaxTotal.toFixed(2);
+      document.getElementById('net_amount').value = Math.max(0, netAmount).toFixed(2);
+    }
   });
 </script>
+
+
 
 {% endblock %}

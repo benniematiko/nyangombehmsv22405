@@ -15,9 +15,14 @@ urlpatterns = [
     path('medicines/', views.pharmacy_medicines_view, name='pharmacymedicines'),
     path('medicines/import/', views.import_medicines, name='importmedicines'),
     path('medicines/add/', views.add_medicines, name='addmedicine'),
-    path('medicines/purchase/', views.purchase_medicines, name='purchasemedicines'),
-    path('medicines/buy/', views.purchase_medicines_buy, name='purchasemedicinesbuy'),
+    
+    # Wholesale Purchasing & Procurement Ledger Trackers
+    path('medicines/purchase/', views.purchase_medicines_ledger, name='purchasemedicines'),
+    path('medicines/buy/', views.purchase_medicines_workspace_view, name='purchasemedicinesbuy'),
     
     # Automated Action Hook: Deducts stock items and pushes rows to the billing app
     path('prescription/<int:prescription_id>/approve/', views.approve_and_dispense_prescription, name='approve_prescription'),
+    
+    # Async JSON Cascading Select Endpoint API
+    path('get-medicines-by-category/', views.get_medicines_by_category, name='get_medicines_by_category'),
 ]

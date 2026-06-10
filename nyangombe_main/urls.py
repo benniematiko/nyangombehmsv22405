@@ -17,10 +17,14 @@ urlpatterns = [
     path('ipd/', include('ipd.urls')),
     path('appointments/', include('appointments.urls')),
     path('radiology/', include('radiology.urls')),
+    path('patients/', include('patients.urls')),  # This creates the /patients/ prefix
 
     # path('expenses/', include('expenses.urls')),
 
 ]
+
+
+
 
 
 

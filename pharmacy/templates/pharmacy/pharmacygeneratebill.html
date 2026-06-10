@@ -9,11 +9,19 @@
     <div class="billing-top-action-bar">
       <div class="billing-left-inputs">
         
-        <div class="billing-header-field-group">
+        <!-- <div class="billing-header-field-group">
           <label for="patientSelector">Patient *</label>
           <select id="patientSelector" name="patient" class="billing-header-input" required>
             <option value="">Select Patient Name from Database...</option>
           </select>
+        </div> -->
+
+        <div class="billing-header-field-group" style="position: relative;">
+            <label for="patientSelector">Patient *</label>
+            <input type="text" id="patientSelector" name="patient" class="billing-header-input" 
+                  placeholder="Type patient name (minimum 2 letters)..." autocomplete="off" required>
+            <input type="hidden" id="selectedPatientId" name="patient_id">
+            <div id="patientSuggestions" class="patient-suggestions-dropdown"></div>
         </div>
 
         <button type="button" class="btn-header-action-add" id="openPatientModalBtn" title="Register New Patient Structure">
@@ -44,12 +52,26 @@
         
         <div class="entry-inputs-flex-row">
           
-          <div class="field-input-wrapper">
+          <!-- <div class="field-input-wrapper">
             <label>Medicine Category <span>*</span></label>
             <select class="hms-form-select" name="med_category[]" required>
               <option value="">Select...</option>
             </select>
+          </div> -->
+
+          <div class="field-input-wrapper">
+            <label>Medicine Category <span>*</span></label>
+            <select class="hms-form-select" name="med_category[]" required>
+              <option value="">Select...</option>
+              {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+              {% empty %}
+                <option value="" disabled>No categories available</option>
+              {% endfor %}
+            </select>
           </div>
+
+
 
           <div class="field-input-wrapper">
             <label>Medicine Name <span>*</span></label>
@@ -339,8 +361,233 @@
   </div>
 </div>
 
+
+
+
+<style>
+  /* Patient Autocomplete Styles */
+.billing-header-field-group {
+    position: relative;
+}
+
+.patient-suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    max-height: 250px;
+    overflow-y: auto;
+    display: none;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 0 0 4px 4px;
+}
+
+.patient-suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.patient-suggestion-item:hover {
+    background-color: #f5f5f5;
+}
+
+.patient-suggestion-item strong {
+    display: block;
+    color: #333;
+    font-size: 14px;
+}
+
+.patient-suggestion-item small {
+    display: block;
+    color: #666;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.no-results {
+    padding: 10px 12px;
+    color: #999;
+    text-align: center;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+
+
+
+
+    // ========== PATIENT AUTOCOMPLETE ==========
+const patientInput = document.getElementById('patientSelector');
+const patientIdInput = document.getElementById('selectedPatientId');
+const suggestionsDiv = document.getElementById('patientSuggestions');
+let debounceTimer;
+
+function fetchPatients(query) {
+    console.log('Fetching patients for:', query);
+    
+    fetch(`/patients/api/get-patients/?q=${encodeURIComponent(query)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Patients received:', data);
+            
+            if (!suggestionsDiv) return;
+            
+            if (data.length > 0) {
+                suggestionsDiv.innerHTML = data.map(patient => `
+                    <div class="patient-suggestion-item" 
+                         data-id="${patient.id}" 
+                         data-name="${patient.name}"
+                         data-hospital="${patient.hospital_number}">
+                        <strong>${escapeHtml(patient.name)}</strong>
+                        <small>ID: ${escapeHtml(patient.hospital_number)}</small>
+                    </div>
+                `).join('');
+                suggestionsDiv.style.display = 'block';
+                
+                // Add click event listeners to suggestions
+                document.querySelectorAll('.patient-suggestion-item').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const patientName = this.dataset.name;
+                        const patientId = this.dataset.id;
+                        
+                        if (patientInput) patientInput.value = patientName;
+                        if (patientIdInput) patientIdInput.value = patientId;
+                        if (suggestionsDiv) suggestionsDiv.style.display = 'none';
+                        
+                        console.log('Selected patient:', patientName, 'ID:', patientId);
+                    });
+                });
+            } else {
+                suggestionsDiv.innerHTML = '<div class="no-results">No patients found. Try a different name.</div>';
+                suggestionsDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching patients:', error);
+            if (suggestionsDiv) {
+                suggestionsDiv.innerHTML = '<div class="no-results">Error loading patients. Please try again.</div>';
+                suggestionsDiv.style.display = 'block';
+            }
+        });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+if (patientInput) {
+    patientInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            if (suggestionsDiv) suggestionsDiv.style.display = 'none';
+            if (patientIdInput) patientIdInput.value = '';
+            return;
+        }
+        
+        debounceTimer = setTimeout(() => {
+            fetchPatients(query);
+        }, 300);
+    });
+    
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (suggestionsDiv && patientInput && !suggestionsDiv.contains(e.target) && e.target !== patientInput) {
+            suggestionsDiv.style.display = 'none';
+        }
+    });
+    
+    // Optional: Clear selection if input is cleared
+    patientInput.addEventListener('blur', function() {
+        setTimeout(() => {
+            if (suggestionsDiv) suggestionsDiv.style.display = 'none';
+        }, 200);
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // 1. Break down out-of-scope view sidebars dynamically to achieve 100% template scaling width
     const masterGridContainer = document.querySelector('.grid');
     if (masterGridContainer) {

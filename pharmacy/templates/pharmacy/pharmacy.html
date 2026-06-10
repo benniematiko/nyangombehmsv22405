@@ -2,7 +2,7 @@
 {% block title %} Pharmacy Management | Eagles Mission Hospital{% endblock %}
 {% block content %}
 
-<div class="pharmacy-container-layout">
+<div class="pharmacy-container-layout template-fullwidth-override">
   
   <div class="pharmacy-panel-header">
     <div class="panel-title-group">
@@ -40,12 +40,27 @@
         <label for="ledgerSearch">Search</label>
         <input type="text" id="ledgerSearch" class="search-input-field" placeholder="Filter by bill, patient, or provider...">
       </div>
+
+      <div class="search-wrapper-block">
+        <label for="categoryFilter">Medicine Category</label>
+        <select id="categoryFilter" class="entries-dropdown-select" style="min-width: 180px;">
+          <option value="">All Categories</option>
+          {% for category in medicine_categories %}
+            <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+              {{ category.name }}
+            </option>
+          {% empty %}
+            <option value="" disabled>No categories found</option>
+          {% endfor %}
+        </select>
+      </div>
       
       <div class="export-pagination-group">
-        <select class="entries-dropdown-select" aria-label="Records display pagination configuration">
+        <select id="entriesPerPage" class="entries-dropdown-select" aria-label="Records display pagination configuration">
           <option value="10">Display 10 records</option>
-          <option value="20">Display 20 records</option>
-          <option value="100">Display 100 records</option>
+          <option value="20" {% if request.GET.per_page == '20' or not request.GET.per_page %}selected{% endif %}>Display 20 records</option>
+          <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>Display 50 records</option>
+          <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>Display 100 records</option>
         </select>
         
         <div class="export-icon-buttons-container">
@@ -58,12 +73,12 @@
       </div>
     </div>
 
-    <div class="table-fixed-container">
-      <table class="hms-table hms-billing-log-table">
+    <div class="table-fixed-container containment-fullwidth">
+      <table class="hms-table hms-billing-log-table table-element-fullwidth" id="billingTable">
         <thead>
           <tr>
             <th>Bill No</th>
-            <th>Case ID</th>
+            <th>Patient Number</th>
             <th>Date</th>
             <th>Patient Name</th>
             <th>Doctor Name</th>
@@ -75,45 +90,49 @@
           </tr>
         </thead>
         <tbody>
-          {% for prescription in pending_prescriptions %}
-            {% with invoice=prescription.visit.invoices.first %}
-            <tr>
-              <td><span class="badge-bill">PH-26-{{ prescription.id|stringformat:"03d" }}</span></td>
-              <td class="case-id-cell">{{ prescription.visit.case_id }}</td>
-              <td>{{ prescription.created_at|date:"d/m/Y" }}</td>
-              <td title="{{ prescription.visit.patient.full_name }}"><strong class="patient-name-text">{{ prescription.visit.patient.full_name }}</strong></td>
-              <td title="{{ prescription.prescribed_by.get_full_name }}">
-                {{ prescription.prescribed_by.get_full_name|default:prescription.prescribed_by.username }}
-              </td>
+          {% for invoice in invoices %}
+          <tr>
+            <td><span class="badge-bill">{{ invoice.invoice_number }}</span></td>
+            <td class="case-id-cell">{{ invoice.visit.patient.patient_number|default:"—" }}</td>
+            <td>{{ invoice.created_at|date:"d/m/Y" }}</td>
+            <td title="{{ invoice.visit.patient.get_full_name }}">
+              <strong class="patient-name-text">{{ invoice.visit.patient.get_full_name|default:"Unknown Patient" }}</strong>
+            </td>
+            <td title="{{ invoice.doctor.get_full_name|default:invoice.doctor.username }}">
+              {% if invoice.doctor %}
+                Dr. {{ invoice.doctor.first_name }} {{ invoice.doctor.last_name }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            
+            <td class="text-right financial-digits">{{ invoice.discount_amount|floatformat:2 }}</td>
+            <td class="text-right financial-digits-bold">{{ invoice.net_amount|floatformat:2 }}</td>
+            <td class="text-right financial-digits-paid">{{ invoice.amount_paid|floatformat:2 }}</td>
+            <td class="text-right financial-digits">0.00</td>
+            
+            <td class="text-right balance-cell {% if invoice.balance_due <= 0 %}balance-clear{% else %}balance-due{% endif %}">
+              {{ invoice.balance_due|floatformat:2 }}
               
-              <td class="text-right financial-digits">{{ invoice.discount_amount|default:"0.00" }}</td>
-              <td class="text-right financial-digits-bold">{{ invoice.net_amount|default:"0.00" }}</td>
-              <td class="text-right financial-digits-paid">{{ invoice.amount_paid|default:"0.00" }}</td>
-              <td class="text-right financial-digits">0.00</td>
-              
-              <td class="text-right balance-cell {% if invoice.balance_due <= 0 %}balance-clear{% else %}balance-due{% endif %}">
-                {{ invoice.balance_due|default:"0.00" }}
-                
-                <div class="row-hover-popover">
-                  <a href="#" class="popover-btn popover-btn-view" title="View Details">
-                    <i class="fa fa-eye"></i>
-                  </a>
-                  <a href="#" class="popover-btn popover-btn-show" title="Show Summary">
-                    <i class="fa fa-folder-open"></i>
-                  </a>
-                  <button type="button" class="popover-btn popover-btn-print" title="Print Bill" onclick="window.print(); event.stopPropagation();">
-                    <i class="fa fa-print"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            {% endwith %}
+              <div class="row-hover-popover">
+                <a href="{% url 'pharmacy:invoice_detail' invoice.id %}" class="popover-btn popover-btn-view" title="View Details">
+                  <i class="fa fa-eye"></i>
+                </a>
+                <a href="#" class="popover-btn popover-btn-show" title="Show Summary">
+                  <i class="fa fa-folder-open"></i>
+                </a>
+                <button type="button" class="popover-btn popover-btn-print" title="Print Bill" onclick="printInvoice('{{ invoice.id }}'); event.stopPropagation();">
+                  <i class="fa fa-print"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
           {% empty %}
-            <tr>
-              <td colspan="10" class="empty-table-placeholder">
-                No pharmacy billing records found.
-              </td>
-            </tr>
+          <tr>
+            <td colspan="10" class="empty-table-placeholder">
+              No pharmacy billing records found.
+            </td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -121,20 +140,84 @@
 
     <div class="ledger-pagination-row">
       <div class="pagination-counter-info">
-        Records: <strong>1</strong> to <strong>{{ pending_prescriptions.count }}</strong> of <strong>{{ pending_prescriptions.count }}</strong>
+        Records: <strong>{{ invoices.start_index }}</strong> to <strong>{{ invoices.end_index }}</strong> of <strong>{{ total_records }}</strong>
       </div>
       <div class="pagination-nav-controls">
-        <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-left"></i></button>
-        <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-left"></i></button>
+        {% if invoices.has_previous %}
+          <a href="?page=1&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-nav"><i class="fa fa-angle-double-left"></i></a>
+          <a href="?page={{ invoices.previous_page_number }}&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-nav"><i class="fa fa-angle-left"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-left"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-left"></i></button>
+        {% endif %}
+        
         <div class="page-numeric-links">
-          <button type="button" class="btn-page-num active-page">1</button>
+          {% for num in invoices.paginator.page_range %}
+            {% if num == invoices.number %}
+              <button type="button" class="btn-page-num active-page">{{ num }}</button>
+            {% elif num > invoices.number|add:'-3' and num < invoices.number|add:'3' %}
+              <a href="?page={{ num }}&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-num">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
         </div>
-        <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-right"></i></button>
-        <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-right"></i></button>
+        
+        {% if invoices.has_next %}
+          <a href="?page={{ invoices.next_page_number }}&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-nav"><i class="fa fa-angle-right"></i></a>
+          <a href="?page={{ invoices.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-nav"><i class="fa fa-angle-double-right"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-right"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-right"></i></button>
+        {% endif %}
       </div>
     </div>
 
   </div>
 </div>
+
+<script>
+  // Dynamic client-side list searching match layout
+  document.getElementById('ledgerSearch').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#billingTable tbody tr');
+    
+    tableRows.forEach(row => {
+      // Avoid breaking search checks on completely empty list data placeholder rows
+      if (row.querySelector('.empty-table-placeholder')) return;
+      
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+  });
+  
+  // URL Parameter Sync Helper Function
+  function updateUrlParams(key, value) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (value) {
+      urlParams.set(key, value);
+    } else {
+      urlParams.delete(key);
+    }
+    // Always fallback page index parameter back to row 1 on layout filter adjustment
+    if (key !== 'page') {
+      urlParams.set('page', '1');
+    }
+    window.location.href = `?${urlParams.toString()}`;
+  }
+
+  // Handle Entries Per Page Adjustment
+  document.getElementById('entriesPerPage').addEventListener('change', function() {
+    updateUrlParams('per_page', this.value);
+  });
+  
+  // Handle Category Filter Selection Event
+  document.getElementById('categoryFilter').addEventListener('change', function() {
+    updateUrlParams('category', this.value);
+  });
+  
+  // Print execution route redirect anchor wrapper
+  function printInvoice(invoiceId) {
+    window.open(`/pharmacy/invoice/${invoiceId}/print/`, '_blank');
+  }
+</script>
 
 {% endblock %}

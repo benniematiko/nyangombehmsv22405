@@ -1,0 +1,765 @@
+{% extends "base.html" %} 
+{% block title %} Generate | Eagles Mission Hospital{% endblock %} 
+{% block content %}
+
+<style>
+  /* ==========================================================================
+     ALL CONSOLIDATED CSS STYLES (Keep your existing CSS here - unchanged)
+     ========================================================================== */
+  
+  /* Base structural canvas overrides */
+  .billing-canvas-container {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Two-column master grid setup matching system layouts */
+  .billing-two-column-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 16px;
+    padding: 16px;
+    align-items: start;
+  }
+
+  @media (max-width: 1024px) {
+    .billing-two-column-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Structural wrapper columns */
+  .billing-main-workflow-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .billing-side-metrics-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+    border-radius: 0px;
+  }
+
+  /* Action links & utility buttons design rules */
+  .btn-row-add,
+  .btn-row-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: 32px;
+    padding: 0 4px;
+    background: transparent !important;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .btn-row-add {
+    color: #2e7d32;
+  }
+  .btn-row-add:hover {
+    color: #1b5e20;
+    transform: scale(1.15);
+  }
+
+  .btn-row-remove {
+    color: #c62828;
+  }
+  .btn-row-remove:hover {
+    color: #b71c1c;
+    transform: scale(1.15);
+  }
+
+  /* Hides the registry search field placeholder text by default */
+  #patient_search_input::placeholder {
+    color: transparent;
+    transition: color 0.15s ease;
+  }
+  
+  /* Shows the registry placeholder text clearly only when focused */
+  #patient_search_input:focus::placeholder {
+    color: #a0aec0;
+  }
+
+  /* Remove border-radius from all input elements */
+  input, select, textarea {
+    border-radius: 0px !important;
+  }
+
+  /* Modal validation styles */
+  .modal-body .form-control.is-invalid {
+    border-color: #dc2626 !important;
+    background-image: none;
+  }
+
+  .modal-body .error-feedback {
+    color: #dc2626;
+    font-size: 11px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* Modal animation improvements */
+  .modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+  }
+
+  .modal.show .modal-dialog {
+    transform: none;
+  }
+
+  /* Success message styling */
+  .modal-success-message {
+    background-color: #d1fae5;
+    color: #065f46;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-left: 3px solid #10b981;
+    font-size: 12px;
+  }
+
+  /* Error message styling */
+  #modal-error-message {
+    background-color: #fee2e2;
+    color: #991b1b;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-left: 3px solid #dc2626;
+    font-size: 12px;
+  }
+</style>
+
+<div class="billing-canvas-container">
+  <form method="POST" id="pharmacyBillForm">
+    {% csrf_token %}
+
+    <div class="billing-top-action-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 12px; background: #990000; border-bottom: 2px solid #800000;">
+      <div class="billing-left-inputs" style="display: flex; align-items: center; gap: 12px; width: 100%; flex: 1;">
+        <div class="billing-header-field-group purchase-supplier-group" style="flex: 0 0 60%; max-width: 60%; margin-bottom: 0; position: relative; display: flex; align-items: center;">
+          <div style="position: relative; width: 100%; display: flex; align-items: center;">
+            <input type="text" id="patient_search_input" class="billing-header-input" placeholder="Type Patient ID or Name..." autocomplete="off" style="width: 100%; height: 32px; padding: 0 30px 0 10px; box-sizing: border-box; border: 1px solid #b33333; border-radius: 0px !important; background: #ffffff; color: #2d3748; cursor: pointer; vertical-align: middle; font-size: 13px;" />
+            <div id="patient_dropdown_arrow" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #4a5568; pointer-events: none; font-size: 11px; transition: transform 0.2s ease; display: flex; align-items: center; height: 100%;">
+              <i class="fa fa-chevron-down"></i>
+            </div>
+          </div>
+          <input type="hidden" id="patient_select" name="patient" required />
+          <div id="patient_search_results_panel" style="display: none; position: absolute; left: 0; right: 0; top: 100%; margin-top: 2px; background: #ffffff; border: 1px solid #cbd5e0; border-radius: 0px !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); max-height: 220px; overflow-y: auto; z-index: 1050; box-sizing: border-box;"></div>
+        </div>
+        <div>
+          <a href="#" data-toggle="modal" data-target="#quickAddPatientModal" class="btn-quick-add-patient" title="Register New Patient" style="display: inline-flex; align-items: center; gap: 6px; color: #000000; font-size: 13px; font-weight: 600; text-decoration: none; height: 32px; padding: 0 12px; border: 1px solid #cbd5e0; border-radius: 0px !important; background: #ffffff; transition: all 0.2s ease; cursor: pointer; box-sizing: border-box; line-height: 30px;" onmouseover="this.style.backgroundColor = 'whitesmoke'; this.style.color = '#990000';" onmouseout="this.style.backgroundColor = '#ffffff'; this.style.color = '#000000';">
+            <i class="fa fa-plus"></i> New Patient
+          </a>
+        </div>
+      </div>
+      <a href="{% url 'opd:opd_home' %}" class="btn-header-close-route" title="Close Page" style="display: flex; align-items: center; justify-content: center; height: 32px; width: 32px; color: #ffffff; text-decoration: none; font-size: 18px; opacity: 0.85;" onmouseover="this.style.opacity = '1'" onmouseout="this.style.opacity = '0.85'">
+        <i class="fa fa-times"></i>
+      </a>
+    </div>
+
+    <div class="billing-two-column-layout" style="display: grid; grid-template-columns: 60% calc(40% - 16px); gap: 16px; padding: 16px; align-items: start;">
+      <!-- LEFT COLUMN -->
+      <div class="billing-main-workflow-column" style="display: flex; flex-direction: column; gap: 16px">
+        <div class="purchase-single-ledger-row" style="display: flex; flex-direction: row; gap: 12px; width: 100%; padding: 12px; background: #ffffff; border: 1px solid #e2e8f0; align-items: flex-start;">
+          <div class="field-input-wrapper" style="flex: 1; display: flex; flex-direction: column">
+            <label style="font-size: 11px; font-weight: 600; margin-bottom: 4px; color: #4a5568;">Symptoms Type <span>*</span></label>
+            <input type="text" name="symptoms_type" class="hms-form-input" placeholder="Type..." required style="height: 32px; padding: 2px 8px; border: 1px solid #cbd5e0; box-sizing: border-box; font-size: 13px; border-radius: 0px;" />
+          </div>
+          <div class="field-input-wrapper" style="flex: 1; display: flex; flex-direction: column">
+            <label style="font-size: 11px; font-weight: 600; margin-bottom: 4px; color: #4a5568;">Symptoms Title <span>*</span></label>
+            <input type="text" name="symptoms_title" class="hms-form-input" placeholder="Title..." required style="height: 32px; padding: 2px 8px; border: 1px solid #cbd5e0; box-sizing: border-box; font-size: 13px; border-radius: 0px;" />
+          </div>
+          <div class="field-input-wrapper" style="flex: 2; display: flex; flex-direction: column">
+            <label style="font-size: 11px; font-weight: 600; margin-bottom: 4px; color: #4a5568;">Symptoms Description</label>
+            <input type="text" name="symptoms_description" class="hms-form-input" placeholder="Describe symptoms here..." style="height: 32px; padding: 2px 8px; border: 1px solid #cbd5e0; box-sizing: border-box; font-size: 13px; border-radius: 0px;" />
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: row; gap: 12px; width: 100%">
+          <div class="field-input-wrapper" style="flex: 1; display: flex; flex-direction: column">
+            <label for="bill_notes" style="font-size: 11px; font-weight: 600; color: #4a5568; margin-bottom: 4px;">Prescription / Dispensing Notes</label>
+            <textarea id="bill_notes" name="notes" class="hms-form-textarea" rows="4" placeholder="Enter instructions, dosage frequencies or clinical logs..." style="width: 100%; border: 1px solid #cbd5e0; padding: 8px; font-size: 13px; box-sizing: border-box; border-radius: 0px; resize: vertical;"></textarea>
+          </div>
+          <div class="field-input-wrapper" style="flex: 1; display: flex; flex-direction: column">
+            <label for="known_allergies" style="font-size: 11px; font-weight: 600; color: #4a5568; margin-bottom: 4px;">Any Known Allergy</label>
+            <textarea id="known_allergies" name="known_allergies" class="hms-form-textarea" rows="4" placeholder="List any known medication, clinical, or food allergies..." style="width: 100%; border: 1px solid #cbd5e0; padding: 8px; font-size: 13px; box-sizing: border-box; border-radius: 0px; resize: vertical;"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="billing-side-metrics-column" style="display: flex; flex-direction: column; gap: 12px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px;">
+        <div style="display: flex; gap: 8px; width: 100%">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <label style="font-size: 11px; font-weight: 600; color: #475569">Appointment Date <span>*</span></label>
+            <input type="datetime-local" name="appointment_date" class="hms-form-input" required style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;" />
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <label style="font-size: 11px; font-weight: 600; color: #475569">Case ID</label>
+            <input type="text" name="case_id" class="hms-form-input" placeholder="System Generated" style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;" />
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; width: 100%">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <label style="font-size: 11px; font-weight: 600; color: #475569">Casualty <span>*</span></label>
+            <select name="casualty" class="hms-form-select" required style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;">
+              <option value="No" selected>No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <label style="font-size: 11px; font-weight: 600; color: #475569">Old Patient <span>*</span></label>
+            <select name="old_patient" class="hms-form-select" required style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;">
+              <option value="No" selected>No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; width: 100%">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <label style="font-size: 11px; font-weight: 600; color: #475569">Reference</label>
+            <input type="text" name="reference" class="hms-form-input" placeholder="Referral source..." style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;" />
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <label style="font-size: 11px; font-weight: 600; color: #475569">Consultant Doctor</label>
+            <select name="casualty_doctor" class="hms-form-select" style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;">
+              <option value="" selected disabled>Select Doctor...</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; width: 100%; align-items: flex-end">
+          <div style="flex: 1; display: flex; align-items: center; gap: 6px; height: 32px; padding-bottom: 4px; box-sizing: border-box;">
+            <input type="checkbox" id="apply_insurance" name="apply_insurance" value="true" style="width: 15px; height: 15px; margin: 0; cursor: pointer" />
+            <label for="apply_insurance" style="font-size: 11px; font-weight: 600; color: #475569; cursor: pointer; user-select: none;">Apply Insurance</label>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <label style="font-size: 11px; font-weight: 600; color: #475569">Charge Category</label>
+            <select name="charge_category" class="hms-form-select" style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;">
+              <option value="" selected disabled>Select Category...</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; width: 100%">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <label style="font-size: 11px; font-weight: 600; color: #475569">Charge</label>
+            <select name="charge_selection" class="hms-form-select" style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;">
+              <option value="" selected disabled>Select Charge Item...</option>
+            </select>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <label style="font-size: 11px; font-weight: 600; color: #475569">Standard Charge (shs)</label>
+            <input type="number" name="standard_charge" class="hms-form-input" value="0.00" readonly style="height: 32px; padding: 2px 6px; font-size: 13px; text-align: right; background: #f1f5f9; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;" />
+          </div>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 4px 0" />
+        <div class="financial-ledger-stack" style="display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; gap: 8px; width: 100%">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+              <label style="font-size: 11px; font-weight: 600; color: #475569">Applied Charge (shs) <span>*</span></label>
+              <input type="number" id="applied_charge" name="applied_charge" class="hms-form-input" value="0.00" step="0.01" style="height: 32px; padding: 2px 6px; font-size: 13px; text-align: right; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;" />
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+              <label for="discount_amount" style="font-size: 11px; font-weight: 600; color: #475569">Discount (shs)</label>
+              <input type="number" id="discount_amount" name="discount" class="hms-form-input" value="0.00" step="0.01" style="height: 32px; padding: 2px 6px; font-size: 13px; text-align: right; font-weight: 600; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;" />
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; width: 100%">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+              <label style="font-size: 11px; font-weight: 600; color: #475569">Tax / V.A.T (shs)</label>
+              <input type="number" id="tax_summary" name="tax_total" class="hms-form-input" value="0.00" readonly style="height: 32px; padding: 2px 6px; font-size: 13px; text-align: right; background: #f1f5f9; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;" />
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+              <label style="font-size: 11px; font-weight: 600; color: #475569">Amount (shs) <span>*</span></label>
+              <input type="number" id="total_amount" name="subtotal_base" class="hms-form-input" value="0.00" readonly style="height: 32px; padding: 2px 6px; font-size: 13px; text-align: right; background: #f1f5f9; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;" />
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; width: 100%">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+              <label style="font-size: 11px; font-weight: 600; color: #475569">Payment Mode</label>
+              <select name="payment_mode" class="hms-form-select" style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;">
+                <option value="Cash" selected>Cash</option>
+                <option value="M-Pesa">M-Pesa</option>
+                <option value="Bank/Card">Bank Transfer / Card</option>
+                <option value="Insurance Claim">Insurance Claim</option>
+              </select>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+              <label style="font-size: 11px; font-weight: 700; color: #1e293b">Paid Amount (shs) <span>*</span></label>
+              <input type="number" name="paid_amount" class="hms-form-input" value="0.00" readonly style="height: 32px; padding: 2px 6px; font-size: 14px; text-align: right; font-weight: 700; background: #f1f5f9; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;" />
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px; width: 100%; margin-top: 4px;">
+          <label style="font-size: 11px; font-weight: 600; color: #475569">Live Consultation <span>*</span></label>
+          <select name="live_consultation" class="hms-form-select" required style="height: 32px; padding: 2px 6px; font-size: 13px; border: 1px solid #cbd5e0; box-sizing: border-box; border-radius: 0px;">
+            <option value="No" selected>No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- ACTION BUTTONS -->
+      <div class="billing-terminal-action-row" style="display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; grid-column: 1 / -1;">
+        <button type="submit" name="action" value="save_print" class="btn-terminal-print" style="height: 40px; background: #990000; color: #ffffff; border: none; border-radius: 0px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 24px; transition: background 0.2s ease;" onmouseover="this.style.backgroundColor = '#800000'" onmouseout="this.style.backgroundColor = '#990000'">
+          <i class="fa fa-print"></i> Save &amp; Print
+        </button>
+        <button type="submit" name="action" value="save" class="btn-terminal-save" style="height: 40px; background: #1e293b; color: #ffffff; border: none; border-radius: 0px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 24px; transition: background 0.2s ease;" onmouseover="this.style.backgroundColor = '#0f172a'" onmouseout="this.style.backgroundColor = '#1e293b'">
+          <i class="fa fa-save"></i> Save
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- ADD PATIENT MODAL -->
+<div class="modal fade" id="quickAddPatientModal" tabindex="-1" role="dialog" aria-labelledby="quickAddPatientModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content" style="border-radius: 0px !important;">
+      <div class="modal-header" style="border-bottom: 1px solid #61040a; background: #810810; padding: 12px 20px;">
+        <h5 class="modal-title" id="quickAddPatientModalLabel" style="font-weight: 600; color: #ffffff; font-size: 16px; margin: 0;">
+          <i class="fa fa-plus-circle" style="margin-right: 8px;"></i> Add Patient
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="outline: none; color: #ffffff; opacity: 0.9; text-shadow: none;">
+          <span aria-hidden="true" style="font-size: 24px;">&times;</span>
+        </button>
+      </div>
+      
+      <form method="POST" action="{% url 'opd:add_patient' %}" enctype="multipart/form-data" id="addPatientForm">
+        {% csrf_token %}
+        <div class="modal-body" style="font-size: 13px; background: #ffffff; padding: 20px;">
+          <div class="form-row mb-3">
+            <div class="col-md-6">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Patient Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" placeholder="Enter full name" required style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+            <div class="col-md-6">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Guardian Name</label>
+              <input type="text" name="guardian_name" class="form-control" placeholder="Enter guardian name" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+          </div>
+          <div class="form-row mb-3">
+            <div class="col-md-2">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Gender</label>
+              <select name="gender" class="form-control" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Date of Birth</label>
+              <input type="date" id="dob_input" name="dob" class="form-control" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+            <div class="col-md-1">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Age (Years)</label>
+              <input type="number" id="age_years" name="age" class="form-control" placeholder="Years" value="0" min="0" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+            <div class="col-md-1">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Months</label>
+              <input type="number" id="age_months" name="age_months" class="form-control" placeholder="Months" value="0" min="0" max="11" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+            <div class="col-md-1">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Days</label>
+              <input type="number" id="age_days" name="age_days" class="form-control" placeholder="Days" value="0" min="0" max="30" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+            <div class="col-md-2">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Blood Group</label>
+              <select name="blood_group" class="form-control" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+                <option value="">Select</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Marital Status</label>
+              <select name="marital_status" class="form-control" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+                <option value="">Select</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+            </div>
+            <div class="col-md-1">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Patient Photo</label>
+              <input type="file" name="patient_photo" class="form-control-file p-1" style="border: 1px solid #cbd5e0; border-radius: 0px !important; height: 32px; width: 100%; font-size: 12px;">
+            </div>
+          </div>
+          <div class="form-row mb-3">
+            <div class="col-md-3">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Phone Number</label>
+              <input type="text" name="phone" class="form-control" placeholder="e.g. 0712345678" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+            <div class="col-md-3">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Email Address</label>
+              <input type="email" name="email" class="form-control" placeholder="name@example.com" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+            <div class="col-md-6">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Address</label>
+              <input type="text" name="address" class="form-control" placeholder="Physical or postal address" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+          </div>
+          <div class="form-row mb-3">
+            <div class="col-md-6">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Remarks</label>
+              <textarea name="remarks" class="form-control" rows="2" placeholder="General observation notes..." style="font-size: 13px; border-radius: 0px !important; resize: none;"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Any Known Allergies</label>
+              <textarea name="allergies" class="form-control" rows="2" placeholder="List medical, environment or food allergies..." style="font-size: 13px; border-radius: 0px !important; resize: none;"></textarea>
+            </div>
+          </div>
+          <div class="form-row mb-3">
+            <div class="col-md-4">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Insurance Provider</label>
+              <input type="text" name="insurance_provider" class="form-control" placeholder="e.g. NHIF, APA" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+            <div class="col-md-4">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Insurance ID</label>
+              <input type="text" name="insurance_id" class="form-control" placeholder="Policy card tracking identification" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+            <div class="col-md-4">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Insurance Validity</label>
+              <input type="date" name="insurance_validity" class="form-control" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="col-md-4">
+              <label style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">National Identification Number</label>
+              <input type="text" name="national_id" class="form-control" placeholder="National Identity Card / Passport" style="height: 32px; font-size: 13px; border-radius: 0px !important;">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid #e2e8f0; background: #ffffff;">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 0px !important; font-size: 13px; font-weight: 600; height: 34px;">Cancel</button>
+          <button type="submit" class="btn" style="background-color: #990000; color: #ffffff; border-radius: 0px !important; font-size: 13px; font-weight: 700; padding: 0 24px; height: 34px;">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap Dependencies -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- ALL CONSOLIDATED JAVASCRIPT -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // ========================================================================
+    // 1. FORCE CONTAINER FULL STRUCTURAL LAYOUT CONFIGURATION
+    // ========================================================================
+    const masterGridContainer = document.querySelector('.grid');
+    if (masterGridContainer) {
+      masterGridContainer.classList.add('full-canvas-view');
+    }
+
+    // ========================================================================
+    // 2. CLIENT SIDE SEARCHABLE PATIENT DROPDOWN MAPPING ENGINE
+    // ========================================================================
+    const patientRegistry = [
+      {% for patient in patients %}
+      {
+        id: "{{ patient.id }}",
+        name: "{{ patient.name|escapejs }}",
+        opdNumber: "{% if patient.opd_number %}{{ patient.opd_number|escapejs }}{% else %}Reg: {{ patient.id }}{% endif %}"
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const searchInput = document.getElementById('patient_search_input');
+    const hiddenInput = document.getElementById('patient_select');
+    const resultsPanel = document.getElementById('patient_search_results_panel');
+    const arrowIcon = document.getElementById('patient_dropdown_arrow');
+
+    if (searchInput) {
+      searchInput.addEventListener('focus', function() {
+        arrowIcon.style.transform = 'translateY(-50%) rotate(180deg)';
+        evaluateSearch(this.value);
+      });
+
+      searchInput.addEventListener('input', function() {
+        evaluateSearch(this.value);
+      });
+    }
+
+    function evaluateSearch(query) {
+      const cleanQuery = query.trim().toLowerCase();
+      resultsPanel.innerHTML = '';
+
+      if (cleanQuery.length < 2) {
+        resultsPanel.style.display = 'none';
+        return;
+      }
+
+      const matches = patientRegistry.filter(p =>
+        p.name.toLowerCase().includes(cleanQuery) ||
+        p.opdNumber.toLowerCase().includes(cleanQuery)
+      );
+
+      if (matches.length === 0) {
+        resultsPanel.innerHTML = `<div style="padding: 8px 12px; color: #718096; font-size: 13px; font-style: italic;">No matching patients found</div>`;
+        resultsPanel.style.display = 'block';
+        return;
+      }
+
+      matches.forEach(patient => {
+        const optionRow = document.createElement('div');
+        optionRow.style.padding = '8px 12px';
+        optionRow.style.cursor = 'pointer';
+        optionRow.style.fontSize = '13px';
+        optionRow.style.color = '#2d3748';
+        optionRow.style.borderBottom = '1px solid #edf2f7';
+        optionRow.innerHTML = `<strong>${patient.name}</strong> <span style="color: #718096; font-size: 11px; margin-left: 6px;">(${patient.opdNumber})</span>`;
+
+        optionRow.addEventListener('mouseover', () => optionRow.style.background = '#f7fafc');
+        optionRow.addEventListener('mouseout', () => optionRow.style.background = 'transparent');
+
+        optionRow.addEventListener('click', function() {
+          searchInput.value = `${patient.name} (${patient.opdNumber})`;
+          hiddenInput.value = patient.id;
+          resultsPanel.style.display = 'none';
+          arrowIcon.style.transform = 'translateY(-50%) rotate(0deg)';
+          hiddenInput.dispatchEvent(new Event('change'));
+        });
+        resultsPanel.appendChild(optionRow);
+      });
+
+      resultsPanel.style.display = 'block';
+    }
+
+    // Close searchable panel handler when clicking outside its canvas
+    document.addEventListener('click', function(e) {
+      if (searchInput && resultsPanel && !searchInput.contains(e.target) && !resultsPanel.contains(e.target)) {
+        resultsPanel.style.display = 'none';
+        arrowIcon.style.transform = 'translateY(-50%) rotate(0deg)';
+        if (!hiddenInput.value && searchInput) {
+          searchInput.value = '';
+        }
+      }
+    });
+
+    // ========================================================================
+    // 3. AGE CALCULATION FUNCTIONALITY FOR MODAL
+    // ========================================================================
+    const ageYearsInput = document.getElementById('age_years');
+    const ageMonthsInput = document.getElementById('age_months');
+    const ageDaysInput = document.getElementById('age_days');
+    const dobInput = document.getElementById('dob_input');
+    const modal = document.getElementById('quickAddPatientModal');
+    const patientForm = document.getElementById('addPatientForm');
+
+    function calculateAgeFromDOB() {
+      if (dobInput && dobInput.value) {
+        const birthDate = new Date(dobInput.value);
+        const today = new Date();
+        
+        if (birthDate > today) {
+          showModalError('Date of Birth cannot be in the future!');
+          dobInput.value = '';
+          return;
+        }
+        
+        let years = today.getFullYear() - birthDate.getFullYear();
+        let months = today.getMonth() - birthDate.getMonth();
+        let days = today.getDate() - birthDate.getDate();
+        
+        if (days < 0) {
+          months--;
+          const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+          days += lastMonth.getDate();
+        }
+        if (months < 0) {
+          years--;
+          months += 12;
+        }
+        
+        if (ageYearsInput) ageYearsInput.value = years;
+        if (ageMonthsInput) ageMonthsInput.value = months;
+        if (ageDaysInput) ageDaysInput.value = days;
+      }
+    }
+
+    function validateAgeInputs() {
+      if (ageYearsInput) {
+        let years = parseInt(ageYearsInput.value) || 0;
+        if (years < 0) ageYearsInput.value = 0;
+        if (years > 150) {
+          showModalError('Age cannot exceed 150 years!');
+          ageYearsInput.value = 150;
+        }
+      }
+      
+      if (ageMonthsInput) {
+        let months = parseInt(ageMonthsInput.value) || 0;
+        if (months < 0) ageMonthsInput.value = 0;
+        if (months >= 12 && ageYearsInput) {
+          let additionalYears = Math.floor(months / 12);
+          ageYearsInput.value = (parseInt(ageYearsInput.value) || 0) + additionalYears;
+          ageMonthsInput.value = months % 12;
+        }
+      }
+      
+      if (ageDaysInput) {
+        let days = parseInt(ageDaysInput.value) || 0;
+        if (days < 0) ageDaysInput.value = 0;
+        if (days >= 30 && ageMonthsInput) {
+          let additionalMonths = Math.floor(days / 30);
+          ageMonthsInput.value = (parseInt(ageMonthsInput.value) || 0) + additionalMonths;
+          ageDaysInput.value = days % 30;
+          
+          let months = parseInt(ageMonthsInput.value) || 0;
+          if (months >= 12 && ageYearsInput) {
+            let additionalYears = Math.floor(months / 12);
+            ageYearsInput.value = (parseInt(ageYearsInput.value) || 0) + additionalYears;
+            ageMonthsInput.value = months % 12;
+          }
+        }
+      }
+    }
+
+    function showModalError(message) {
+      const modalBody = document.querySelector('#quickAddPatientModal .modal-body');
+      if (modalBody) {
+        const existingError = document.querySelector('#modal-error-message');
+        if (existingError) existingError.remove();
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'modal-error-message';
+        errorDiv.innerHTML = `<i class="fa fa-exclamation-triangle" style="margin-right: 8px;"></i>${message}`;
+        modalBody.insertBefore(errorDiv, modalBody.firstChild);
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+        setTimeout(() => {
+          if (errorDiv) errorDiv.remove();
+        }, 5000);
+      }
+    }
+
+    // Event listeners for age fields
+    if (dobInput) {
+      dobInput.addEventListener('change', calculateAgeFromDOB);
+    }
+
+    if (ageYearsInput) {
+      ageYearsInput.addEventListener('input', function() {
+        if (ageMonthsInput) ageMonthsInput.value = 0;
+        if (ageDaysInput) ageDaysInput.value = 0;
+        validateAgeInputs();
+      });
+    }
+
+    if (ageMonthsInput) {
+      ageMonthsInput.addEventListener('input', validateAgeInputs);
+    }
+
+    if (ageDaysInput) {
+      ageDaysInput.addEventListener('input', validateAgeInputs);
+    }
+
+    // ========================================================================
+    // 4. MODAL FORM VALIDATION
+    // ========================================================================
+    let formChanged = false;
+
+    if (patientForm) {
+      patientForm.addEventListener('input', function() {
+        formChanged = true;
+      });
+      
+      patientForm.addEventListener('submit', function(e) {
+        const existingError = document.querySelector('#modal-error-message');
+        if (existingError) existingError.remove();
+        
+        const patientName = document.querySelector('#quickAddPatientModal input[name="name"]');
+        if (!patientName || !patientName.value.trim()) {
+          e.preventDefault();
+          showModalError('Patient Name is required!');
+          return;
+        }
+        
+        const phoneInput = document.querySelector('#quickAddPatientModal input[name="phone"]');
+        if (phoneInput && phoneInput.value) {
+          const phoneRegex = /^[0-9]{10,12}$/;
+          if (!phoneRegex.test(phoneInput.value.replace(/[^0-9]/g, ''))) {
+            e.preventDefault();
+            showModalError('Please enter a valid phone number (10-12 digits)');
+            return;
+          }
+        }
+        
+        const emailInput = document.querySelector('#quickAddPatientModal input[name="email"]');
+        if (emailInput && emailInput.value) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(emailInput.value)) {
+            e.preventDefault();
+            showModalError('Please enter a valid email address');
+            return;
+          }
+        }
+        
+        formChanged = false;
+      });
+    }
+
+    // Modal close confirmation for unsaved changes
+    if (modal) {
+      $(modal).on('hide.bs.modal', function(e) {
+        if (formChanged) {
+          const confirmClose = confirm('You have unsaved changes. Are you sure you want to close?');
+          if (!confirmClose) {
+            e.preventDefault();
+          } else {
+            formChanged = false;
+            if (patientForm) patientForm.reset();
+            if (ageYearsInput) ageYearsInput.value = 0;
+            if (ageMonthsInput) ageMonthsInput.value = 0;
+            if (ageDaysInput) ageDaysInput.value = 0;
+          }
+        }
+      });
+      
+      $(modal).on('show.bs.modal', function() {
+        const existingError = document.querySelector('#modal-error-message');
+        if (existingError) existingError.remove();
+      });
+    }
+
+    // ========================================================================
+    // 5. AUTO-FORMATTING FOR PHONE AND NATIONAL ID
+    // ========================================================================
+    const phoneField = document.querySelector('#quickAddPatientModal input[name="phone"]');
+    if (phoneField) {
+      phoneField.addEventListener('input', function(e) {
+        let value = this.value.replace(/[^0-9]/g, '');
+        if (value.length > 12) value = value.slice(0, 12);
+        this.value = value;
+      });
+    }
+    
+    const nationalIdField = document.querySelector('#quickAddPatientModal input[name="national_id"]');
+    if (nationalIdField) {
+      nationalIdField.addEventListener('input', function(e) {
+        let value = this.value.replace(/[^0-9]/g, '');
+        if (value.length > 8) value = value.slice(0, 8);
+        this.value = value;
+      });
+    }
+  });
+</script>
+
+{% endblock %}

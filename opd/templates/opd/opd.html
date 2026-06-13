@@ -15,14 +15,13 @@
     
     <div class="ledger-action-row">
       <h2>OPD Bill</h2>
-      <div class="ledger-btn-group">
+      <div class="ledger-btn-group">    
 
+      
         
-        <a href="" class="btn-hms-primary">
-          <i class="fa fa-file-text-o"></i> + Add Patient
-        </a> 
-
-        
+        <a href="{% url 'opd:add_patient' %}" class="btn-hms-primary">
+          <i class="fa fa-file-text-o"></i> + Add Patient 
+        </a>
 
       </div>
     </div>
@@ -53,10 +52,7 @@
     <div>
       <a href="">OPD VIEW</a> |
       <a href="">PATIENT VIEW</a>
-
     </div>
-
-
 
     <div class="table-fixed-container">
       <table class="hms-table hms-billing-log-table">
@@ -84,12 +80,7 @@
             <td></td>
             <td></td>
             <td></td>         
-          
-         
           </tr>         
-         
-
-          
         </tbody>
       </table>
     </div>

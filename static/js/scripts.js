@@ -1,1 +1,1 @@
-alert("Test alerts")
+// alert("Test alerts")

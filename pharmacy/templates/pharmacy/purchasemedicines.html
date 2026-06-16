@@ -11,16 +11,6 @@
     </div>
   </div>
 
-  {% if messages %}
-    <div class="hms-alert-container">
-      {% for message in messages %}
-        <div class="hms-alert-banner {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
-          {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-
   <div class="pharmacy-billing-section">
     
     <div class="ledger-action-row">
@@ -56,7 +46,7 @@
     </div>
 
     <div class="table-fixed-container containment-fullwidth">
-      <table class="hms-table hms-purchase-table table-element-fullwidth">
+      <table class="hms-table hms-purchase-table table-element-fullwidth" id="purchaseTable">
         <thead>
           <tr>
             <th class="col-purchase-no">Pharmacy<br>Purchase No</th>
@@ -72,13 +62,14 @@
         <tbody>
           {% for purchase in purchases %}
           <tr>
-            <td class="purchase-number-cell"><strong>{{ purchase.purchase_number }}</strong></td>
+            <td class="purchase-number-cell"><strong>{{ purchase.purchase_no }}</strong></td>
             <td>{{ purchase.purchase_date|date:"d/m/Y" }}</td>
             <td><span class="badge-bill">{{ purchase.supplier_bill_number }}</span></td>
+            <!-- <td><span class="badge-bill">{{ purchase.supplier_bill_number|default:"—" }}</span></td> -->
             <td class="supplier-name-cell" title="{{ purchase.supplier.name }}">{{ purchase.supplier.name|truncatechars:30 }}</td>
             
             <td class="text-right qty-bold financial-digits">{{ purchase.total_amount|floatformat:2 }}</td>
-            <td class="text-right qty-bold financial-digits">{{ purchase.tax_amount|floatformat:2 }}</td>
+            <td class="text-right qty-bold financial-digits">{{ purchase.tax_summary|floatformat:2 }}</td>
             <td class="text-right qty-bold financial-digits">{{ purchase.discount_amount|floatformat:2 }}</td>
             <td class="text-right financial-digits-bold balance-cell">
               {{ purchase.net_amount|floatformat:2 }}
@@ -142,5 +133,31 @@
 
   </div>
 </div>
+
+<script>
+  // Search functionality
+  const searchInput = document.getElementById('ledgerSearch');
+  if (searchInput) {
+    searchInput.addEventListener('keyup', function() {
+      const searchTerm = this.value.toLowerCase();
+      const tableRows = document.querySelectorAll('#purchaseTable tbody tr');
+      
+      tableRows.forEach(row => {
+        if (row.querySelector('.empty-table-placeholder')) return;
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    });
+  }
+  
+  // Entries per page change
+  const entriesSelect = document.querySelector('.entries-dropdown-select');
+  if (entriesSelect) {
+    entriesSelect.addEventListener('change', function() {
+      const perPage = this.value;
+      window.location.href = `?per_page=${perPage}`;
+    });
+  }
+</script>
 
 {% endblock %}

@@ -12,6 +12,13 @@ class PatientVisit(models.Model):
         ('Discharged', 'Discharged'),
     ]
 
+    PAYMENT_MODE_CHOICES = [
+        ('Cash', 'Cash'),
+        ('M-Pesa', 'M-Pesa'),
+        ('Bank/Card', 'Bank Transfer / Card'),
+        ('Insurance Claim', 'Insurance Claim'),
+    ]
+
     # Link back to your core Patient model
     patient = models.ForeignKey(
         'patients.Patient', 
@@ -28,6 +35,49 @@ class PatientVisit(models.Model):
     bp_diastolic = models.PositiveIntegerField(help_text="mmHg", blank=True, null=True)
     pulse_rate = models.PositiveIntegerField(help_text="bpm", blank=True, null=True)
     weight = models.DecimalField(max_digits=5, decimal_places=2, help_text="kg", blank=True, null=True)
+    
+    # NEW FIELDS FOR OPD CONSULTATION
+    # Symptoms Information
+    symptoms_type = models.CharField(max_length=255, blank=True, null=True)
+    symptoms_title = models.CharField(max_length=255, blank=True, null=True)
+    symptoms_description = models.TextField(blank=True, null=True)
+    
+    # Medical Notes
+    notes = models.TextField(blank=True, null=True, help_text="Prescription / Dispensing Notes")
+    known_allergies = models.TextField(blank=True, null=True)
+    
+    # Consultation Details
+    appointment_date = models.DateTimeField(default=timezone.now)
+    casualty = models.CharField(max_length=3, choices=[('Yes', 'Yes'), ('No', 'No')], default='No')
+    old_patient = models.CharField(max_length=3, choices=[('Yes', 'Yes'), ('No', 'No')], default='No')
+    reference = models.CharField(max_length=255, blank=True, null=True)
+    casualty_doctor = models.CharField(max_length=255, blank=True, null=True)
+    
+    # Insurance and Charges
+    apply_insurance = models.BooleanField(default=False)
+    charge_category = models.CharField(max_length=255, blank=True, null=True)
+    charge_selection = models.CharField(max_length=255, blank=True, null=True)
+    standard_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    applied_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    tax_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    subtotal_base = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    # Payment Information
+    payment_mode = models.CharField(max_length=50, choices=PAYMENT_MODE_CHOICES, default='Cash')
+    paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    # Consultation Status
+    live_consultation = models.CharField(max_length=3, choices=[('Yes', 'Yes'), ('No', 'No')], default='No')
+    
+    # Staff who created the visit
+    created_by = models.ForeignKey(
+        'auth.User', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='created_visits'
+    )
     
     # Tracking Status across the facility
     current_stage = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Triage')

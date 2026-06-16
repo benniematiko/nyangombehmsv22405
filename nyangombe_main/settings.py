@@ -155,3 +155,4 @@ LOGOUT_REDIRECT_URL = 'accounts:login'
 
 # Cleaned up Duplicate: Pointing explicitly to the registered dashboard namespace views
 LOGIN_REDIRECT_URL = 'dashboard:home'
+

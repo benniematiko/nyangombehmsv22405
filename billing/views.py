@@ -1,39 +1,53 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from opd.models import PatientVisit
-from .models import BillingInvoice
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import ChargeCategory, Charge
 
 
-
+# ==============================================================================
+# BILLING HOME — Main billing dashboard
+# ==============================================================================
+@login_required
 def billing_home(request):
+    """Main billing dashboard view"""
+    return render(request, 'billing/billing.html')
+
+
+# ==============================================================================
+# CHARGE CATALOGUE API — Powers cascading dropdowns on addpatient.html
+# ==============================================================================
+
+@login_required
+def get_charge_categories(request):
     """
-    Renders the central billing modules dashboard. 
-    If a valid case_id is passed in the URL parameters, it loads that case's financial sheet.
+    Returns all active charge categories as JSON.
+    GET /billing/api/charge-categories/
+    Response: [{"id": 1, "name": "Consultation"}, ...]
     """
-    case_id = request.GET.get('case_id', '').strip()
-    context = {}
+    categories = ChargeCategory.objects.filter(is_active=True).values('id', 'name')
+    return JsonResponse(list(categories), safe=False)
 
-    if case_id:
-        try:
-            # 1. Attempt to locate the active patient encounter by its Case ID
-            visit = PatientVisit.objects.get(case_id=case_id)
-            
-            # 2. Fetch the invoice linked to this visit, or automatically create one if it's their first time at billing
-            invoice, created = BillingInvoice.objects.get_or_create(visit=visit)
-            
-            # 3. Pack everything cleanly into the context to render on the frontend page
-            context['visit'] = visit
-            context['invoice'] = invoice
-            context['invoice_items'] = invoice.items.all()
-            
-            if created:
-                messages.success(request, f"Initialized new billing ledger for Case: {case_id}")
-            else:
-                messages.success(request, f"Loaded active ledger details for Case: {case_id}")
 
-        except PatientVisit.DoesNotExist:
-            messages.error(request, f"No medical encounter record found matching Case ID: '{case_id}'")
-            return redirect('billing:dashboard')
+@login_required
+def get_charges_by_category(request):
+    """
+    Returns all active charges for a given category as JSON.
+    GET /billing/api/charges/?category_id=3
+    Response: [{"id": 7, "name": "General Consultation", "standard_price": "500.00", "tax_percent": "0.00"}, ...]
+    """
+    category_id = request.GET.get('category_id')
 
-    return render(request, 'billing/billing.html', context)    
+    if not category_id:
+        return JsonResponse({'error': 'category_id parameter is required'}, status=400)
 
+    try:
+        category_id = int(category_id)
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid category_id'}, status=400)
+
+    charges = Charge.objects.filter(
+        category_id=category_id,
+        is_active=True
+    ).values('id', 'name', 'standard_price', 'tax_percent')
+
+    return JsonResponse(list(charges), safe=False)

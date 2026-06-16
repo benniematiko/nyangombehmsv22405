@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -17,8 +18,14 @@ class Supplier(models.Model):
     contact_person = models.CharField(max_length=100, blank=True, null=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
-    location = models.CharField(max_length=200, blank=True, null=True) # e.g., Nairobi, Industrial Area
+    location = models.CharField(max_length=200, blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = "Suppliers"
 
     def __str__(self):
         return self.name
@@ -26,10 +33,14 @@ class Supplier(models.Model):
 
 class MedicineCategory(models.Model):
     """System definition category tags for drugs."""
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = "Medicine Categories"
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -38,7 +49,16 @@ class MedicineCategory(models.Model):
 class Medicine(models.Model):
     """Base generic medicine descriptor table profiles."""
     category = models.ForeignKey(MedicineCategory, on_delete=models.CASCADE, related_name='medicines')
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+    generic_name = models.CharField(max_length=255, blank=True, null=True)
+    manufacturer = models.CharField(max_length=255, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = "Medicines"
 
     def __str__(self):
         return self.name
@@ -53,19 +73,24 @@ class Stock(models.Model):
     Tracks medicine inventory, shelf quantities, and baseline retail pricing 
     at the Eagles Mission Hospital pharmacy.
     """
-    item_name = models.CharField(max_length=200, unique=True, db_index=True) # e.g., "Amoxicillin 500mg"
+    medicine = models.ForeignKey(Medicine, on_delete=models.PROTECT, related_name='stock_items', null=True, blank=True)
+    item_name = models.CharField(max_length=200, db_index=True)
     generic_name = models.CharField(max_length=200, blank=True, null=True)
     batch_number = models.CharField(max_length=100, blank=True, null=True)
     
     quantity_in_stock = models.PositiveIntegerField(default=0)
     reorder_level = models.PositiveIntegerField(default=10, help_text="Alert threshold to restock item")
     
-    buying_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Cost price per unit")
-    selling_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Retail billing charge per unit")
+    buying_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Cost price per unit", default=0.00)
+    selling_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Retail billing charge per unit", default=0.00)
     
     expiry_date = models.DateField(db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['item_name']
+        verbose_name_plural = "Stock Inventory"
 
     @property
     def is_expired(self):
@@ -151,6 +176,10 @@ class Prescription(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     clinical_note = models.TextField(blank=True, null=True, help_text="Diagnosis context or special instructions")
     created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"Rx for Case {self.visit.case_id} — {self.status}"
@@ -181,20 +210,35 @@ class Purchase(models.Model):
     Tracks ledger headers regarding external warehouse acquisitions 
     from verified suppliers.
     """
+    PAYMENT_MODE_CHOICES = [
+        ('Cash', 'Cash'),
+        ('M-Pesa', 'M-Pesa'),
+        ('Bank', 'Bank Transfer'),
+        ('Credit', 'Credit'),
+    ]
+
     purchase_no = models.CharField(max_length=100, unique=True, editable=False)
-    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name='purchases')
+    supplier_bill_number = models.CharField(max_length=100, blank=True, null=True)  # ← ADD HERE   
     purchase_date = models.DateTimeField(default=timezone.now)
     
-    total_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     tax_summary = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    net_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    net_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     
-    payment_mode = models.CharField(max_length=50, choices=[('Cash', 'Cash'), ('M-Pesa', 'M-Pesa'), ('Bank', 'Bank')])
+    payment_mode = models.CharField(max_length=50, choices=PAYMENT_MODE_CHOICES, default='Cash')
     payment_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     payment_note = models.CharField(max_length=255, blank=True, null=True)
     purchase_note = models.TextField(blank=True, null=True)
     document_attachment = models.FileField(upload_to='pharmacy/purchases/', blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-purchase_date']
+        verbose_name_plural = "Purchases"
 
     def save(self, *args, **kwargs):
         if not self.purchase_no:
@@ -210,21 +254,34 @@ class Purchase(models.Model):
 class PurchaseItem(models.Model):
     """
     Itemized drug rows incoming from an external vendor delivery invoice sheet.
-    Duplicated properties completely cleaned up.
     """
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='items')
-    medicine = models.ForeignKey(Medicine, on_delete=models.PROTECT)
+    medicine = models.ForeignKey(Medicine, on_delete=models.PROTECT, related_name='purchase_items')
     batch_no = models.CharField(max_length=100)
     expiry_date = models.DateField()
     
-    mrp = models.DecimalField(max_digits=10, decimal_places=2, help_text="Maximum Retail Price")
+    mrp = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Maximum Retail Price")
     batch_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    sale_price = models.DecimalField(max_digits=10, decimal_places=2)
-    packing_qty = models.IntegerField(default=10)
-    quantity = models.IntegerField()
-    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    packing_qty = models.IntegerField(default=1)
+    quantity = models.IntegerField(default=0)
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     tax_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
-    row_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    row_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Purchase Items"
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate row amount if not set
+        if self.row_amount == 0 and self.quantity and self.purchase_price:
+            base_amount = self.quantity * self.purchase_price
+            tax_amount = base_amount * (self.tax_percent / 100)
+            self.row_amount = base_amount + tax_amount
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.medicine.name} — Batch: {self.batch_no} ({self.purchase.purchase_no})"

@@ -122,6 +122,36 @@
     color: #b71c1c; 
     transform: scale(1.15); /* Pop out effect on interactive hover */
   }
+
+  /* Supplier Bill No pill input styling */
+  .supplier-bill-pill-input {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .supplier-bill-pill-input label {
+    font-weight: 600;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  .supplier-bill-pill-input input {
+    height: 28px;
+    padding: 2px 8px;
+    font-size: 13px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    width: 180px;
+    background: #fff;
+    color: #2d3748;
+  }
+
+  .supplier-bill-pill-input input:focus {
+    outline: none;
+    border-color: #810810;
+    box-shadow: 0 0 0 2px rgba(129, 8, 16, 0.12);
+  }
 </style>
 
 <div class="billing-canvas-container">
@@ -147,10 +177,24 @@
 
     <div class="billing-content-body-wrapper">
         
-      <div class="billing-meta-metrics-row split-two-equal">
-        <div class="meta-metric-pill">Purchase | Bill No: <strong>{{ next_purchase_no }}</strong></div>
-       
-        <div class="meta-metric-pill">Date & Time: <strong>{% now "d/m/Y H:i" %} EAT</strong></div>
+      <div class="billing-meta-metrics-row">
+        <div class="meta-metric-pill">
+          Purchase | Bill No: <strong>{{ next_purchase_no }}</strong>
+        </div>
+
+        <div class="meta-metric-pill supplier-bill-pill-input">
+          <label for="supplier_bill_number">Supplier Bill No:</label>
+          <input 
+            type="text" 
+            id="supplier_bill_number" 
+            name="supplier_bill_number" 
+            placeholder="e.g. INV-2026-001"
+          >
+        </div>
+
+        <div class="meta-metric-pill">
+          Date & Time: <strong>{% now "d/m/Y H:i" %} EAT</strong>
+        </div>
       </div>
 
       <div class="medicine-entry-grid-panel">
@@ -222,8 +266,6 @@
             <div class="field-input-wrapper">
               <label>Amount (shs) <span>*</span></label>
               <input type="number" name="row_amount[]" step="0.01" class="hms-form-input text-right row-calculated-amount financial-input-element" placeholder="0.00" readonly>
-              
-               
             </div>
 
             <div class="field-input-wrapper alignment-control-wrapper">
@@ -324,7 +366,7 @@
     });
     rowTemplate.querySelector('.med-name-select').innerHTML = '<option value="" disabled selected>Select...</option>';
 
-    // 🔥 FIX: Target the cloned span via its class name to transform it into a clean removal 'x' icon
+    // FIX: Target the cloned span via its class name to transform it into a clean removal 'x' icon
     const templateActionBtn = rowTemplate.querySelector('.btn-row-add');
     if (templateActionBtn) {
       templateActionBtn.className = 'btn-row-remove';
@@ -356,7 +398,7 @@
         const row = e.target.closest('.purchase-single-ledger-row');
         const medicineSelect = row.querySelector('.med-name-select');
         
-        // ⏳ Visual loading text status indicator
+        // Visual loading text status indicator
         medicineSelect.innerHTML = '<option value="" disabled selected>⏳ Loading medicines...</option>';
         
         // Fetch endpoint route cleanly mapped inside the app namespace
@@ -438,7 +480,5 @@
     }
   });
 </script>
-
-
 
 {% endblock %}

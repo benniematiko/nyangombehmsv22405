@@ -19,6 +19,8 @@ from .models import (
 )
 from billing.models import BillingInvoice, BillingItem
 
+from django.core.paginator import Paginator
+
 # =========================================================================
 # 1. CORE PHARMACY DASHBOARDS & MANAGEMENT VIEWS
 # =========================================================================
@@ -71,12 +73,41 @@ def add_medicines(request):
     return render(request, 'pharmacy/addmedicines.html')
 
 
+# @login_required
+# def purchase_medicines_ledger(request):
+#     """ Displays wholesale tracking ledger records histories """
+#     purchases = Purchase.objects.select_related('supplier').all().order_by('-purchase_date', '-id')
+#     context = {'purchases': purchases}
+#     return render(request, 'pharmacy/purchasemedicines.html', context)
+
+
+
 @login_required
 def purchase_medicines_ledger(request):
-    """ Displays wholesale tracking ledger records histories """
-    purchases = Purchase.objects.select_related('supplier').all().order_by('-purchase_date', '-id')
+    per_page = request.GET.get('per_page', 10)
+    purchases_qs = Purchase.objects.select_related('supplier').all().order_by('-purchase_date', '-id')
+    
+    paginator = Paginator(purchases_qs, per_page)
+    page_number = request.GET.get('page', 1)
+    purchases = paginator.get_page(page_number)
+    
     context = {'purchases': purchases}
     return render(request, 'pharmacy/purchasemedicines.html', context)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # =========================================================================

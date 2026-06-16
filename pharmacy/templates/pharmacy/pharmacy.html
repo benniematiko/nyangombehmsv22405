@@ -11,16 +11,6 @@
     </div>
   </div>
 
-  {% if messages %}
-    <div class="hms-alert-container">
-      {% for message in messages %}
-        <div class="hms-alert-banner {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
-          {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-
   <div class="pharmacy-billing-section">
     
     <div class="ledger-action-row">
@@ -93,23 +83,23 @@
           {% for invoice in invoices %}
           <tr>
             <td><span class="badge-bill">{{ invoice.invoice_number }}</span></td>
-            <td class="case-id-cell">{{ invoice.visit.patient.patient_number|default:"—" }}</td>
-            <td>{{ invoice.created_at|date:"d/m/Y" }}</td>
+            <td class="case-id-cell">{{ invoice.visit.patient.patient_number|default:"—" }}<\/td>
+            <td>{{ invoice.created_at|date:"d/m/Y" }}<\/td>
             <td title="{{ invoice.visit.patient.get_full_name }}">
               <strong class="patient-name-text">{{ invoice.visit.patient.get_full_name|default:"Unknown Patient" }}</strong>
-            </td>
+            <\/td>
             <td title="{{ invoice.doctor.get_full_name|default:invoice.doctor.username }}">
               {% if invoice.doctor %}
                 Dr. {{ invoice.doctor.first_name }} {{ invoice.doctor.last_name }}
               {% else %}
                 —
               {% endif %}
-            </td>
+            <\/td>
             
-            <td class="text-right financial-digits">{{ invoice.discount_amount|floatformat:2 }}</td>
-            <td class="text-right financial-digits-bold">{{ invoice.net_amount|floatformat:2 }}</td>
-            <td class="text-right financial-digits-paid">{{ invoice.amount_paid|floatformat:2 }}</td>
-            <td class="text-right financial-digits">0.00</td>
+            <td class="text-right financial-digits">{{ invoice.discount_amount|floatformat:2 }}<\/td>
+            <td class="text-right financial-digits-bold">{{ invoice.net_amount|floatformat:2 }}<\/td>
+            <td class="text-right financial-digits-paid">{{ invoice.amount_paid|floatformat:2 }}<\/td>
+            <td class="text-right financial-digits">0.00<\/td>
             
             <td class="text-right balance-cell {% if invoice.balance_due <= 0 %}balance-clear{% else %}balance-due{% endif %}">
               {{ invoice.balance_due|floatformat:2 }}
@@ -125,13 +115,13 @@
                   <i class="fa fa-print"></i>
                 </button>
               </div>
-            </td>
-          </tr>
+            <\/td>
+          </table>
           {% empty %}
           <tr>
             <td colspan="10" class="empty-table-placeholder">
               No pharmacy billing records found.
-            </td>
+            <\/td>
           </tr>
           {% endfor %}
         </tbody>
@@ -176,18 +166,19 @@
 
 <script>
   // Dynamic client-side list searching match layout
-  document.getElementById('ledgerSearch').addEventListener('keyup', function() {
-    const searchTerm = this.value.toLowerCase();
-    const tableRows = document.querySelectorAll('#billingTable tbody tr');
-    
-    tableRows.forEach(row => {
-      // Avoid breaking search checks on completely empty list data placeholder rows
-      if (row.querySelector('.empty-table-placeholder')) return;
+  const searchInput = document.getElementById('ledgerSearch');
+  if (searchInput) {
+    searchInput.addEventListener('keyup', function() {
+      const searchTerm = this.value.toLowerCase();
+      const tableRows = document.querySelectorAll('#billingTable tbody tr');
       
-      const text = row.textContent.toLowerCase();
-      row.style.display = text.includes(searchTerm) ? '' : 'none';
+      tableRows.forEach(row => {
+        if (row.querySelector('.empty-table-placeholder')) return;
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
     });
-  });
+  }
   
   // URL Parameter Sync Helper Function
   function updateUrlParams(key, value) {
@@ -197,7 +188,6 @@
     } else {
       urlParams.delete(key);
     }
-    // Always fallback page index parameter back to row 1 on layout filter adjustment
     if (key !== 'page') {
       urlParams.set('page', '1');
     }
@@ -205,14 +195,20 @@
   }
 
   // Handle Entries Per Page Adjustment
-  document.getElementById('entriesPerPage').addEventListener('change', function() {
-    updateUrlParams('per_page', this.value);
-  });
+  const entriesPerPage = document.getElementById('entriesPerPage');
+  if (entriesPerPage) {
+    entriesPerPage.addEventListener('change', function() {
+      updateUrlParams('per_page', this.value);
+    });
+  }
   
   // Handle Category Filter Selection Event
-  document.getElementById('categoryFilter').addEventListener('change', function() {
-    updateUrlParams('category', this.value);
-  });
+  const categoryFilter = document.getElementById('categoryFilter');
+  if (categoryFilter) {
+    categoryFilter.addEventListener('change', function() {
+      updateUrlParams('category', this.value);
+    });
+  }
   
   // Print execution route redirect anchor wrapper
   function printInvoice(invoiceId) {

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OPD Invoice - {{ visit.case_id }}</title>
+    <style>
+        @page {
+            size: a4 portrait;
+            margin: 1.2cm 1.4cm;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Master Header Layout Layout */
+        .invoice-master-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .invoice-master-table td {
+            padding: 0;
+            vertical-align: top;
+        }
+        
+        /* Branding Elements (Left) */
+        .brand-section {
+            width: 55%;
+        }
+        .logo-placeholder {
+            font-size: 22px;
+            font-weight: 800;
+            color: #990000; /* Standard Crimson */
+            margin: 0 0 4px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .hospital-meta {
+            font-size: 10.5px;
+            color: #555555;
+            line-height: 1.4;
+        }
+        
+        /* Document Title/Meta (Right) */
+        .meta-section {
+            width: 45%;
+            text-align: right;
+        }
+        .document-title {
+            font-size: 24px;
+            font-weight: 300;
+            color: #990000;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 10px 0;
+        }
+        .meta-details-table {
+            margin-left: auto;
+            border-collapse: collapse;
+        }
+        .meta-details-table td {
+            padding: 2px 0 2px 15px;
+            font-size: 11px;
+        }
+        .meta-lbl {
+            font-weight: 600;
+            color: #666666;
+        }
+        .meta-val {
+            color: #111111;
+            text-align: right;
+        }
+
+        /* Divider */
+        .crimson-bar {
+            height: 3px;
+            background-color: #990000;
+            margin: 15px 0;
+        }
+
+        /* Patient & Case Address Blocks */
+        .address-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .address-matrix td {
+            width: 50%;
+            padding: 0;
+            vertical-align: top;
+        }
+        .address-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #990000;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+        .address-box {
+            font-size: 11px;
+            line-height: 1.45;
+            color: #333333;
+        }
+
+        /* Professional Itemized Ledger Table */
+        .invoice-ledger {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .invoice-ledger th {
+            background-color: #990000;
+            color: #ffffff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            padding: 7px 10px;
+            border: 1px solid #990000;
+        }
+        .invoice-ledger td {
+            padding: 7px 10px;
+            border-bottom: 1px solid #e5e5e5;
+            border-left: 1px solid #e5e5e5;
+            border-right: 1px solid #e5e5e5;
+            vertical-align: top;
+        }
+        
+        /* Alignment helpers */
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .w-amount { width: 18%; }
+        
+        /* Financial Summary Block stacked under table */
+        .summary-wrapper {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: -1px; /* Blends cleanly with the table above */
+        }
+        .summary-wrapper td {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+        .summary-label {
+            text-align: right;
+            font-weight: 600;
+            color: #555555;
+            border: none;
+        }
+        .summary-value {
+            text-align: right;
+            border: 1px solid #e5e5e5;
+            width: 18%;
+        }
+        .grand-total-row td {
+            font-weight: 700;
+            background-color: #fdf2f2;
+            border-top: 1px solid #990000 !important;
+            border-bottom: 2px double #990000 !important;
+        }
+        .grand-total-price {
+            color: #990000;
+            font-size: 12px;
+        }
+
+        /* Clinical/Dispensing Context Notes block */
+        .clinical-notes {
+            margin: 20px 0;
+            background-color: #fbfbfb;
+            border-left: 3px solid #990000;
+            padding: 8px 12px;
+        }
+        .notes-hdr {
+            font-weight: 700;
+            color: #990000;
+            margin-bottom: 3px;
+            font-size: 10.5px;
+            text-transform: uppercase;
+        }
+
+        /* Signatures Footer elements */
+        .signature-container {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+        }
+        .sig-cell {
+            width: 50%;
+            vertical-align: top;
+        }
+        .sig-line {
+            width: 180px;
+            border-top: 1px solid #666666;
+            text-align: center;
+            font-size: 10px;
+            color: #555555;
+            padding-top: 4px;
+            margin-top: 30px;
+        }
+
+        /* Professional Thank you Anchor */
+        .thankyou-message {
+            text-align: center;
+            margin-top: 35px;
+            padding: 10px 0;
+            border-top: 1px dashed #dddddd;
+        }
+        .thankyou-text {
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            font-size: 13px;
+            color: #990000;
+            margin-bottom: 4px;
+        }
+        .system-footer {
+            font-size: 9px;
+            color: #888888;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Block Template Layout Structure -->
+    <table class="invoice-master-table">
+        <tr>
+            <!-- Left Branding block -->
+            <td class="brand-section">
+                <div class="logo-placeholder">{{ hospital_name }}</div>
+                <div class="hospital-meta">
+                    {{ hospital_address }}<br>
+                    Phone: {{ hospital_phone }}<br>
+                    Email: {{ hospital_email }}
+                </div>
+            </td>
+            <!-- Right Meta block -->
+            <td class="meta-section">
+                <div class="document-title">Invoice</div>
+                <table class="meta-details-table">
+                    <tr>
+                        <td class="meta-lbl">Invoice No:</td>
+                        <td class="meta-val" style="font-weight: 700;">INV-{{ visit.case_id }}</td>
+                    </tr>
+                    <tr>
+                        <td class="meta-lbl">Date:</td>
+                        <td class="meta-val">{{ visit.appointment_date|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="meta-lbl">Payment Status:</td>
+                        <td class="meta-val" style="text-transform: uppercase; font-weight: 700; color: #990000;">Paid</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <div class="crimson-bar"></div>
+
+    <!-- Client / Patient Info Address block Context layout -->
+    <table class="address-matrix">
+        <tr>
+            <td>
+                <div class="address-title">Invoice To:</div>
+                <div class="address-box">
+                    <strong>{{ patient.full_name }}</strong><br>
+                    Patient ID: {{ patient.patient_number }}<br>
+                    Phone: {{ patient.phone_number }}<br>
+                    Age / Gender: {{ age }} Yrs / {{ patient.gender }}
+                </div>
+            </td>
+            <td style="padding-left: 40px;">
+                <div class="address-title">Encounter Details:</div>
+                <div class="address-box">
+                    Consultant: {{ visit.casualty_doctor|default:"Medical Officer" }}<br>
+                    Case Presentation: {{ visit.symptoms_title|default:"General Consultation" }}<br>
+                    Tracking Context: {{ visit.reference|default:"Direct Walk-In" }} 
+                    {% if visit.casualty %}(Emergency Outpatient){% endif %}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Real-Life Billing Breakdown Ledger Table Module -->
+    <table class="invoice-ledger">
+        <thead>
+            <tr>
+                <th class="text-center" style="width: 8%;">#</th>
+                <th style="width: 54%;">Item / Operational Service Line Description</th>
+                <th class="text-center" style="width: 10%;">Qty</th>
+                <th class="text-right" style="width: 14%;">Unit Rate</th>
+                <th class="text-right w-amount">Total (KES)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-center">1</td>
+                <td>
+                    <strong>Outpatient Consultation Fee</strong><br>
+                    <span style="font-size: 10px; color:#666666;">Clinical encounter, assessment and treatment formulation track.</span>
+                </td>
+                <td class="text-center">1</td>
+                <td class="text-right">{{ visit.applied_charge|floatformat:2 }}</td>
+                <td class="text-right">{{ visit.applied_charge|floatformat:2 }}</td>
+            </tr>
+            <!-- Dynamically adds an entry line if a tax margin calculation is present -->
+            {% if visit.tax_total and visit.tax_total != "0.00" and visit.tax_total != 0 %}
+            <tr>
+                <td class="text-center">2</td>
+                <td><strong>Statutory Healthcare V.A.T / Tax Levy</strong></td>
+                <td class="text-center">1</td>
+                <td class="text-right">{{ visit.tax_total|floatformat:2 }}</td>
+                <td class="text-right">{{ visit.tax_total|floatformat:2 }}</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <!-- Lower Ledger Calculations Summary Blocks -->
+    <table class="summary-wrapper">
+        <tr>
+            <td colspan="3" style="border: none;"></td>
+            <td class="summary-label">Subtotal:</td>
+            <td class="summary-value">{{ visit.applied_charge|floatformat:2 }}</td>
+        </tr>
+        {% if visit.discount and visit.discount != "0.00" and visit.discount != 0 %}
+        <tr>
+            <td colspan="3" style="border: none;"></td>
+            <td class="summary-label">Discount Applied:</td>
+            <td class="summary-value">- {{ visit.discount|floatformat:2 }}</td>
+        </tr>
+        {% endif %}
+        {% if visit.tax_total and visit.tax_total != "0.00" and visit.tax_total != 0 %}
+        <tr>
+            <td colspan="3" style="border: none;"></td>
+            <td class="summary-label">Tax / VAT:</td>
+            <td class="summary-value">{{ visit.tax_total|floatformat:2 }}</td>
+        </tr>
+        {% endif %}
+        <tr class="grand-total-row">
+            <td colspan="3" style="border: none;"></td>
+            <td class="summary-label" style="color: #990000;">Total Due:</td>
+            <td class="summary-value grand-total-price">{{ visit.subtotal_base|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td colspan="3" style="border: none;"></td>
+            <td class="summary-label">Amount Paid via [{{ visit.payment_mode }}]:</td>
+            <td class="summary-value" style="font-weight: 600;">{{ visit.paid_amount|floatformat:2 }}</td>
+        </tr>
+        {% if visit.payment_mode != 'Insurance Claim' and visit.paid_amount < visit.subtotal_base %}
+        <tr style="color: #dc2626; font-weight: 700;">
+            <td colspan="3" style="border: none;"></td>
+            <td class="summary-label" style="color: #dc2626;">Balance Remainder Due:</td>
+            <td class="summary-value">{{ visit.subtotal_base|add:visit.paid_amount|floatformat:2 }}</td>
+        </tr>
+        {% endif %}
+    </table>
+
+    <!-- Clinical Exceptions Notes Blocks -->
+    {% if visit.notes or visit.known_allergies %}
+        {% if visit.notes %}
+        <div class="clinical-notes">
+            <div class="notes-hdr">Prescription / Dispensing Notes</div>
+            <div>{{ visit.notes }}</div>
+        </div>
+        {% endif %}
+
+        {% if visit.known_allergies %}
+        <div class="clinical-notes" style="border-left-color: #dc2626; background-color: #fff5f5;">
+            <div class="notes-hdr" style="color: #dc2626;">Allergen Warning Contraindications</div>
+            <div style="color: #b91c1c;">{{ visit.known_allergies }}</div>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    <!-- Signature Workflow Layout Elements block Wrapper -->
+    <table class="signature-container">
+        <tr>
+            <td class="sig-cell">
+                <div class="sig-line">Patient / Representative Signature</div>
+            </td>
+            <td class="sig-cell" style="text-align: right;">
+                <div class="sig-line" style="margin-left: auto;">Authorized Officer / Hospital Stamp</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Elegant Bottom Thank You Bracket Block and Validation Anchor -->
+    <div class="thankyou-message">
+        <div class="thankyou-text">Thank you for choosing Eagles Mission Hospital.</div>
+        <div style="font-size: 10px; color: #555555; margin-bottom: 8px;">We are honored to participate in your care environment and wish you a swift, smooth recovery.</div>
+        <div class="system-footer">
+            This document is a validated financial ledger transaction summary generated directly within the cloud HMS core system infrastructure framework.<br>
+            No manual execution signature is required to assert operational validity.
+        </div>
+    </div>
+
+</body>
+</html>

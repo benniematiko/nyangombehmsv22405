@@ -1,5 +1,8 @@
 {% extends "base.html" %} 
 {% block title %} Admin Dashboard | Eagles Mission Hospital{% endblock %} 
+
+{% load humanize %}   <!-- ← Important: Add this line -->
+
 {% block content %}
 
 <div class="hms-dashboard-fullwidth">
@@ -8,7 +11,7 @@
     <div class="meta-title-group">
       <h1>Administrative Dashboard</h1>
       <p class="meta-subtitle">
-        Eagles Mission Hospital Management Information System
+        ProClinic Hospital Management Information System
       </p>
     </div>
     <div class="system-time-stamp">
@@ -18,22 +21,22 @@
 
   <div class="hms-financial-matrix-grid">
     
-    <a href="" class="dashboard-clickable-tile-wrapper">
+    <a href="{% url 'opd:opd_home' %}" class="dashboard-clickable-tile-wrapper">
       <div class="mini-tile tile-blue-gradient">
         <div class="tile-icon-box"><i class="fa fa-heartbeat"></i></div>
         <div class="tile-body">
           <span class="tile-label">OPD Income</span>
-          <h2 class="tile-number">Kshs. {{ opd_revenue|floatformat:2 }}</h2>
+          <h2 class="tile-number">Kshs. {{ opd_revenue|floatformat:2|intcomma }}</h2>
         </div>
       </div>
     </a>
 
-    <a href="" class="dashboard-clickable-tile-wrapper">
+    <a href="{% url 'ipd:ipd_home' %}" class="dashboard-clickable-tile-wrapper">
       <div class="mini-tile tile-blue-gradient">
         <div class="tile-icon-box"><i class="fa fa-bed"></i></div>
         <div class="tile-body">
           <span class="tile-label">IPD Income</span>
-          <h2 class="tile-number">Kshs. {{ ipd_revenue|floatformat:2 }}</h2>
+          <h2 class="tile-number">Kshs. {{ ipd_revenue|floatformat:2|intcomma }}</h2>
         </div>
       </div>
     </a>
@@ -43,7 +46,7 @@
         <div class="tile-icon-box"><i class="fa fa-plus-square"></i></div>
         <div class="tile-body">
           <span class="tile-label">Pharmacy Income</span>
-          <h2 class="tile-number">Kshs. {{ pharmacy_collected_revenue|floatformat:2 }}</h2>
+          <h2 class="tile-number">Kshs. {{ pharmacy_collected_revenue|floatformat:2|intcomma }}</h2>
         </div>
       </div>
     </a>
@@ -53,7 +56,7 @@
         <div class="tile-icon-box"><i class="fa fa-flask"></i></div>
         <div class="tile-body">
           <span class="tile-label">Laboratory Income</span>
-          <h2 class="tile-number">Kshs. {{ laboratory_revenue|floatformat:2 }}</h2>
+          <h2 class="tile-number">Kshs. {{ laboratory_revenue|floatformat:2|intcomma }}</h2>
         </div>
       </div>
     </a>
@@ -63,7 +66,7 @@
         <div class="tile-icon-box"><i class="fa fa-film"></i></div>
         <div class="tile-body">
           <span class="tile-label">Radiology Income</span>
-          <h2 class="tile-number">Kshs. {{ radiology_revenue|floatformat:2 }}</h2>
+          <h2 class="tile-number">Kshs. {{ radiology_revenue|floatformat:2|intcomma }}</h2>
         </div>
       </div>
     </a>
@@ -73,7 +76,7 @@
         <div class="tile-icon-box"><i class="fa fa-tint"></i></div>
         <div class="tile-body">
           <span class="tile-label">Blood Bank Income</span>
-          <h2 class="tile-number">Kshs. {{ blood_bank_revenue|floatformat:2 }}</h2>
+          <h2 class="tile-number">Kshs. {{ blood_bank_revenue|floatformat:2|intcomma }}</h2>
         </div>
       </div>
     </a>
@@ -83,7 +86,7 @@
         <div class="tile-icon-box"><i class="fa fa-ambulance"></i></div>
         <div class="tile-body">
           <span class="tile-label">Ambulance Income</span>
-          <h2 class="tile-number">Kshs. {{ ambulance_revenue|floatformat:2 }}</h2>
+          <h2 class="tile-number">Kshs. {{ ambulance_revenue|floatformat:2|intcomma }}</h2>
         </div>
       </div>
     </a>
@@ -93,17 +96,17 @@
         <div class="tile-icon-box"><i class="fa fa-money"></i></div>
         <div class="tile-body">
           <span class="tile-label">General Income</span>
-          <h2 class="tile-number">Kshs. {{ general_revenue|floatformat:2 }}</h2>
+          <h2 class="tile-number">Kshs. {{ general_revenue|floatformat:2|intcomma }}</h2>
         </div>
       </div>
     </a>
 
-    <a href="" class="dashboard-clickable-tile-wrapper">
+    <a href="{% url 'finance:expenses' %}" class="dashboard-clickable-tile-wrapper">
       <div class="mini-tile tile-red-gradient">
         <div class="tile-icon-box"><i class="fa fa-pie-chart"></i></div>
         <div class="tile-body">
           <span class="tile-label">Expenses Outflow</span>
-          <h2 class="tile-number">Kshs. {{ expenses_outflow|floatformat:2 }}</h2>
+          <h2 class="tile-number">Kshs. {{ expenses_outflow|floatformat:2|intcomma }}</h2>
         </div>
       </div>
     </a>

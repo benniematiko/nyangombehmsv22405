@@ -474,3 +474,141 @@ def delete_visit(request, visit_id):
         messages.success(request, 'Consultation record deleted successfully!')
         return redirect('opd:opd_home')
     return redirect('opd:opd_home')
+
+
+
+    # added views for actions
+
+    # ==============================================================================
+# ADD PRESCRIPTION — Redirects to pharmacy bill generation with visit context
+# ==============================================================================
+# ==============================================================================
+# ADD PRESCRIPTION — Render prescription form within OPD app
+# ==============================================================================
+@login_required
+def add_prescription(request, visit_id):
+    """Render prescription form for a specific OPD visit"""
+    visit = get_object_or_404(PatientVisit, id=visit_id)
+    
+    # Get the patient
+    patient = visit.patient
+    
+    # Calculate age
+    from datetime import datetime
+    today = datetime.now().date()
+    age = today.year - patient.date_of_birth.year
+    if (today.month, today.day) < (patient.date_of_birth.month, patient.date_of_birth.day):
+        age -= 1
+    
+    context = {
+        'visit': visit,
+        'patient': patient,
+        'age': age,
+        'case_id': visit.case_id,
+    }
+    
+    return render(request, 'opd/addprescription.html', context)
+
+
+# ==============================================================================
+# SAVE PRESCRIPTION — Save prescription from OPD prescription form
+# ==============================================================================
+@login_required
+def save_prescription(request, visit_id):
+    """Save prescription from the OPD prescription form"""
+    visit = get_object_or_404(PatientVisit, id=visit_id)
+    
+    if request.method == 'POST':
+        # Get form data
+        drug_name = request.POST.get('drug_name', '').strip()
+        dosage = request.POST.get('dosage', '').strip()
+        frequency = request.POST.get('frequency', '').strip()
+        duration = request.POST.get('duration', '').strip()
+        instructions = request.POST.get('instructions', '').strip()
+        clinical_notes = request.POST.get('clinical_notes', '').strip()
+        
+        # Validate
+        if not drug_name or not dosage or not frequency:
+            messages.error(request, 'Please fill in all required fields: Drug Name, Dosage, and Frequency.')
+            return redirect('opd:add_prescription', visit_id=visit_id)
+        
+        # Build prescription text
+        from django.utils import timezone
+        prescription_text = f"""
+=== PRESCRIPTION ===
+Patient: {visit.patient.full_name}
+Patient ID: {visit.patient.patient_number}
+Case ID: {visit.case_id}
+Date: {timezone.now().strftime('%Y-%m-%d %H:%M')}
+Prescribed by: {request.user.get_full_name() or request.user.username}
+
+Medication:
+  Drug: {drug_name}
+  Dosage: {dosage}
+  Frequency: {frequency}
+  Duration: {duration if duration else 'As prescribed'}
+
+Special Instructions:
+{instructions if instructions else 'None'}
+
+Clinical Notes:
+{clinical_notes if clinical_notes else 'None'}
+"""
+        
+        # Save to visit notes
+        if visit.notes:
+            visit.notes = f"{visit.notes}\n\n{prescription_text}"
+        else:
+            visit.notes = prescription_text
+        
+        visit.save(update_fields=['notes'])
+        
+        messages.success(request, f'Prescription for {drug_name} saved successfully!')
+        return redirect('opd:opd_home')
+    
+    return redirect('opd:add_prescription', visit_id=visit_id)
+
+# ==============================================================================
+# MANUAL PRESCRIPTION — Simple notes form saved to PatientVisit.notes
+# ==============================================================================
+@login_required
+def manual_prescription(request, visit_id):
+    """Save a manual prescription note to the visit record"""
+    visit = get_object_or_404(PatientVisit, id=visit_id)
+
+    if request.method == 'POST':
+        prescription_notes = request.POST.get('prescription_notes', '').strip()
+        if prescription_notes:
+            visit.notes = prescription_notes
+            visit.save(update_fields=['notes'])
+            return JsonResponse({'success': True, 'message': 'Prescription saved successfully.'})
+        return JsonResponse({'success': False, 'message': 'Prescription notes cannot be empty.'}, status=400)
+
+    # GET — return current notes for the modal
+    return JsonResponse({
+        'success': True,
+        'visit_id': visit.id,
+        'case_id': visit.case_id,
+        'patient_name': visit.patient.full_name,
+        'notes': visit.notes or '',
+    })
+
+
+# ==============================================================================
+# MOVE TO IPD — Updates visit stage to signal IPD admission
+# ==============================================================================
+@login_required
+def move_to_ipd(request, visit_id):
+    """Mark OPD visit as transferred to IPD"""
+    visit = get_object_or_404(PatientVisit, id=visit_id)
+
+    if request.method == 'POST':
+        visit.current_stage = 'Discharged'  # OPD stage ends
+        visit.save(update_fields=['current_stage'])
+        messages.success(
+            request,
+            f'Patient {visit.patient.full_name} (Case: {visit.case_id}) transferred to IPD successfully.'
+        )
+        return JsonResponse({'success': True, 'message': 'Patient transferred to IPD.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)

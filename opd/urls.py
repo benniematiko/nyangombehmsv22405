@@ -21,4 +21,10 @@ urlpatterns = [
     path('api/visit/<int:visit_id>/', views.get_visit_details, name='get_visit_details'),
     path('api/patient/<int:patient_id>/', views.get_patient_details_api, name='get_patient_details_api'),
     path('delete/<int:visit_id>/', views.delete_visit, name='delete_visit'),
+
+    # action section such as add prescription, show, print bill
+    
+    path('prescription/<int:visit_id>/', views.add_prescription, name='add_prescription'),
+    path('manual-prescription/<int:visit_id>/', views.manual_prescription, name='manual_prescription'),
+    path('move-to-ipd/<int:visit_id>/', views.move_to_ipd, name='move_to_ipd'),
 ]

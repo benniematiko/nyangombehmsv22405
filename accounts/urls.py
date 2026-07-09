@@ -1,10 +1,15 @@
 from django.urls import path
-from django.contrib.auth import views as auth_views
+from . import views  # Imports your local views.py containing login_view and logout_view
 
 app_name = 'accounts'
 
 urlpatterns = [
-    # Django handles the backend validation automatically; we just give it a template
-    path('login/', auth_views.LoginView.as_callable(template_name='accounts/login.html') if hasattr(auth_views.LoginView, 'as_callable') else auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_callable() if hasattr(auth_views.LogoutView, 'as_callable') else auth_views.LogoutView.as_view(), name='logout'),
+    # 1. Custom validation Login handler view
+    path('login/', views.login_view, name='login'),
+    
+    # 2. Custom "Are you sure?" confirmation template page view
+    path('logout/', views.logout_view, name='logout_confirm'),
+    
+    # 3. Secure execution path triggered by the confirmation form countdown timer
+    path('logout/execute/', views.logout_execute_view, name='logout'),
 ]

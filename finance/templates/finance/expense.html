@@ -1,0 +1,618 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Expenses & Procurement | Eagles Mission Hospital{% endblock %}
+{% block content %}
+
+<style>
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal-content {
+    background: #ffffff;
+    width: 85%;
+    max-width: 950px;
+    max-height: 95vh;
+    overflow-y: auto;
+    border-radius: 0px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    border-bottom: 1px solid #1e293b;
+    background: #334155;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .modal-header h5 { font-weight: 600; color: #ffffff; font-size: 16px; margin: 0; }
+  .modal-header-actions { display: flex; align-items: center; gap: 6px; }
+
+  .modal-action-btn {
+    background: none; border: none; color: #ffffff;
+    font-size: 15px; cursor: pointer; padding: 4px 8px;
+    opacity: 0.8; transition: opacity 0.2s; border-radius: 0px;
+  }
+  .modal-action-btn:hover { opacity: 1; }
+
+  .modal-close {
+    background: none; border: none; color: #ffffff;
+    font-size: 28px; cursor: pointer; opacity: 0.9;
+    transition: opacity 0.2s; padding: 0 4px; line-height: 1;
+  }
+  .modal-close:hover { opacity: 1; }
+
+  .modal-body { padding: 20px; font-size: 13px; background: #ffffff; }
+
+  .modal-footer {
+    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+
+  .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 8px; }
+  .form-group { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .form-group label {
+    font-weight: 600; color: #4a5568;
+    margin-bottom: 2px; font-size: 12px;
+  }
+
+  .form-group .form-control {
+    height: 30px; padding: 2px 8px; font-size: 12px;
+    border: 1px solid #cbd5e0; border-radius: 0px !important;
+    box-sizing: border-box; width: 100%;
+  }
+
+  .form-group textarea.form-control {
+    height: auto; min-height: 50px; resize: vertical;
+  }
+
+  .form-group .form-control:focus {
+    outline: none; border-color: #334155;
+    box-shadow: 0 0 0 2px rgba(51, 65, 85, 0.2);
+  }
+
+  .form-group .form-control[readonly] {
+    background: #f1f5f9; cursor: not-allowed;
+  }
+
+  .text-danger { color: #dc3545; }
+
+  .btn-modal-action {
+    padding: 8px 20px; border: none; font-weight: 600;
+    font-size: 13px; cursor: pointer; border-radius: 0px !important;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-modal-action.save { background: #2e7d32; color: #fff; }
+  .btn-modal-action.save:hover { background: #1b5e20; }
+  .btn-modal-action.close-modal { background: #6c757d; color: #fff; }
+  .btn-modal-action.close-modal:hover { background: #5a6268; }
+  .btn-modal-action.disburse { background: #1e293b; color: #fff; }
+  .btn-modal-action.disburse:hover { background: #0f172a; }
+
+  .loading-spinner { text-align: center; padding: 40px; color: #718096; }
+  .loading-spinner i { font-size: 32px; margin-bottom: 12px; }
+
+  .hms-expenses-log-table tbody tr {
+    position: relative;
+    transition: background-color 0.2s ease;
+  }
+  .hms-expenses-log-table tbody tr:hover { background-color: #f8fafc; }
+  .hms-expenses-log-table tbody tr:hover .row-hover-popover {
+    display: flex; gap: 4px; align-items: center;
+  }
+  .hms-expenses-log-table .row-hover-popover {
+    right: 8px; top: 50%; transform: translateY(-50%);
+  }
+
+  @media (max-width: 768px) {
+    .form-row { flex-direction: column; }
+    .modal-content { width: 95%; }
+  }
+</style>
+
+{% if messages %}
+<div style="padding:0 20px;margin-bottom:0;">
+    {% for message in messages %}
+    <div style="padding:10px 16px;margin-bottom:6px;font-size:13px;font-weight:500;
+                {% if message.tags == 'success' %}background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;
+                {% elif message.tags == 'error' %}background:#fee2e2;color:#dc2626;border:1px solid #fecaca;
+                {% else %}background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;{% endif %}">
+        <i class="fa fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="expenses-container-layout template-fullwidth-override">
+
+    <div class="expenses-panel-header">
+        <div class="panel-title-group">
+            <h1><i class="fa fa-money"></i> Finance & Expenses Department</h1>
+            <p class="panel-subtitle">Hospital expenditure, vendor payments, claims disbursement, and procurement ledgers</p>
+        </div>
+    </div>
+
+    <div class="expenses-billing-section">
+
+        <div class="ledger-action-row">
+            <h2>Expenditure Ledger</h2>
+            <div class="ledger-btn-group">
+                <button type="button" class="btn-hms-primary" onclick="openAddExpenseModal()">
+                    <i class="fa fa-plus"></i> Record an Expense
+                </button>
+            </div>
+        </div>
+
+        <div class="ledger-utility-row">
+            <div class="search-wrapper-block">
+                <label for="ledgerSearch">Search</label>
+                <input type="text" id="ledgerSearch" class="search-input-field"
+                       placeholder="Filter by voucher, payee, cost center, or merchant...">
+            </div>
+            <div class="export-pagination-group">
+                <select id="entriesPerPage" class="entries-dropdown-select">
+                    <option value="10">Display 10 records</option>
+                    <option value="20" {% if request.GET.per_page == '20' or not request.GET.per_page %}selected{% endif %}>Display 20 records</option>
+                    <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>Display 50 records</option>
+                    <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>Display 100 records</option>
+                </select>
+                <div class="export-icon-buttons-container">
+                    <button type="button" class="btn-export-icon" title="Copy Table Data"><i class="fa fa-copy"></i></button>
+                    <button type="button" class="btn-export-icon" title="Export to Excel"><i class="fa fa-file-excel-o"></i></button>
+                    <button type="button" class="btn-export-icon" title="Export to CSV"><i class="fa fa-file-text-o"></i></button>
+                    <button type="button" class="btn-export-icon" title="Export to PDF"><i class="fa fa-file-pdf-o"></i></button>
+                    <button type="button" class="btn-export-icon" title="Print Table"><i class="fa fa-print"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-fixed-container containment-fullwidth">
+            <table class="hms-table hms-expenses-log-table table-element-fullwidth" id="expensesTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Invoice Number</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Expense Head</th>
+                        <th class="text-right">Amount (sh)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr style="cursor:pointer; position:relative;"
+                        onclick="openExpenseModal('{{ expense.id }}')">
+                        <td title="{{ expense.payee_name }}">
+                            <strong class="merchant-name-text">{{ expense.payee_name|default:"Unknown Merchant" }}</strong>
+                        </td>
+                        <td><span class="badge-bill">{{ expense.voucher_number }}</span></td>
+                        <td>{{ expense.expense_date|date:"d/m/Y" }}</td>
+                        <td class="case-id-cell">{{ expense.notes|default:expense.reference_code|default:"—" }}</td>
+                        <td>{{ expense.category|default:"General Operations" }}</td>
+                        <td class="text-right financial-digits-bold" style="position:relative; padding-right:100px;">
+                            {{ expense.net_amount|floatformat:2 }}
+                            <div class="row-hover-popover" onclick="event.stopPropagation()">
+                                <a href="{% url 'finance:edit_expense' expense.id %}"
+                                   class="popover-btn popover-btn-show"
+                                   title="Edit Expense">
+                                    <i class="fa fa-pencil"></i> Edit
+                                </a>
+                                <button type="button"
+                                        class="popover-btn"
+                                        style="background:#fef2f2;color:#dc2626;"
+                                        onclick="deleteExpense('{{ expense.id }}', '{{ expense.voucher_number }}')"
+                                        title="Delete Expense">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-table-placeholder">
+                            No hospital expense records found matching criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="ledger-pagination-row">
+            <div class="pagination-counter-info">
+                Records: <strong>{{ expenses.start_index }}</strong> to
+                <strong>{{ expenses.end_index }}</strong> of
+                <strong>{{ total_records }}</strong>
+            </div>
+            <div class="pagination-nav-controls">
+                {% if expenses.has_previous %}
+                    <a href="?page=1&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-double-left"></i></a>
+                    <a href="?page={{ expenses.previous_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-left"></i></a>
+                {% else %}
+                    <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-left"></i></button>
+                    <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-left"></i></button>
+                {% endif %}
+
+                <div class="page-numeric-links">
+                    {% for num in expenses.paginator.page_range %}
+                        {% if num == expenses.number %}
+                            <button type="button" class="btn-page-num active-page">{{ num }}</button>
+                        {% elif num > expenses.number|add:'-3' and num < expenses.number|add:'3' %}
+                            <a href="?page={{ num }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-num">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if expenses.has_next %}
+                    <a href="?page={{ expenses.next_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-right"></i></a>
+                    <a href="?page={{ expenses.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-double-right"></i></a>
+                {% else %}
+                    <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-right"></i></button>
+                    <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-right"></i></button>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── ADD EXPENSE MODAL ── -->
+<div id="addExpenseModal" class="modal-overlay">
+    <div class="modal-content" style="max-width:700px;">
+        <div class="modal-header">
+            <h5><i class="fa fa-plus-circle" style="margin-right:8px;"></i> Add Expense</h5>
+            <div class="modal-header-actions">
+                <button type="button" class="modal-close" onclick="closeAddExpenseModal()">&times;</button>
+            </div>
+        </div>
+        <form method="POST" action="{% url 'finance:addexpense' %}" enctype="multipart/form-data" id="addExpenseForm">
+            {% csrf_token %}
+            <div class="modal-body" style="padding:12px 20px;">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Invoice Head <span class="text-danger">*</span></label>
+                        <select id="category" name="category" class="form-control" required>
+                            <option value="">Select Category...</option>
+                            <option value="Medical Supplies">Medical Supplies</option>
+                            <option value="Laboratory Supplies">Laboratory Supplies</option>
+                            <option value="Pharmacy">Pharmacy</option>
+                            <option value="Equipment">Equipment</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Salaries">Salaries</option>
+                            <option value="Administrative">Administrative</option>
+                            <option value="Training">Training</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payee_name">Payee / Beneficiary Name <span class="text-danger">*</span></label>
+                        <input type="text" id="payee_name" name="payee_name" class="form-control"
+                               placeholder="e.g. ABC Supplies Ltd" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="voucher_number">Invoice / Voucher Number <span class="text-danger">*</span></label>
+                        <input type="text" id="voucher_number" name="voucher_number" class="form-control"
+                               placeholder="EXP-2026-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense_date">Expense Date <span class="text-danger">*</span></label>
+                        <input type="date" id="expense_date" name="expense_date" class="form-control"
+                               value="{% now 'Y-m-d' %}" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="net_amount">Amount (Kshs.) <span class="text-danger">*</span></label>
+                        <input type="number" id="net_amount" name="net_amount" step="0.01"
+                               class="form-control" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="attachment">Attach Receipt / Document</label>
+                        <input type="file" id="attachment" name="attachment"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               style="height:30px;padding:2px 4px;border:1px solid #cbd5e0;
+                                      width:100%;box-sizing:border-box;font-size:11px;">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="description">Description / Justification <span class="text-danger">*</span></label>
+                        <textarea id="description" name="description" class="form-control" rows="3"
+                                  placeholder="Brief description of the expense..." required></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="padding:10px 20px;">
+                <button type="button" class="btn-modal-action close-modal" onclick="closeAddExpenseModal()">
+                    <i class="fa fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="btn-modal-action save">
+                    <i class="fa fa-save"></i> Save Expense
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── VIEW EXPENSE MODAL ── -->
+<div id="expenseModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5><i class="fa fa-file-text-o" style="margin-right:8px;"></i> Expense Voucher</h5>
+            <div class="modal-header-actions">
+                <button type="button" class="modal-action-btn" onclick="printModalVoucher()" title="Print">
+                    <i class="fa fa-print"></i> Print
+                </button>
+                <button type="button" class="modal-action-btn" onclick="editModalExpense()" title="Edit">
+                    <i class="fa fa-edit"></i> Edit
+                </button>
+                <button type="button" class="modal-action-btn" onclick="deleteModalExpense()" title="Delete">
+                    <i class="fa fa-trash"></i> Delete
+                </button>
+                <button type="button" class="modal-close" onclick="closeExpenseModal()">&times;</button>
+            </div>
+        </div>
+        <div class="modal-body" id="expenseModalBody">
+            <div class="loading-spinner">
+                <div><i class="fa fa-spinner fa-spin"></i></div>
+                <div>Loading...</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-action close-modal" onclick="closeExpenseModal()">
+                <i class="fa fa-times"></i> Close
+            </button>
+            <a href="#" class="btn-modal-action disburse" id="modalDisburseBtn" style="display:none;">
+                <i class="fa fa-credit-card"></i> Disburse Funds
+            </a>
+        </div>
+    </div>
+</div>
+
+{% csrf_token %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ── SEARCH ──
+    const searchInput = document.getElementById('ledgerSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function () {
+            const term = this.value.toLowerCase();
+            document.querySelectorAll('#expensesTable tbody tr').forEach(row => {
+                if (row.querySelector('.empty-table-placeholder')) return;
+                row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+            });
+        });
+    }
+
+    // ── ENTRIES PER PAGE ──
+    const entriesPerPage = document.getElementById('entriesPerPage');
+    if (entriesPerPage) {
+        entriesPerPage.addEventListener('change', function () {
+            const url = new URL(window.location.href);
+            url.searchParams.set('per_page', this.value);
+            url.searchParams.set('page', 1);
+            window.location.href = url.toString();
+        });
+    }
+
+    // ── ADD EXPENSE MODAL ──
+    window.openAddExpenseModal = function () {
+        document.getElementById('addExpenseModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        const dateInput = document.getElementById('expense_date');
+        if (dateInput && !dateInput.value) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+
+        const voucherInput = document.getElementById('voucher_number');
+        if (voucherInput && !voucherInput.value) {
+            const year = new Date().getFullYear();
+            const rand = String(Math.floor(Math.random() * 9000) + 1000);
+            voucherInput.value = `EXP-${year}-${rand}`;
+        }
+    };
+
+    window.closeAddExpenseModal = function () {
+        document.getElementById('addExpenseModal').classList.remove('active');
+        document.body.style.overflow = '';
+        const form = document.getElementById('addExpenseForm');
+        if (form) form.reset();
+    };
+
+    // ── VIEW EXPENSE MODAL ──
+    let currentExpenseId = null;
+
+    window.openExpenseModal = function (expenseId) {
+        const modal = document.getElementById('expenseModal');
+        const body  = document.getElementById('expenseModalBody');
+        const disburseBtn = document.getElementById('modalDisburseBtn');
+
+        currentExpenseId = expenseId;
+        body.innerHTML = '<div class="loading-spinner"><div><i class="fa fa-spinner fa-spin"></i></div><div>Loading...</div></div>';
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // ✅ FIXED: correct /finance/ URL
+        fetch(`/finance/voucher/${expenseId}/details/`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    body.innerHTML = `<div style="text-align:center;padding:40px;color:#c62828;">${data.error || 'Error loading expense.'}</div>`;
+                    return;
+                }
+
+                const exp = data.expense;
+
+                if (exp.status !== 'Approved') {
+                    // ✅ FIXED: correct /finance/ URL
+                    disburseBtn.href = `/finance/voucher/${exp.id}/disburse/`;
+                    disburseBtn.style.display = 'inline-flex';
+                } else {
+                    disburseBtn.style.display = 'none';
+                }
+
+                const itemsHtml = exp.items && exp.items.length > 0
+                    ? `<table class="hms-table" style="margin-top:16px;font-size:12px;">
+                        <thead><tr>
+                            <th>Description</th><th>Qty</th>
+                            <th class="text-right">Unit Price</th>
+                            <th class="text-right">Total</th>
+                        </tr></thead>
+                        <tbody>
+                        ${exp.items.map(i => `<tr>
+                            <td>${i.name}</td>
+                            <td>${i.quantity}</td>
+                            <td class="text-right">${(i.unit_price || 0).toFixed(2)}</td>
+                            <td class="text-right financial-digits-bold">${(i.row_total || 0).toFixed(2)}</td>
+                        </tr>`).join('')}
+                        </tbody>
+                      </table>`
+                    : `<table class="hms-table" style="margin-top:16px;font-size:12px;">
+                        <thead><tr><th>Description</th><th class="text-right">Total (Kshs)</th></tr></thead>
+                        <tbody><tr>
+                            <td>${exp.description || '—'}</td>
+                            <td class="text-right financial-digits-bold">${(exp.net_amount || 0).toFixed(2)}</td>
+                        </tr></tbody>
+                      </table>`;
+
+                body.innerHTML = `
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #e2e8f0;margin-bottom:16px;">
+                        <div style="border-right:1px solid #e2e8f0;">
+                            ${detailRow('Voucher No', `<span class="badge-bill">${exp.voucher_number}</span>`)}
+                            ${detailRow('Payee', `<strong>${exp.payee_name}</strong>`)}
+                            ${detailRow('Category', exp.category)}
+                            ${detailRow('Date', exp.date)}
+                            ${detailRow('Payment Method', exp.payment_method || '—')}
+                            ${detailRow('Reference', exp.reference_code || '—')}
+                        </div>
+                        <div>
+                            ${detailRow('Net Amount', `<strong style="color:#810810;">Kshs. ${(exp.net_amount || 0).toLocaleString()}</strong>`)}
+                            ${detailRow('Tax Amount', `Kshs. ${(exp.tax_amount || 0).toFixed(2)}`)}
+                            ${detailRow('Gross Amount', `Kshs. ${(exp.gross_amount || 0).toFixed(2)}`)}
+                            ${detailRow('Status', exp.status === 'Approved'
+                                ? '<span class="badge-bill" style="background:#dcfce7;color:#16a34a;">Approved</span>'
+                                : '<span class="badge-bill" style="background:#fef9c3;color:#b45309;">Pending</span>')}
+                            ${detailRow('Created By', exp.created_by || '—')}
+                            ${detailRow('Notes', exp.notes || '—')}
+                        </div>
+                    </div>
+                    ${itemsHtml}
+                `;
+            })
+            .catch(err => {
+                body.innerHTML = `<div style="text-align:center;padding:40px;color:#c62828;">Error loading details: ${err.message}</div>`;
+            });
+    };
+
+    function detailRow(label, value) {
+        return `<div style="display:grid;grid-template-columns:120px 1fr;border-bottom:1px solid #f1f5f9;">
+            <span style="padding:7px 12px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;background:#f8fafc;border-right:1px solid #f1f5f9;">${label}</span>
+            <span style="padding:7px 12px;font-size:13px;color:#0f172a;">${value}</span>
+        </div>`;
+    }
+
+    window.closeExpenseModal = function () {
+        document.getElementById('expenseModal').classList.remove('active');
+        document.body.style.overflow = '';
+        currentExpenseId = null;
+    };
+
+    // ✅ FIXED: correct /finance/ URLs
+    window.printModalVoucher = function () {
+        if (currentExpenseId) window.open(`/finance/voucher/${currentExpenseId}/print/`, '_blank');
+    };
+
+    window.editModalExpense = function () {
+        if (currentExpenseId) window.location.href = `/finance/voucher/${currentExpenseId}/edit/`;
+    };
+
+    window.deleteModalExpense = function () {
+        if (!currentExpenseId) return;
+        if (!confirm('Delete this expense? This cannot be undone.')) return;
+
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // ✅ FIXED: correct /finance/ URL
+        fetch(`/finance/voucher/${currentExpenseId}/delete/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrf }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) { closeExpenseModal(); location.reload(); }
+            else alert(data.error || 'Delete failed.');
+        })
+        .catch(() => alert('Network error. Please try again.'));
+    };
+
+    // ── DELETE FROM ROW HOVER ──
+    window.deleteExpense = function (expenseId, voucherNumber) {
+        if (!confirm(`Delete expense ${voucherNumber}? This cannot be undone.`)) return;
+
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // ✅ FIXED: correct /finance/ URL
+        fetch(`/finance/voucher/${expenseId}/delete/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrf }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) window.location.reload();
+            else alert(data.error || 'Delete failed.');
+        })
+        .catch(() => alert('Network error. Please try again.'));
+    };
+
+    // ── CLOSE ON BACKDROP CLICK ──
+    ['expenseModal', 'addExpenseModal'].forEach(id => {
+        document.getElementById(id).addEventListener('click', function (e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+    });
+
+    // ── CLOSE ON ESC ──
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeExpenseModal();
+            closeAddExpenseModal();
+        }
+    });
+
+});
+</script>
+
+{% endblock %}

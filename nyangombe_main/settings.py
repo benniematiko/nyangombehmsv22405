@@ -43,10 +43,11 @@ INSTALLED_APPS = [
     'laboratory',
     'opd',
     'ipd',
-    'billing',
-    'expenses',
+    'billing',    
     'appointments',
     'radiology',
+    'finance',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
@@ -148,11 +149,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Dedicated Authentication Pipeline Redirect Routing
+# ==========================================================================
+# AUTHENTICATION REDIRECT PIPELINE
+# ==========================================================================
 
+# The view a user is kicked to if a @login_required decorator blocks them
 LOGIN_URL = 'accounts:login'
-LOGOUT_REDIRECT_URL = 'accounts:login'
 
-# Cleaned up Duplicate: Pointing explicitly to the registered dashboard namespace views
+# Where users landing patch immediately after typing valid credentials
 LOGIN_REDIRECT_URL = 'dashboard:home'
+
+# Sends users straight back to the login wall when they terminate their session
+LOGOUT_REDIRECT_URL = 'accounts:login'
 

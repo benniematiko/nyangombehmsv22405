@@ -1,13 +1,288 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %} IPD Management | Eagles Mission Hospital{% endblock %}
+{% block content %}
 
-    <h1>IPD</h1>
+<style>
+  /* Navigation links styling */
+.view-links {
+    margin-bottom: 12px;
+}
+
+.view-links a {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.view-links a:hover {
+    color: #990000;
+}
+
+.view-links .separator {
+    color: #cbd5e1;
+    margin: 0 8px;
+}
+
+/* Status badge styles */
+.status-badge {
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 0px;
+    display: inline-block;
+}
+
+.status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.discharged {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.admitted {
+    background: #cce5ff;
+    color: #004085;
+}
+</style>
+
+<div class="pharmacy-container-layout">
+  
+  <div class="pharmacy-panel-header">
+    <div class="panel-title-group">
+      <h1><i class="fa fa-plus-square"></i> IPD Department</h1>
+      <p class="panel-subtitle">Inpatient management, admissions, discharges, and bed tracking</p>
+    </div>
+  </div>
+
+  <div class="pharmacy-billing-section">
     
-</body>
-</html>
+    <div class="ledger-action-row">
+      <h2>IPD Patients</h2>
+      <div class="ledger-btn-group"> 
+        <a href="" class="btn-hms-primary">
+          <i class="fa fa-file-text-o"></i> + Admit Patient 
+        </a>
+        
+        <a href="" class="btn-hms-secondary">        
+          <i class="fa fa-medkit"></i> Discharge Patient     
+        </a>
+      </div>
+    </div>
+
+    <div class="ledger-utility-row">
+      <div class="search-wrapper-block">
+        <label for="ledgerSearch">Search</label>
+        <input type="text" id="ledgerSearch" class="search-input-field" placeholder="Filter by IPD No, Patient, Case ID, or Doctor...">
+      </div>
+      
+      <div class="export-pagination-group">
+        <select id="entriesPerPage" class="entries-dropdown-select" aria-label="Records display pagination configuration">
+          <option value="10">Display 10 records</option>
+          <option value="20" {% if request.GET.per_page == '20' or not request.GET.per_page %}selected{% endif %}>Display 20 records</option>
+          <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>Display 50 records</option>
+          <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>Display 100 records</option>
+        </select>
+        
+        <div class="export-icon-buttons-container">
+          <button type="button" class="btn-export-icon" title="Copy Table Data"><i class="fa fa-copy"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to Excel"><i class="fa fa-file-excel-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to CSV"><i class="fa fa-file-text-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to PDF"><i class="fa fa-file-pdf-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Print Table"><i class="fa fa-print"></i></button>
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="table-fixed-container">
+      <table class="hms-table hms-billing-log-table">
+        <thead>
+          <tr>
+            <th>IPD No</th>
+            <th>Case ID</th>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>Phone</th>
+            <th>Consultant Doctor</th>
+            <th>Bed</th>
+            <th>Is Antenatal</th>
+            <th>Credit Limit (sh)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ipd_patient in ipd_patients %}
+          <tr>
+            <td><span class="badge-bill">{{ ipd_patient.ipd_number }}</span></td>
+            <td><strong>{{ ipd_patient.case_id }}</strong></td>
+            <td title="{{ ipd_patient.patient.full_name }}">
+              <strong class="patient-name-text">{{ ipd_patient.patient.full_name }}</strong>
+            </td>
+            <td>{{ ipd_patient.patient.gender|default:"-" }}</td>
+            <td>{{ ipd_patient.patient.phone_number|default:"-" }}</td>
+            <td>Dr. {{ ipd_patient.consultant_doctor|default:"-" }}</td>
+            <td>
+              <span style="font-weight:600;">
+                {{ ipd_patient.bed_number|default:"-" }}
+                {% if ipd_patient.ward_name %}
+                  <span style="font-size:10px; color:#718096; display:block;">{{ ipd_patient.ward_name }}</span>
+                {% endif %}
+              </span>
+            </td>
+            <td>
+              {% if ipd_patient.is_antenatal %}
+                <span style="color:#2e7d32; font-weight:600;">✓ Yes</span>
+              {% else %}
+                <span style="color:#718096;">No</span>
+              {% endif %}
+            </td>
+            <td class="text-right financial-digits">
+              {{ ipd_patient.credit_limit|floatformat:2|default:"0.00" }}
+            </td>
+            <td>
+              <button type="button" class="btn-view" onclick="viewDetails({{ ipd_patient.id }})" style="background: none; border: none; color: #3b82f6; cursor: pointer; font-size:14px;" title="View Details">
+                <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button" class="btn-print" onclick="printIPD({{ ipd_patient.id }})" style="background: none; border: none; color: #10b981; cursor: pointer; font-size:14px;" title="Print">
+                <i class="fa fa-print"></i>
+              </button>
+
+              <button type="button" class="btn-prescription" onclick="addPrescription({{ ipd_patient.id }})" style="background: none; border: none; color: #8b5cf6; cursor: pointer; font-size:14px;" title="Add Prescription">
+                <i class="fa fa-plus-square"></i>
+              </button>
+
+              <button type="button" class="btn-transfer" onclick="transferWard({{ ipd_patient.id }})" style="background: none; border: none; color: #f59e0b; cursor: pointer; font-size:14px;" title="Transfer Ward">
+                <i class="fa fa-exchange"></i>
+              </button>
+
+              <button type="button" class="btn-discharge" onclick="dischargePatient({{ ipd_patient.id }})" style="background: none; border: none; color: #c62828; cursor: pointer; font-size:14px;" title="Discharge">
+                <i class="fa fa-sign-out"></i>
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="10" style="text-align: center; padding: 40px;">
+              <i class="fa fa-inbox" style="font-size: 48px; color: #ccc;"></i><br>
+              No IPD patients found.
+              
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ledger-pagination-row">
+      <div class="pagination-counter-info">
+        Records: <strong>{{ ipd_patients.start_index }}</strong> to <strong>{{ ipd_patients.end_index }}</strong> of <strong>{{ total_count }}</strong>
+      </div>
+      
+      <div class="pagination-nav-controls">
+        {% if ipd_patients.has_previous %}
+          <a href="?page=1&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-double-left"></i></a>
+          <a href="?page={{ ipd_patients.previous_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-left"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-left"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-left"></i></button>
+        {% endif %}
+        
+        <div class="page-numeric-links">
+          {% for num in ipd_patients.paginator.page_range %}
+            {% if num == ipd_patients.number %}
+              <button type="button" class="btn-page-num active-page">{{ num }}</button>
+            {% elif num > ipd_patients.number|add:'-3' and num < ipd_patients.number|add:'3' %}
+              <a href="?page={{ num }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-num">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
+          {% if ipd_patients.paginator.num_pages > ipd_patients.number|add:'3' %}
+            <span class="page-ellipsis-spacer">...</span>
+            <a href="?page={{ ipd_patients.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-num">{{ ipd_patients.paginator.num_pages }}</a>
+          {% endif %}
+        </div>
+
+        {% if ipd_patients.has_next %}
+          <a href="?page={{ ipd_patients.next_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-right"></i></a>
+          <a href="?page={{ ipd_patients.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-double-right"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-right"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-right"></i></button>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('ledgerSearch');
+    const table = document.querySelector('.hms-billing-log-table');
+    
+    if (searchInput && table) {
+      searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        for (let row of rows) {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(searchTerm) ? '' : 'none';
+        }
+      });
+    }
+    
+    // Entries per page
+    const entriesSelect = document.getElementById('entriesPerPage');
+    if (entriesSelect) {
+      entriesSelect.value = "{{ request.GET.per_page|default:20 }}";
+      entriesSelect.addEventListener('change', function() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('per_page', this.value);
+        url.searchParams.set('page', 1);
+        window.location.href = url.toString();
+      });
+    }
+  });
+  
+  // View details function
+  function viewDetails(id) {
+    // Implement view details modal or redirect
+    window.location.href = `/ipd/view/${id}/`;
+  }
+  
+  // Print IPD function
+  function printIPD(id) {
+    window.open(`/ipd/print/${id}/`, '_blank');
+  }
+  
+  // Add Prescription function
+  function addPrescription(id) {
+    window.location.href = `/ipd/prescription/add/${id}/`;
+  }
+  
+  // Transfer Ward function
+  function transferWard(id) {
+    window.location.href = `/ipd/transfer/${id}/`;
+  }
+  
+  // Discharge Patient function
+  function dischargePatient(id) {
+    if (confirm('Are you sure you want to discharge this patient?')) {
+      window.location.href = `/ipd/discharge/${id}/`;
+    }
+  }
+</script>
+
+{% endblock %}

@@ -3,7 +3,6 @@
 {% block content %}
 
 <style>
-  /* Container Panel adjustments */
   .medicine-entry-grid-panel {
     width: 100%;
     overflow-x: auto;
@@ -18,7 +17,6 @@
     min-width: 100%;
   }
 
-  /* Transform the ledger row into a single 100% width row layout */
   .purchase-single-ledger-row {
     display: flex;
     flex-direction: row;
@@ -30,7 +28,6 @@
     border-radius: 2px;
   }
 
-  /* Tightly control each individual input field wrapper */
   .purchase-single-ledger-row .field-input-wrapper {
     flex: 1;
     display: flex;
@@ -38,7 +35,6 @@
     margin: 0 !important;
   }
 
-  /* Tailor-fit column sizing based on estimated text length */
   .purchase-single-ledger-row .field-input-wrapper:has(select[name="med_name[]"]) {
     flex: 2;
     min-width: 130px;
@@ -49,17 +45,14 @@
     min-width: 110px;
   }
 
-  .purchase-single-ledger-row .field-input-wrapper:has(input[name="mrp[]"]),
-  .purchase-single-ledger-row .field-input-wrapper:has(select[name="med_category[]"]), 
-  .purchase-single-ledger-row .field-input-wrapper:has(input[name="tax_percent[]"]),
+  .purchase-single-ledger-row .field-input-wrapper:has(select[name="med_category[]"]),
   .purchase-single-ledger-row .field-input-wrapper:has(input[name="quantity[]"]),
-  .purchase-single-ledger-row .field-input-wrapper:has(input[name="packing_qty[]"]) 
-  {
+  .purchase-single-ledger-row .field-input-wrapper:has(input[name="sale_price[]"]),
+  .purchase-single-ledger-row .field-input-wrapper:has(input[name="tax_percent[]"]) {
     flex: 0.8;
-    min-width: 60px;
+    min-width: 70px;
   }
 
-  /* Action alignment button column (Fluid width) */
   .purchase-single-ledger-row .alignment-control-wrapper {
     flex: 0 0 auto !important;
     width: auto;
@@ -69,7 +62,6 @@
     padding-bottom: 2px;
   }
 
-  /* Label Refinements for single-row dense layouts */
   .purchase-single-ledger-row .field-input-wrapper label {
     font-size: 11px;
     font-weight: 600;
@@ -80,7 +72,6 @@
     color: #4a5568;
   }
 
-  /* Form element inputs density corrections */
   .purchase-single-ledger-row .hms-form-input,
   .purchase-single-ledger-row .hms-form-select {
     width: 100% !important;
@@ -88,9 +79,9 @@
     padding: 2px 6px !important;
     font-size: 13px !important;
     box-sizing: border-box;
+    border-radius: 0px !important;
   }
 
-  /* Minimalist Action Icon Configurations */
   .btn-row-add, .btn-row-remove {
     display: inline-flex;
     align-items: center;
@@ -105,189 +96,113 @@
     transition: transform 0.2s ease, color 0.2s ease;
   }
 
-  .btn-row-add {
-    color: #2e7d32;
-  }
-  .btn-row-add:hover { 
-    color: #1b5e20; 
-    transform: scale(1.15);
-  }
+  .btn-row-add { color: #2e7d32; }
+  .btn-row-add:hover { color: #1b5e20; transform: scale(1.15); }
+  .btn-row-remove { color: #c62828; }
+  .btn-row-remove:hover { color: #b71c1c; transform: scale(1.15); }
 
-  .btn-row-remove {
-    color: #c62828;
-  }
-  .btn-row-remove:hover { 
-    color: #b71c1c; 
-    transform: scale(1.15);
-  }
-
-  /* Top action bar styles */
-  .billing-top-action-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 8px 12px;
-    background: #990000;
-    border-bottom: 2px solid #800000;
-  }
-
-  .billing-left-inputs {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    flex: 1;
-    flex-wrap: wrap;
-  }
-
-  .billing-header-field-group {
+  /* ── Patient Search ── */
+  .patient-search-wrapper {
     position: relative;
-    display: flex;
-    align-items: center;
-    margin-bottom: 0;
-    flex: 0 0 30%;
-    max-width: 30%;
+    width: 60%;
+    display: inline-block;
   }
 
-  .billing-header-field-group label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #ffffff;
-    margin-right: 8px;
-    white-space: nowrap;
-  }
-
-  .billing-header-field-group label span {
-    color: #ffcccc;
-  }
-
-  .billing-header-input {
-    width: 100%;
-    height: 32px;
-    padding: 0 10px;
-    border: 1px solid #b33333;
-    border-radius: 0px !important;
-    background: #ffffff;
-    color: #2d3748;
-    font-size: 13px;
-    box-sizing: border-box;
-  }
-
-  .btn-quick-add-patient {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: #000000;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    height: 32px;
-    padding: 0 12px;
-    border: 1px solid #cbd5e0;
-    border-radius: 0px !important;
-    background: #ffffff;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    box-sizing: border-box;
-    line-height: 30px;
-    white-space: nowrap;
-  }
-
-  .btn-quick-add-patient:hover {
-    background-color: whitesmoke;
-    color: #990000;
-  }
-
-  .btn-header-close-route {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 32px;
-    width: 32px;
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 18px;
-    opacity: 0.85;
-  }
-
-  .btn-header-close-route:hover {
-    opacity: 1;
-  }
-
-  /* Patient suggestions dropdown */
-  .patient-suggestions-dropdown {
+  #patient_results {
     position: absolute;
+    top: 100%;
     left: 0;
     right: 0;
-    top: 100%;
-    margin-top: 2px;
-    background: #ffffff;
+    background: #fff;
     border: 1px solid #cbd5e0;
-    border-radius: 0px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-top: none;
     max-height: 220px;
     overflow-y: auto;
     z-index: 1050;
-    box-sizing: border-box;
     display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
   }
 
-  .patient-suggestion-item {
+  .patient-result-item {
     padding: 8px 12px;
     cursor: pointer;
-    border-bottom: 1px solid #edf2f7;
+    border-bottom: 1px solid #f1f5f9;
     font-size: 13px;
     color: #2d3748;
-    transition: background 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  .patient-suggestion-item:hover {
-    background: #f7fafc;
-  }
+  .patient-result-item:hover { background: #f7fafc; }
 
-  .patient-suggestion-item strong {
-    display: block;
-  }
-
-  .patient-suggestion-item small {
+  .patient-result-item .pid {
     color: #718096;
     font-size: 11px;
+    margin-left: 8px;
   }
 
-  .no-results {
+  .patient-result-status {
     padding: 8px 12px;
+    font-size: 12px;
     color: #718096;
-    font-size: 13px;
     font-style: italic;
   }
 
-  /* Modal Overlay */
+  /* ── readonly autofill style ── */
+  .autofill-input {
+    background: #f1f5f9 !important;
+    cursor: not-allowed;
+  }
+
+  /* Out of stock / disabled input style */
+  .out-of-stock-input {
+    background: #fef2f2 !important;
+    color: #c62828 !important;
+    border-color: #fecaca !important;
+  }
+
+  .qty-disabled {
+    background: #fef2f2 !important;
+    color: #c62828 !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+  }
+
+  .stock-warning {
+    color: #c62828;
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 1px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .stock-warning.low {
+    color: #e67e22;
+  }
+
+  /* ── Modal ── */
   .modal-overlay {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
     z-index: 9998;
     justify-content: center;
     align-items: center;
   }
-
-  .modal-overlay.active {
-    display: flex;
-  }
+  .modal-overlay.active { display: flex; }
 
   .modal-content {
-    background: #ffffff;
-    width: 90%;
-    max-width: 900px;
+    background: #fff;
+    width: 80%;
+    max-width: 1100px;
     max-height: 90vh;
     overflow-y: auto;
     border-radius: 0px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   }
 
   .modal-header {
@@ -299,316 +214,227 @@
     align-items: center;
   }
 
-  .modal-header h5 {
-    font-weight: 600;
-    color: #ffffff;
-    font-size: 16px;
-    margin: 0;
-  }
+  .modal-header h5 { font-weight: 600; color: #fff; font-size: 16px; margin: 0; }
+  .modal-close { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; opacity: 0.9; }
+  .modal-close:hover { opacity: 1; }
 
-  .modal-close {
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-size: 24px;
-    cursor: pointer;
-    opacity: 0.9;
-  }
+  .modal-body { padding: 20px; font-size: 13px; background: #fff; }
+  .modal-footer { border-top: 1px solid #e2e8f0; background: #fff; padding: 12px 20px; display: flex; justify-content: flex-end; gap: 10px; }
 
-  .modal-close:hover {
-    opacity: 1;
-  }
-
-  .modal-body {
-    padding: 20px;
-    font-size: 13px;
-    background: #ffffff;
-  }
-
-  .modal-footer {
-    border-top: 1px solid #e2e8f0;
-    background: #ffffff;
-    padding: 12px 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-
-  /* Form styles */
-  .form-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .form-group {
-    flex: 1;
-    min-width: 120px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-group label {
-    font-weight: 600;
-    color: #4a5568;
-    margin-bottom: 4px;
-    font-size: 12px;
-  }
-
-  .form-group .text-danger {
-    color: #dc3545;
-  }
+  .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+  .form-group { flex: 1; min-width: 120px; display: flex; flex-direction: column; }
+  .form-group label { font-weight: 600; color: #4a5568; margin-bottom: 3px; font-size: 12px; }
+  .text-danger { color: #dc3545; }
 
   .form-control {
-    height: 32px;
-    padding: 2px 8px;
-    font-size: 13px;
-    border: 1px solid #cbd5e0;
-    border-radius: 0px !important;
-    box-sizing: border-box;
+    height: 32px; padding: 2px 8px; font-size: 13px;
+    border: 1px solid #cbd5e0; border-radius: 0px !important;
+    box-sizing: border-box; width: 100%;
+  }
+  textarea.form-control { height: auto; min-height: 56px; resize: none; }
+  .form-control-file { border: 1px solid #cbd5e0; border-radius: 0px !important; height: 32px; width: 100%; font-size: 12px; padding: 4px; box-sizing: border-box; }
+
+  .btn-cancel { border-radius: 0px !important; font-size: 13px; font-weight: 600; height: 34px; padding: 0 16px; background: #6c757d; color: #fff; border: none; cursor: pointer; }
+  .btn-save   { border-radius: 0px !important; font-size: 13px; font-weight: 700; padding: 0 24px; height: 34px; background: #990000; color: #fff; border: none; cursor: pointer; }
+  .btn-save:hover { background: #800000; }
+
+  .btn-quick-add-patient {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #000; font-size: 13px; font-weight: 600; text-decoration: none;
+    height: 32px; padding: 0 12px; border: 1px solid #cbd5e0;
+    border-radius: 0px !important; background: #fff; cursor: pointer;
+    box-sizing: border-box; white-space: nowrap; transition: all 0.2s;
+  }
+  .btn-quick-add-patient:hover { background: whitesmoke; color: #990000; }
+
+  .case-id-pill-input { display: inline-flex; align-items: center; gap: 8px; }
+  .case-id-pill-input label { font-weight: 600; white-space: nowrap; margin: 0; }
+  .case-id-pill-input input {
+    height: 28px; padding: 2px 8px; font-size: 13px;
+    border: 1px solid #cbd5e0; border-radius: 0px !important;
+    width: 180px; background: #f1f5f9; color: #2d3748; cursor: not-allowed;
+  }
+
+  /* Doctor row styles */
+  .doctor-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    align-items: flex-end;
+  }
+  .doctor-row .field-input-wrapper {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  /* ── Compact Row Styles ── */
+  .compact-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px 8px;
+    align-items: flex-end;
+    margin-bottom: 6px;
     width: 100%;
   }
 
-  textarea.form-control {
-    height: auto;
-    min-height: 60px;
-    resize: none;
+  .compact-row .form-group {
+    margin-bottom: 0;
+    flex-shrink: 0;
   }
 
-  .form-control-file {
-    border: 1px solid #cbd5e0;
-    border-radius: 0px !important;
-    height: 32px;
-    width: 100%;
-    font-size: 12px;
-    padding: 4px;
-    box-sizing: border-box;
-  }
-
-  .btn-cancel {
-    border-radius: 0px !important;
-    font-size: 13px;
+  .compact-row .form-group label {
+    font-size: 10px;
     font-weight: 600;
-    height: 34px;
-    padding: 0 16px;
-    background: #6c757d;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-
-  .btn-save {
-    border-radius: 0px !important;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 0 24px;
-    height: 34px;
-    background: #990000;
-    color: #ffffff;
-    border: none;
-    cursor: pointer;
-  }
-
-  .btn-save:hover {
-    background: #800000;
-  }
-
-  .btn-terminal-save {
-    background: #1e293b;
-    color: #ffffff;
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 13px;
-    border-radius: 0px;
-  }
-
-  .btn-terminal-save:hover {
-    background: #0f172a;
-  }
-
-  .btn-terminal-print {
-    background: #990000;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 13px;
-    border-radius: 0px;
-  }
-
-  .btn-terminal-print:hover {
-    background: #800000;
-  }
-
-  .billing-terminal-action-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    justify-content: flex-end;
-  }
-
-  .full-width-terminal {
-    width: 100%;
-  }
-
-  .financial-ledger-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .financial-row-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .financial-row-item label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #475569;
-  }
-
-  .financial-row-item .bold-label {
-    font-weight: 700;
-    color: #1e293b;
-  }
-
-  .text-right {
-    text-align: right;
-  }
-
-  .financial-input-element {
-    background: #f1f5f9;
-  }
-
-  .summary-right-ledger-card {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    padding: 16px;
-  }
-
-  .summary-left-card-block {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .billing-split-summary-layout {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 16px;
-    margin-top: 16px;
-  }
-
-  .billing-meta-metrics-row {
-    display: flex;
-    gap: 16px;
-    padding: 8px 12px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    margin: 12px 0;
-  }
-
-  .meta-metric-pill {
-    font-size: 13px;
     color: #4a5568;
+    margin-bottom: 2px;
+    display: block;
+    white-space: nowrap;
   }
 
-  .meta-metric-pill strong {
-    color: #1e293b;
+  .compact-row .form-control {
+    height: 28px;
+    padding: 2px 6px;
+    font-size: 11px;
+    border: 1px solid #cbd5e0;
+    border-radius: 0px !important;
+    box-sizing: border-box;
+    width: 100%;
   }
 
-  .no-margin {
-    margin: 0;
+  .compact-row select.form-control {
+    padding: 1px 4px;
+    font-size: 10px;
+    height: 28px;
   }
 
-  /* Checkbox styling */
-  input[type="checkbox"] {
-    width: 15px;
-    height: 15px;
-    cursor: pointer;
+  .compact-row input[type="file"].form-control {
+    padding: 1px 2px;
+    font-size: 9px;
+    height: 28px;
   }
 
-  @media (max-width: 768px) {
-    .billing-left-inputs {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    
-    .billing-header-field-group {
-      flex: 1;
-      max-width: 100%;
-    }
-
-    .billing-split-summary-layout {
-      grid-template-columns: 1fr;
-    }
+  .compact-row input[type="date"].form-control {
+    font-size: 11px;
+    padding: 2px 4px;
+    height: 28px;
   }
+
+  .compact-row input[type="number"].form-control {
+    font-size: 11px;
+    padding: 2px 0;
+    height: 28px;
+  }
+
+  /* ── Success Message ── */
+  .modal-success-message {
+    display: none;
+    background: #d4edda;
+    color: #155724;
+    padding: 12px 16px;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .modal-success-message.show {
+    display: block;
+  }
+
+
+  /* reduce row margins on the modal */
+  /* ── Tighter modal row spacing ── */
+.modal-body .form-row {
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.modal-body .form-group {
+    margin-bottom: 0;
+}
+
+.modal-body .form-group label {
+    margin-bottom: 2px;
+    font-size: 11px;
+}
+
+.modal-body .form-control {
+    height: 28px;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
+.modal-body textarea.form-control {
+    height: auto;
+    min-height: 44px;
+}
+
+.modal-body {
+    padding: 12px 20px;
+}
 </style>
 
 <div class="billing-canvas-container">
-  <form method="POST" id="pharmacyBillForm">
+  <form method="POST" id="pharmacyBillForm" enctype="multipart/form-data">
     {% csrf_token %}
-    
-    <div class="billing-top-action-bar">
-      <div class="billing-left-inputs">
-        
-        <!-- Patient Selector with Autocomplete -->
-        <div class="billing-header-field-group" style="position: relative; flex: 0 0 35%; max-width: 35%;">
-          <label for="patient_search_input">Patient <span>*</span></label>
-          <div style="position: relative; width: 100%; display: flex; align-items: center;">
-            <input type="text" id="patient_search_input" class="billing-header-input" 
-                   placeholder="Type Patient ID or Name..." autocomplete="off"
-                   style="width: 100%; height: 32px; padding: 0 30px 0 10px; box-sizing: border-box; border: 1px solid #b33333; border-radius: 0px !important; background: #ffffff; color: #2d3748; cursor: pointer; vertical-align: middle; font-size: 13px;" />
-            <div id="patient_dropdown_arrow" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #4a5568; pointer-events: none; font-size: 11px; transition: transform 0.2s ease; display: flex; align-items: center; height: 100%;">
-              <i class="fa fa-chevron-down"></i>
-            </div>
-          </div>
-          <input type="hidden" id="patient_select" name="patient" required />
-          <div id="patient_search_results_panel" class="patient-suggestions-dropdown"></div>
-        </div>
 
-        <!-- New Patient Button -->
-        <div>
-          <button type="button" class="btn-quick-add-patient" id="openPatientModalBtn" title="Register New Patient">
-            <i class="fa fa-plus"></i> New Patient
-          </button>
-        </div>
+    <!-- ── TOP ACTION BAR ── -->
+    <div class="billing-top-action-bar" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 12px; background:#990000; border-bottom:2px solid #800000;">
 
-        <!-- Prescription Input -->
-        <div class="billing-header-field-group" style="flex: 0 0 25%; max-width: 25%;">
-          <label for="prescription_input">Prescription</label>
-          <input type="text" id="prescription_input" name="prescription" class="billing-header-input" 
-                 placeholder="Scan or type prescription query ID..." style="height: 32px; padding: 0 10px; border: 1px solid #b33333; border-radius: 0px !important; background: #ffffff; color: #2d3748; font-size: 13px; box-sizing: border-box;" />
-        </div>
-
+      <!-- Patient search (60%) -->
+      <div class="patient-search-wrapper">
+        <input type="text" id="patient_search" class="billing-header-input"
+               placeholder="Type patient name or ID (min 2 letters)..."
+               autocomplete="off"
+               style="width:100%; height:32px; padding:0 10px; border:1px solid #b33333;
+                      border-radius:0px !important; background:#fff; color:#2d3748;
+                      font-size:13px; box-sizing:border-box;">
+        <input type="hidden" id="patient_select" name="patient" required>
+        <div id="patient_results"></div>
       </div>
 
-      <!-- Close Button -->
-      <a href="{% url 'pharmacy:pharmacy_home' %}" class="btn-header-close-route" title="Close Page">
-        <i class="fa fa-times"></i>
-      </a>
+      <!-- +New Patient -->
+      <button type="button" class="btn-quick-add-patient" id="openPatientModalBtn">
+        <i class="fa fa-plus"></i> New Patient
+      </button>
+
+      <!-- Prescription + Close (right side) -->
+      <div style="display:flex; align-items:center; gap:10px; margin-left:auto;">
+        <label for="prescription_input" style="color:#fff; font-size:12px; font-weight:600; white-space:nowrap; margin:0;">Prescription</label>
+        <input type="text" id="prescription_input" name="prescription"
+               placeholder="Scan or type Rx ID..."
+               style="height:32px; padding:0 10px; border:1px solid #b33333;
+                      border-radius:0px !important; background:#fff; color:#2d3748;
+                      font-size:13px; box-sizing:border-box; width:200px;">
+        <a href="{% url 'pharmacy:pharmacy_home' %}" title="Close"
+           style="display:flex; align-items:center; justify-content:center;
+                  height:32px; width:32px; color:#fff; text-decoration:none;
+                  font-size:18px; opacity:0.85;"
+           onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+          <i class="fa fa-times"></i>
+        </a>
+      </div>
     </div>
 
+    <!-- ── BODY ── -->
     <div class="billing-content-body-wrapper">
-        
-      <div class="billing-meta-metrics-row split-two-equal">
-        <div class="meta-metric-pill">Bill No: <strong>PH-26-004</strong></div>
-        <div class="meta-metric-pill">Case ID: <strong>-- Auto Generated --</strong></div>
-        <div class="meta-metric-pill">Date & Time: <strong>{% now "d/m/Y H:i" %} EAT</strong></div>
+
+      <div class="billing-meta-metrics-row">
+        <div class="meta-metric-pill">Bill No: <strong>{{ next_purchase_no }}</strong></div>
+        <div class="meta-metric-pill case-id-pill-input">
+          <label for="case_id">Case ID:</label>
+          <input type="text" id="case_id" name="case_id" placeholder="Auto-generated" readonly>
+        </div>
+        <div class="meta-metric-pill">Date &amp; Time: <strong>{% now "d/m/Y H:i" %} EAT</strong></div>
       </div>
 
+      <!-- ── MEDICINE LEDGER ── -->
       <div class="medicine-entry-grid-panel">
         <div id="medicine-ledger-rows">
           <div class="entry-inputs-flex-row purchase-single-ledger-row">
-              
+
             <div class="field-input-wrapper">
-              <label>Medicine Category <span>*</span></label>
+              <label>Medicine Category <span style="color:#c62828;">*</span></label>
               <select name="med_category[]" class="hms-form-select med-category-select" required>
                 <option value="" disabled selected>Select...</option>
                 {% for category in categories %}
@@ -618,44 +444,54 @@
             </div>
 
             <div class="field-input-wrapper">
-              <label>Medicine Name <span>*</span></label>
+              <label>Medicine Name <span style="color:#c62828;">*</span></label>
               <select name="med_name[]" class="hms-form-select med-name-select" required>
-                <option value="" disabled selected>Select...</option>
+                <option value="" disabled selected>Select category first...</option>
               </select>
             </div>
 
             <div class="field-input-wrapper">
-              <label>Batch No <span>*</span></label>
-              <input type="text" name="batch_no[]" class="hms-form-input" placeholder="Batch No" required>
+              <label>Batch No</label>
+              <input type="text" name="batch_no[]" class="hms-form-input autofill-input" placeholder="Auto-filled" readonly>
             </div>
 
             <div class="field-input-wrapper">
-              <label>Expiry Date <span>*</span></label>
-              <input type="date" name="expiry_date[]" class="hms-form-input" required>
+              <label>Expiry Date</label>
+              <input type="date" name="expiry_date[]" class="hms-form-input autofill-input" readonly>
             </div>
 
             <div class="field-input-wrapper">
-              <label>Sale Price (shs) <span>*</span></label>
-              <input type="number" name="sale_price[]" step="0.01" class="hms-form-input text-right" placeholder="0.00" required>
+              <label>In Stock</label>
+              <input type="number" name="qty_in_stock[]" class="hms-form-input autofill-input" placeholder="0" readonly>
             </div>
 
             <div class="field-input-wrapper">
-              <label>Qty <span>*</span></label>
-              <input type="number" name="quantity[]" class="hms-form-input row-qty" placeholder="Qty" required>
+              <label>Sale Price (shs) <span style="color:#c62828;">*</span></label>
+              <input type="number" name="sale_price[]" step="0.01"
+                     class="hms-form-input text-right row-sale-price" placeholder="0.00" required>
             </div>
 
             <div class="field-input-wrapper">
-              <label>Tax (%) <span>*</span></label>
-              <input type="number" name="tax_percent[]" step="0.01" class="hms-form-input row-tax" placeholder="%" value="0.00" required>
+              <label>Qty <span style="color:#c62828;">*</span></label>
+              <input type="number" name="quantity[]"
+                     class="hms-form-input row-qty" placeholder="0" min="1" required>
             </div>
 
             <div class="field-input-wrapper">
-              <label>Amount (shs) <span>*</span></label>
-              <input type="number" name="row_amount[]" step="0.01" class="hms-form-input text-right row-calculated-amount financial-input-element" placeholder="0.00" readonly>
+              <label>Tax (%)</label>
+              <input type="number" name="tax_percent[]" step="0.01"
+                     class="hms-form-input row-tax" placeholder="%" value="0.00">
+            </div>
+
+            <div class="field-input-wrapper">
+              <label>Row Total (shs)</label>
+              <input type="number" name="row_amount[]" step="0.01"
+                     class="hms-form-input text-right row-calculated-amount autofill-input"
+                     placeholder="0.00" readonly>
             </div>
 
             <div class="field-input-wrapper alignment-control-wrapper">
-              <span type="button" class="btn-row-add" title="Add Row">
+              <span class="btn-row-add" title="Add Row">
                 <i class="fa fa-plus"></i>
               </span>
             </div>
@@ -664,40 +500,76 @@
         </div>
       </div>
 
+      <!-- ── SUMMARY ── -->
       <div class="billing-split-summary-layout split-two-equal">
-          
+
         <div class="summary-left-card-block">
+          
+          <!-- DOCTOR SELECTION (Two columns on one row) -->
+          <div class="doctor-row">
+            <div class="field-input-wrapper">
+              <label for="hospital_doctor">Hospital Doctor <span style="color:#c62828;">*</span></label>
+              <select id="hospital_doctor" name="hospital_doctor" class="hms-form-select" required>
+                <option value="" disabled selected>Select Doctor...</option>
+                {% for doctor in hospital_doctors %}
+                  <option value="{{ doctor.id }}" data-doctor-name="{{ doctor.full_name }}">
+                    {{ doctor.full_name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field-input-wrapper">
+              <label for="doctor_name">Doctor Name</label>
+              <input type="text" id="doctor_name" name="doctor_name" 
+                     class="hms-form-input autofill-input" 
+                     placeholder="Auto-filled from selection" readonly>
+            </div>
+          </div>
+
           <div class="field-input-wrapper no-margin">
-            <label for="bill_notes">Note</label>
-            <textarea id="bill_notes" name="bill_notes" class="hms-form-textarea" rows="4" placeholder="Enter prescription, dispensing notes or clinical logs..."></textarea>
+            <label for="bill_notes">Notes</label>
+            <textarea id="bill_notes" name="bill_notes" class="hms-form-textarea" rows="4"
+                      placeholder="Dispensing notes, prescription instructions..."></textarea>
+          </div>
+          <div class="field-input-wrapper margin-top-16">
+            <label for="document_attachment">Attach Document</label>
+            <input type="file" id="document_attachment" name="document_attachment" class="hms-form-input">
           </div>
         </div>
 
         <div class="summary-right-ledger-card">
           <div class="financial-ledger-stack">
+
             <div class="financial-row-item">
-              <label for="total_amount">Total (shs)</label>
-              <input type="number" id="total_amount" name="total_amount" class="hms-form-input text-right financial-input-element" value="0.00" readonly>
+              <label for="total_amount">Subtotal (shs)</label>
+              <input type="number" id="total_amount" name="total_amount"
+                     class="hms-form-input text-right financial-input-element" value="0.00" readonly>
             </div>
 
             <div class="financial-row-item">
               <label for="discount_amount">Discount (shs)</label>
-              <input type="number" id="discount_amount" name="discount_amount" step="0.01" class="hms-form-input text-right" value="0.00" placeholder="0.00">
+              <input type="number" id="discount_amount" name="discount_amount"
+                     step="0.01" class="hms-form-input text-right" value="0.00">
             </div>
 
             <div class="financial-row-item">
-              <label for="tax_summary">Tax (shs)</label>
-              <input type="number" id="tax_summary" name="tax_summary" class="hms-form-input text-right financial-input-element" value="0.00" readonly>
+              <label for="tax_summary">Tax / VAT (shs)</label>
+              <input type="number" id="tax_summary" name="tax_summary"
+                     class="hms-form-input text-right financial-input-element" value="0.00" readonly>
             </div>
 
             <div class="financial-row-item">
-              <label for="net_amount" class="bold-label">Net Amount (shs)</label>
-              <input type="number" id="net_amount" name="net_amount" class="hms-form-input text-right financial-input-element net-total-box" value="0.00" readonly>
+              <label for="net_amount" class="bold-label"
+                     style="font-weight:700; color:#990000;">Net Amount (shs)</label>
+              <input type="number" id="net_amount" name="net_amount"
+                     class="hms-form-input text-right financial-input-element net-total-box"
+                     value="0.00" readonly
+                     style="font-weight:700; color:#990000; background:#fef2f2; border-color:#fee2e2;">
             </div>
 
             <div class="financial-row-item">
               <label for="payment_mode">Payment Mode</label>
-              <select id="payment_mode" name="payment_mode" class="hms-form-select financial-input-element">
+              <select id="payment_mode" name="payment_mode" class="hms-form-select">
                 <option value="Cash">Cash</option>
                 <option value="M-Pesa">M-Pesa</option>
                 <option value="Bank">Bank</option>
@@ -707,20 +579,27 @@
 
             <div class="financial-row-item">
               <label for="payment_amount">Payment Amount (shs)</label>
-              <input type="number" id="payment_amount" name="payment_amount" step="0.01" class="hms-form-input financial-input-element" placeholder="0.00">
+              <input type="number" id="payment_amount" name="payment_amount"
+                     step="0.01" class="hms-form-input" placeholder="0.00">
             </div>
 
             <div class="financial-row-item">
-              <label for="payment_note">Payment Note</label>
-              <input type="text" id="payment_note" name="payment_note" class="hms-form-input" placeholder="Ref no etc.">
+              <label for="payment_note">Payment Note / Ref</label>
+              <input type="text" id="payment_note" name="payment_note"
+                     class="hms-form-input" placeholder="M-Pesa code, bank ref...">
             </div>
+
           </div>
 
-          <div class="billing-terminal-action-row full-width-terminal">
-            <button type="submit" name="action" value="save_print" class="btn-terminal-print">
-              <i class="fa fa-print"></i> Save & Print
+          <div class="billing-terminal-action-row full-width-terminal" style="display:flex; gap:8px; margin-top:12px;">
+            <button type="submit" name="action" value="save_print" class="btn-terminal-print"
+                    style="flex:1; height:40px; background:#990000; color:#fff; border:none;
+                           font-weight:700; font-size:13px; cursor:pointer; border-radius:0;">
+              <i class="fa fa-print"></i> Save &amp; Print
             </button>
-            <button type="submit" name="action" value="save" class="btn-terminal-save">
+            <button type="submit" name="action" value="save" class="btn-terminal-save"
+                    style="flex:1; height:40px; background:#1e293b; color:#fff; border:none;
+                           font-weight:700; font-size:13px; cursor:pointer; border-radius:0;">
               <i class="fa fa-save"></i> Save Bill
             </button>
           </div>
@@ -732,443 +611,720 @@
   </form>
 </div>
 
-<!-- Add Patient Modal (No Bootstrap) -->
+<!-- ── ADD PATIENT MODAL ── -->
 <div id="patientModal" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
-      <h5><i class="fa fa-plus-circle" style="margin-right: 8px;"></i> Add Patient</h5>
+      <h5><i class="fa fa-plus-circle" style="margin-right:8px;"></i> Register a New Patient</h5>
       <button type="button" class="modal-close" id="closePatientModal">&times;</button>
     </div>
     
-    <form method="POST" action="{% url 'opd:add_patient' %}" enctype="multipart/form-data" id="addPatientForm">
+    <form id="addPatientForm" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="modal-body">
+
+        <!-- Success Message -->
+        <div id="modalSuccessMessage" class="modal-success-message">
+          <i class="fa fa-check-circle" style="margin-right:8px;"></i>
+          Patient registered successfully! Redirecting...
+        </div>
+
+        <!-- Patient Name + Guardian -->
         <div class="form-row">
-          <div class="form-group">
+          <div class="form-group" style="flex: 2;">
             <label>Patient Name <span class="text-danger">*</span></label>
-            <input type="text" name="name" class="form-control" placeholder="Enter full name" required>
+            <input type="text" name="name" id="modal_patient_name" class="form-control" placeholder="Full name" required>
           </div>
           <div class="form-group">
             <label>Guardian Name</label>
-            <input type="text" name="guardian_name" class="form-control" placeholder="Enter guardian name">
+            <input type="text" name="guardian_name" class="form-control" placeholder="Next of kin">
           </div>
         </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label>Gender</label>
-            <select name="gender" class="form-control">
+
+        <!-- Compact Row: Gender, DOB, Age, Blood Group, Marital Status, Photo -->
+        <div class="form-row compact-row" style="display: flex; flex-wrap: nowrap; gap: 6px; align-items: flex-end; width: 100%;">
+          
+          <!-- Gender - 70px -->
+          <div class="form-group" style="flex: 0 0 70px; min-width: 70px; max-width: 70px; margin-bottom: 0;">
+            <label style="font-size: 10px; font-weight: 600; color: #4a5568; margin-bottom: 2px; display: block; white-space: nowrap;">Gender <span style="color:#dc3545;">*</span></label>
+            <select name="gender" id="modal_gender" class="form-control" required style="height: 28px; padding: 1px 4px; font-size: 11px; border: 1px solid #cbd5e0; border-radius: 0px; width: 100%; box-sizing: border-box;">
               <option value="">Select</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
-              <option value="Other">Other</option>
+              
             </select>
           </div>
-          <div class="form-group">
-            <label>Date of Birth</label>
-            <input type="date" id="dob_input" name="dob" class="form-control">
+
+          <!-- Date of Birth - flexible -->
+          <div class="form-group" style="flex: 1.1; min-width: 110px; margin-bottom: 0;">
+            <label style="font-size: 10px; font-weight: 600; color: #4a5568; margin-bottom: 2px; display: block; white-space: nowrap;">Date of Birth</label>
+            <input type="date" id="dob_input" name="dob" class="form-control" style="height: 28px; padding: 2px 4px; font-size: 11px; border: 1px solid #cbd5e0; border-radius: 0px; width: 100%; box-sizing: border-box;">
           </div>
-          <div class="form-group">
-            <label>Age (Years)</label>
-            <input type="number" id="age_years" name="age" class="form-control" placeholder="Years" value="0" min="0">
+
+          <!-- Age - flexible -->
+          <div class="form-group" style="flex: 1.2; min-width: 120px; margin-bottom: 0;">
+            <label style="font-size: 10px; font-weight: 600; color: #4a5568; margin-bottom: 2px; display: block; white-space: nowrap;">Age (Y-M-D)</label>
+            <div style="display: flex; gap: 2px;">
+              <input type="number" id="age_years" name="age" class="form-control" value="0" min="0" placeholder="Y" style="width: 36px; text-align:center; padding: 1px 0; font-size: 11px; height: 28px; border: 1px solid #cbd5e0; border-radius: 0px; box-sizing: border-box;">
+              <input type="number" id="age_months" name="age_months" class="form-control" value="0" min="0" max="11" placeholder="M" style="width: 34px; text-align:center; padding: 1px 0; font-size: 11px; height: 28px; border: 1px solid #cbd5e0; border-radius: 0px; box-sizing: border-box;">
+              <input type="number" id="age_days" name="age_days" class="form-control" value="0" min="0" max="30" placeholder="D" style="width: 34px; text-align:center; padding: 1px 0; font-size: 11px; height: 28px; border: 1px solid #cbd5e0; border-radius: 0px; box-sizing: border-box;">
+            </div>
           </div>
-          <div class="form-group">
-            <label>Months</label>
-            <input type="number" id="age_months" name="age_months" class="form-control" placeholder="Months" value="0" min="0" max="11">
+
+          <!-- Blood Group - 68px -->
+          <div class="form-group" style="flex: 0 0 68px; min-width: 68px; max-width: 68px; margin-bottom: 0;">
+            <label style="font-size: 10px; font-weight: 600; color: #4a5568; margin-bottom: 2px; display: block; white-space: nowrap;">Blood Grp</label>
+            <select name="blood_group" class="form-control" style="height: 28px; padding: 1px 2px; font-size: 10px; border: 1px solid #cbd5e0; border-radius: 0px; width: 100%; box-sizing: border-box;">
+              <option value="">Select</option>
+              <option>A+</option><option>A-</option>
+              <option>B+</option><option>B-</option>
+              <option>O+</option><option>O-</option>
+              <option>AB+</option><option>AB-</option>
+            </select>
           </div>
-          <div class="form-group">
-            <label>Days</label>
-            <input type="number" id="age_days" name="age_days" class="form-control" placeholder="Days" value="0" min="0" max="30">
+
+          <!-- Marital Status - 78px -->
+          <div class="form-group" style="flex: 0 0 78px; min-width: 78px; max-width: 78px; margin-bottom: 0;">
+            <label style="font-size: 10px; font-weight: 600; color: #4a5568; margin-bottom: 2px; display: block; white-space: nowrap;">Marital Status</label>
+            <select name="marital_status" class="form-control" style="height: 28px; padding: 1px 4px; font-size: 10px; border: 1px solid #cbd5e0; border-radius: 0px; width: 100%; box-sizing: border-box;">
+              <option value="">Select</option>
+              <option>Single</option>
+              <option>Married</option>
+              <option>Divorced</option>
+              <option>Widowed</option>
+            </select>
           </div>
+
+          <!-- Patient Photo - flexible -->
+          <div class="form-group" style="flex: 0.7; min-width: 70px; margin-bottom: 0;">
+            <label style="font-size: 10px; font-weight: 600; color: #4a5568; margin-bottom: 2px; display: block; white-space: nowrap;">Patient Photo</label>
+            <input type="file" name="photo" class="form-control" accept="image/*" style="padding: 1px 2px; font-size: 9px; height: 28px; border: 1px solid #cbd5e0; border-radius: 0px; width: 100%; box-sizing: border-box;">
+          </div>
+
         </div>
-        
+
+        <!-- Row 2: Phone, Email, Address -->
         <div class="form-row">
           <div class="form-group">
-            <label>Blood Group</label>
-            <select name="blood_group" class="form-control">
-              <option value="">Select</option>
-              <option value="A+">A+</option>
-              <option value="A-">A-</option>
-              <option value="B+">B+</option>
-              <option value="B-">B-</option>
-              <option value="O+">O+</option>
-              <option value="O-">O-</option>
-              <option value="AB+">AB+</option>
-              <option value="AB-">AB-</option>
-            </select>
+            <label>Phone</label>
+            <input type="text" name="phone" class="form-control" placeholder="0712345678">
           </div>
           <div class="form-group">
-            <label>Marital Status</label>
-            <select name="marital_status" class="form-control">
-              <option value="">Select</option>
-              <option value="Single">Single</option>
-              <option value="Married">Married</option>
-              <option value="Divorced">Divorced</option>
-              <option value="Widowed">Widowed</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Patient Photo</label>
-            <input type="file" name="patient_photo" class="form-control-file">
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label>Phone Number</label>
-            <input type="text" name="phone" class="form-control" placeholder="e.g. 0712345678">
-          </div>
-          <div class="form-group">
-            <label>Email Address</label>
+            <label>Email</label>
             <input type="email" name="email" class="form-control" placeholder="name@example.com">
           </div>
-          <div class="form-group">
+          <div class="form-group" style="flex: 2;">
             <label>Address</label>
-            <input type="text" name="address" class="form-control" placeholder="Physical or postal address">
+            <input type="text" name="address" class="form-control" placeholder="Physical address">
           </div>
         </div>
-        
+
+        <!-- Row 3: Allergies + Remarks -->
         <div class="form-row">
-          <div class="form-group">
-            <label>Remarks</label>
-            <textarea name="remarks" class="form-control" rows="2" placeholder="General observation notes..."></textarea>
+          <div class="form-group" style="flex:1;">
+            <label>Known Allergies</label>
+            <textarea name="allergies" class="form-control" rows="3" placeholder="List any known allergies..."></textarea>
           </div>
-          <div class="form-group">
-            <label>Any Known Allergies</label>
-            <textarea name="allergies" class="form-control" rows="2" placeholder="List medical, environment or food allergies..."></textarea>
+          <div class="form-group" style="flex:1;">
+            <label>Remarks</label>
+            <textarea name="remarks" class="form-control" rows="3" placeholder="General notes, special instructions..."></textarea>
           </div>
         </div>
-        
+
+        <!-- Row 4: Insurance Fields -->
         <div class="form-row">
           <div class="form-group">
             <label>Insurance Provider</label>
-            <input type="text" name="insurance_provider" class="form-control" placeholder="e.g. NHIF, APA">
+            <input type="text" name="insurance_provider" class="form-control" placeholder="e.g. NHIF, Jubilee">
           </div>
           <div class="form-group">
             <label>Insurance ID</label>
-            <input type="text" name="insurance_id" class="form-control" placeholder="Policy card tracking identification">
+            <input type="text" name="insurance_id" class="form-control" placeholder="Insurance Number">
           </div>
           <div class="form-group">
             <label>Insurance Validity</label>
             <input type="date" name="insurance_validity" class="form-control">
           </div>
         </div>
-        
+
+        <!-- Row 5: National ID (full width) -->
         <div class="form-row">
-          <div class="form-group">
-            <label>National Identification Number</label>
-            <input type="text" name="national_id" class="form-control" placeholder="National Identity Card / Passport">
+          <div class="form-group" style="flex:1;">
+            <label>National ID / Passport</label>
+            <input type="text" name="national_id" class="form-control" placeholder="ID number or Passport number">
           </div>
         </div>
+
       </div>
+
       <div class="modal-footer">
         <button type="button" class="btn-cancel" id="cancelPatientModal">Cancel</button>
-        <button type="submit" class="btn-save">Save</button>
+        <button type="submit" class="btn-save" id="modalSavePatientBtn">
+          <i class="fa fa-save"></i> Save Patient
+        </button>
       </div>
     </form>
   </div>
 </div>
 
+
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // ========================================================================
-    // 1. FORCE CONTAINER FULL STRUCTURAL LAYOUT CONFIGURATION
-    // ========================================================================
-    const masterGridContainer = document.querySelector('.grid');
-    if (masterGridContainer) {
-      masterGridContainer.classList.add('full-canvas-view');
+document.addEventListener('DOMContentLoaded', function () {
+
+  // ── Force full canvas layout ──
+  const grid = document.querySelector('.grid');
+  if (grid) grid.classList.add('full-canvas-view');
+
+  // ════════════════════════════════════════════════════════════════
+  // 1. PATIENT LIVE SEARCH (AJAX — calls /pharmacy/search-patients/)
+  // ════════════════════════════════════════════════════════════════
+  const patientSearchInput = document.getElementById('patient_search');
+  const patientHiddenInput = document.getElementById('patient_select');
+  const patientResultsBox  = document.getElementById('patient_results');
+  const caseIdInput        = document.getElementById('case_id');
+
+  let searchTimer = null;
+
+  // Generate a local case ID placeholder when patient is selected
+  function generateCaseId() {
+    const now   = new Date();
+    const yy    = now.getFullYear().toString().slice(-2);
+    const mm    = String(now.getMonth() + 1).padStart(2, '0');
+    const dd    = String(now.getDate()).padStart(2, '0');
+    const rand  = String(Math.floor(Math.random() * 9000) + 1000);
+    return `CASE-${yy}${mm}${dd}-${rand}`;
+  }
+
+  function showStatus(msg) {
+    if (patientResultsBox) {
+      patientResultsBox.innerHTML = `<div class="patient-result-status">${msg}</div>`;
+      patientResultsBox.style.display = 'block';
+    }
+  }
+
+  function renderPatients(data) {
+    if (!patientResultsBox) return;
+    patientResultsBox.innerHTML = '';
+
+    if (!data.length) {
+      showStatus('No patients found.');
+      return;
     }
 
-    // ========================================================================
-    // 2. CLIENT SIDE SEARCHABLE PATIENT DROPDOWN MAPPING ENGINE
-    // ========================================================================
-    const patientRegistry = [
-      {% for patient in patients %}
-      {
-        id: "{{ patient.id }}",
-        name: "{{ patient.name|escapejs }}",
-        opdNumber: "{% if patient.opd_number %}{{ patient.opd_number|escapejs }}{% else %}Reg: {{ patient.id }}{% endif %}"
-      }{% if not forloop.last %},{% endif %}
-      {% endfor %}
-    ];
-
-    const searchInput = document.getElementById('patient_search_input');
-    const hiddenInput = document.getElementById('patient_select');
-    const resultsPanel = document.getElementById('patient_search_results_panel');
-    const arrowIcon = document.getElementById('patient_dropdown_arrow');
-
-    if (searchInput) {
-      searchInput.addEventListener('focus', function() {
-        arrowIcon.style.transform = 'translateY(-50%) rotate(180deg)';
-        evaluateSearch(this.value);
+    data.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'patient-result-item';
+      item.innerHTML = `<span><strong>${p.name}</strong><span class="pid">${p.opd_number || ''}</span></span>
+                        <span style="font-size:11px;color:#a0aec0;">${p.gender || ''} ${p.age ? p.age + 'y' : ''}</span>`;
+      item.addEventListener('click', () => {
+        patientSearchInput.value   = `${p.name} (${p.opd_number || ''})`;
+        patientHiddenInput.value   = p.id;
+        patientResultsBox.style.display = 'none';
+        if (caseIdInput) caseIdInput.value = generateCaseId();
+        patientSearchInput.style.borderColor = '#38a169';
       });
+      patientResultsBox.appendChild(item);
+    });
 
-      searchInput.addEventListener('input', function() {
-        evaluateSearch(this.value);
-      });
-    }
+    patientResultsBox.style.display = 'block';
+  }
 
-    function evaluateSearch(query) {
-      const cleanQuery = query.trim().toLowerCase();
-      resultsPanel.innerHTML = '';
+  if (patientSearchInput) {
+    patientSearchInput.addEventListener('input', function () {
+      const q = this.value.trim();
 
-      if (cleanQuery.length < 2) {
-        resultsPanel.style.display = 'none';
+      // Reset if user clears field
+      if (!q) {
+        patientHiddenInput.value = '';
+        if (patientResultsBox) patientResultsBox.style.display = 'none';
+        this.style.borderColor = '#b33333';
         return;
       }
 
-      const matches = patientRegistry.filter(p =>
-        p.name.toLowerCase().includes(cleanQuery) ||
-        p.opdNumber.toLowerCase().includes(cleanQuery)
-      );
-
-      if (matches.length === 0) {
-        resultsPanel.innerHTML = `<div style="padding: 8px 12px; color: #718096; font-size: 13px; font-style: italic;">No matching patients found</div>`;
-        resultsPanel.style.display = 'block';
+      if (q.length < 2) {
+        showStatus('Type at least 2 characters…');
         return;
       }
 
-      matches.forEach(patient => {
-        const optionRow = document.createElement('div');
-        optionRow.style.padding = '8px 12px';
-        optionRow.style.cursor = 'pointer';
-        optionRow.style.fontSize = '13px';
-        optionRow.style.color = '#2d3748';
-        optionRow.style.borderBottom = '1px solid #edf2f7';
-        optionRow.innerHTML = `<strong>${patient.name}</strong> <span style="color: #718096; font-size: 11px; margin-left: 6px;">(${patient.opdNumber})</span>`;
+      clearTimeout(searchTimer);
+      showStatus('<i class="fa fa-spinner fa-spin"></i> Searching…');
 
-        optionRow.addEventListener('mouseover', () => optionRow.style.background = '#f7fafc');
-        optionRow.addEventListener('mouseout', () => optionRow.style.background = 'transparent');
-
-        optionRow.addEventListener('click', function() {
-          searchInput.value = `${patient.name} (${patient.opdNumber})`;
-          hiddenInput.value = patient.id;
-          resultsPanel.style.display = 'none';
-          arrowIcon.style.transform = 'translateY(-50%) rotate(0deg)';
-          hiddenInput.dispatchEvent(new Event('change'));
-        });
-        resultsPanel.appendChild(optionRow);
-      });
-
-      resultsPanel.style.display = 'block';
-    }
-
-    // Close searchable panel handler when clicking outside its canvas
-    document.addEventListener('click', function(e) {
-      if (searchInput && resultsPanel && !searchInput.contains(e.target) && !resultsPanel.contains(e.target)) {
-        resultsPanel.style.display = 'none';
-        arrowIcon.style.transform = 'translateY(-50%) rotate(0deg)';
-        if (!hiddenInput.value && searchInput) {
-          searchInput.value = '';
-        }
-      }
+      searchTimer = setTimeout(() => {
+        fetch(`/pharmacy/search-patients/?q=${encodeURIComponent(q)}`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(renderPatients)
+        .catch(() => showStatus('Search error — please try again.'));
+      }, 300);
     });
+  }
 
-    // ========================================================================
-    // 3. MODAL FUNCTIONALITY (No Bootstrap)
-    // ========================================================================
-    const patientModal = document.getElementById('patientModal');
-    const openModalBtn = document.getElementById('openPatientModalBtn');
-    const closeModalBtn = document.getElementById('closePatientModal');
-    const cancelModalBtn = document.getElementById('cancelPatientModal');
-
-    function openModal() {
-      patientModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      patientModal.classList.remove('active');
-      document.body.style.overflow = '';
-      document.getElementById('addPatientForm').reset();
-    }
-
-    if (openModalBtn) {
-      openModalBtn.addEventListener('click', openModal);
-    }
-
-    if (closeModalBtn) {
-      closeModalBtn.addEventListener('click', closeModal);
-    }
-
-    if (cancelModalBtn) {
-      cancelModalBtn.addEventListener('click', closeModal);
-    }
-
-    // Close modal when clicking outside
-    patientModal.addEventListener('click', function(e) {
-      if (e.target === patientModal) {
-        closeModal();
+  // Close results on outside click
+  document.addEventListener('click', e => {
+    if (patientSearchInput && patientResultsBox) {
+      if (!patientSearchInput.contains(e.target) && !patientResultsBox.contains(e.target)) {
+        patientResultsBox.style.display = 'none';
       }
-    });
-
-    // ========================================================================
-    // 4. MEDICINE ROW FUNCTIONALITY
-    // ========================================================================
-    const rowsContainer = document.getElementById('medicine-ledger-rows');
-    
-    // Cache a clean template based on the first row
-    const rowTemplate = rowsContainer.querySelector('.purchase-single-ledger-row').cloneNode(true);
-    
-    // Clear initial input values in template clone baseline
-    rowTemplate.querySelectorAll('input').forEach(input => {
-      if(input.name !== 'tax_percent[]') input.value = '';
-    });
-    rowTemplate.querySelector('.med-name-select').innerHTML = '<option value="" disabled selected>Select...</option>';
-
-    const templateActionBtn = rowTemplate.querySelector('.btn-row-add');
-    if (templateActionBtn) {
-      templateActionBtn.className = 'btn-row-remove';
-      templateActionBtn.setAttribute('title', 'Remove Row');
-      templateActionBtn.innerHTML = '<i class="fa fa-times"></i>';
-    }
-
-    // Add New Row Functionality
-    rowsContainer.addEventListener('click', function(e) {
-      if (e.target.classList.contains('btn-row-add') || e.target.parentElement.classList.contains('btn-row-add')) {
-        const newRow = rowTemplate.cloneNode(true);
-        rowsContainer.appendChild(newRow);
-      }
-    });
-
-    // Remove Dynamic Appended Rows Functionality
-    rowsContainer.addEventListener('click', function(e) {
-      if (e.target.classList.contains('btn-row-remove') || e.target.parentElement.classList.contains('btn-row-remove')) {
-        const targetRow = e.target.closest('.purchase-single-ledger-row');
-        targetRow.remove();
-        calculateGrandTotals();
-      }
-    });
-
-    // ========================================================================
-    // 5. CASCADING SELECT (Category -> Medicine Name)
-    // ========================================================================
-    rowsContainer.addEventListener('change', function(e) {
-      if (e.target.classList.contains('med-category-select')) {
-        const categoryId = e.target.value;
-        const row = e.target.closest('.purchase-single-ledger-row');
-        const medicineSelect = row.querySelector('.med-name-select');
-        
-        medicineSelect.innerHTML = '<option value="" disabled selected>⏳ Loading medicines...</option>';
-        
-        fetch(`/pharmacy/get-medicines-by-category/?category_id=${categoryId}`)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then(data => {
-            medicineSelect.innerHTML = '<option value="" disabled selected>Select...</option>';
-            
-            if (data.length === 0) {
-              medicineSelect.innerHTML = '<option value="" disabled selected>No medicines found</option>';
-              return;
-            }
-
-            data.forEach(med => {
-              medicineSelect.innerHTML += `<option value="${med.id}">${med.name}</option>`;
-            });
-          })
-          .catch(err => {
-            console.error("Error loading medicines:", err);
-            medicineSelect.innerHTML = '<option value="" disabled selected>❌ Error loading...</option>';
-          });
-      }
-    });
-
-    // ========================================================================
-    // 6. DYNAMIC FINANCIAL CALCULATION ENGINE
-    // ========================================================================
-    rowsContainer.addEventListener('input', function(e) {
-      if (e.target.classList.contains('row-qty') || e.target.classList.contains('row-purc-price') || e.target.classList.contains('row-tax')) {
-        const row = e.target.closest('.purchase-single-ledger-row');
-        calculateRowAmount(row);
-      }
-    });
-
-    document.getElementById('discount_amount').addEventListener('input', calculateGrandTotals);
-
-    function calculateRowAmount(row) {
-      const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
-      const price = parseFloat(row.querySelector('.sale_price')?.value) || 0;
-      const taxPercent = parseFloat(row.querySelector('.row-tax').value) || 0;
-      
-      const baseAmount = qty * price;
-      const taxAmount = baseAmount * (taxPercent / 100);
-      const totalRowAmount = baseAmount + taxAmount;
-      
-      row.querySelector('.row-calculated-amount').value = totalRowAmount.toFixed(2);
-      calculateGrandTotals();
-    }
-
-    function calculateGrandTotals() {
-      let totalAmountBeforeTax = 0;
-      let calculatedTaxTotal = 0;
-
-      const rows = rowsContainer.querySelectorAll('.purchase-single-ledger-row');
-      rows.forEach(row => {
-        const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
-        const price = parseFloat(row.querySelector('.sale_price')?.value) || 0;
-        const taxPercent = parseFloat(row.querySelector('.row-tax').value) || 0;
-
-        const baseAmount = qty * price;
-        const taxAmount = baseAmount * (taxPercent / 100);
-
-        totalAmountBeforeTax += baseAmount;
-        calculatedTaxTotal += taxAmount;
-      });
-
-      const discountAmount = parseFloat(document.getElementById('discount_amount').value) || 0;
-      const netAmount = (totalAmountBeforeTax + calculatedTaxTotal) - discountAmount;
-
-      document.getElementById('total_amount').value = totalAmountBeforeTax.toFixed(2);
-      document.getElementById('tax_summary').value = calculatedTaxTotal.toFixed(2);
-      document.getElementById('net_amount').value = Math.max(0, netAmount).toFixed(2);
-    }
-
-    // ========================================================================
-    // 7. MODAL AGE CALCULATION
-    // ========================================================================
-    const ageYearsInput = document.getElementById('age_years');
-    const ageMonthsInput = document.getElementById('age_months');
-    const ageDaysInput = document.getElementById('age_days');
-    const dobInput = document.getElementById('dob_input');
-
-    function calculateAgeFromDOB() {
-      if (dobInput && dobInput.value) {
-        const birthDate = new Date(dobInput.value);
-        const today = new Date();
-        
-        if (birthDate > today) {
-          dobInput.value = '';
-          return;
-        }
-        
-        let years = today.getFullYear() - birthDate.getFullYear();
-        let months = today.getMonth() - birthDate.getMonth();
-        let days = today.getDate() - birthDate.getDate();
-        
-        if (days < 0) {
-          months--;
-          const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-          days += lastMonth.getDate();
-        }
-        if (months < 0) {
-          years--;
-          months += 12;
-        }
-        
-        if (ageYearsInput) ageYearsInput.value = years;
-        if (ageMonthsInput) ageMonthsInput.value = months;
-        if (ageDaysInput) ageDaysInput.value = days;
-      }
-    }
-
-    if (dobInput) {
-      dobInput.addEventListener('change', calculateAgeFromDOB);
     }
   });
+
+  // ════════════════════════════════════════════════════════════════
+  // 2. MEDICINE LEDGER ROWS — add / remove
+  // ════════════════════════════════════════════════════════════════
+  const rowsContainer = document.getElementById('medicine-ledger-rows');
+  if (rowsContainer) {
+    const firstRow      = rowsContainer.querySelector('.purchase-single-ledger-row');
+    if (firstRow) {
+      const rowTemplate = firstRow.cloneNode(true);
+
+      // Clean the cloned template
+      rowTemplate.querySelectorAll('input').forEach(inp => {
+        if (inp.name !== 'tax_percent[]') inp.value = '';
+        else inp.value = '0.00';
+      });
+      const nameSelect = rowTemplate.querySelector('.med-name-select');
+      if (nameSelect) {
+        nameSelect.innerHTML = '<option value="" disabled selected>Select category first...</option>';
+      }
+
+      const tplBtn = rowTemplate.querySelector('.btn-row-add');
+      if (tplBtn) {
+        tplBtn.className   = 'btn-row-remove';
+        tplBtn.title       = 'Remove Row';
+        tplBtn.innerHTML   = '<i class="fa fa-times"></i>';
+      }
+
+      rowsContainer.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-row-add')) {
+          rowsContainer.appendChild(rowTemplate.cloneNode(true));
+        }
+        if (e.target.closest('.btn-row-remove')) {
+          const row = e.target.closest('.purchase-single-ledger-row');
+          if (rowsContainer.children.length > 1) {
+            row.remove();
+            recalculateTotals();
+          }
+        }
+      });
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 3. CASCADING CATEGORY → MEDICINE + AUTO-FILL
+  // ════════════════════════════════════════════════════════════════
+  const medicineCache = {};
+
+  function clearRowAutofill(row) {
+    if (!row) return;
+    ['input[name="batch_no[]"]','input[name="expiry_date[]"]',
+     'input[name="qty_in_stock[]"]','input[name="quantity[]"]',
+     'input[name="row_amount[]"]'].forEach(function(sel) {
+      const el = row.querySelector(sel);
+      if (el) {
+        el.value = '';
+        el.classList.remove('out-of-stock-input', 'qty-disabled');
+        el.disabled = false;
+      }
+    });
+    const priceEl = row.querySelector('input[name="sale_price[]"]');
+    if (priceEl) priceEl.value = '0.00';
+    const taxEl = row.querySelector('input[name="tax_percent[]"]');
+    if (taxEl) taxEl.value = '0.00';
+    
+    // Remove warnings
+    const warning = row.querySelector('.stock-warning');
+    if (warning) warning.remove();
+  }
+
+  // Use event delegation on the DOCUMENT so it works for both
+  // the original first row AND any dynamically added rows
+  document.addEventListener('change', function(e) {
+
+    // ── Category changed ──
+    if (e.target.classList.contains('med-category-select')) {
+      const categoryId = e.target.value;
+      const row        = e.target.closest('.purchase-single-ledger-row');
+      if (!row) return;
+
+      const medSelect = row.querySelector('.med-name-select');
+      clearRowAutofill(row);
+      if (medSelect) {
+        medSelect.innerHTML = '<option value="" disabled selected>Loading…</option>';
+      }
+
+      fetch('/pharmacy/get-medicines-by-category/?category_id=' + categoryId)
+        .then(r => r.json())
+        .then(function(data) {
+          if (!medSelect) return;
+          if (data.error || !data.length) {
+            medSelect.innerHTML = '<option value="" disabled selected>' +
+              (data.error ? '⚠ Error loading' : 'No medicines found') + '</option>';
+            return;
+          }
+          medSelect.innerHTML = '<option value="" disabled selected>Select medicine…</option>';
+          data.forEach(function(med) {
+            medicineCache[String(med.id)] = med;
+            const opt = document.createElement('option');
+            opt.value       = med.id;
+            opt.textContent = med.name;
+            
+            // Check if out of stock
+            const inStock = med.quantity_in_stock || 0;
+            if (inStock === 0) {
+              opt.textContent += ' ❌ (Out of stock)';
+              opt.style.color = '#c62828';
+              opt.dataset.outOfStock = 'true';
+            } else if (inStock <= 5) {
+              opt.textContent += ` ⚠️ (${inStock} left)`;
+              opt.style.color = '#e67e22';
+            }
+            
+            medSelect.appendChild(opt);
+          });
+        })
+        .catch(function() {
+          if (medSelect) {
+            medSelect.innerHTML = '<option value="" disabled selected>❌ Error — retry</option>';
+          }
+        });
+    }
+
+    // ── Medicine selected → auto-fill all row fields ──
+    if (e.target.classList.contains('med-name-select')) {
+      const medId = String(e.target.value);
+      const row   = e.target.closest('.purchase-single-ledger-row');
+      if (!row || !medId) return;
+
+      const m = medicineCache[medId];
+      if (!m) {
+        console.warn('Medicine not in cache for id:', medId);
+        return;
+      }
+
+      // Fill all autofill fields
+      const f = function(selector, val) {
+        const el = row.querySelector(selector);
+        if (el) el.value = val !== undefined && val !== null ? val : '';
+      };
+
+      f('input[name="batch_no[]"]',     m.batch_no || '');
+      f('input[name="expiry_date[]"]',  m.expiry_date || '');
+      f('input[name="qty_in_stock[]"]', m.quantity_in_stock != null ? m.quantity_in_stock : 0);
+      f('input[name="sale_price[]"]',   m.sale_price != null ? parseFloat(m.sale_price).toFixed(2) : '0.00');
+      f('input[name="tax_percent[]"]',  m.tax_percent != null ? parseFloat(m.tax_percent).toFixed(2) : '0.00');
+
+      // Stock checking and quantity control
+      const stockEl = row.querySelector('input[name="qty_in_stock[]"]');
+      const qtyEl = row.querySelector('input[name="quantity[]"]');
+      const inStock = parseInt(stockEl ? stockEl.value : 0) || 0;
+
+      // Remove existing warnings
+      const existingWarning = row.querySelector('.stock-warning');
+      if (existingWarning) existingWarning.remove();
+
+      if (inStock === 0) {
+        // Out of stock - disable quantity input
+        if (qtyEl) {
+          qtyEl.value = 0;
+          qtyEl.disabled = true;
+          qtyEl.classList.add('qty-disabled');
+          qtyEl.title = 'Out of stock - cannot add';
+        }
+        if (stockEl) {
+          stockEl.classList.add('out-of-stock-input');
+        }
+        // Show warning message
+        const warning = document.createElement('div');
+        warning.className = 'stock-warning';
+        warning.textContent = '⚠️ OUT OF STOCK';
+        const wrapper = row.querySelector('.field-input-wrapper:has(input[name="qty_in_stock[]"])');
+        if (wrapper) wrapper.appendChild(warning);
+      } else {
+        // Enable quantity input
+        if (qtyEl) {
+          qtyEl.disabled = false;
+          qtyEl.classList.remove('qty-disabled');
+          qtyEl.title = '';
+          qtyEl.max = inStock;
+          if (!qtyEl.value || parseFloat(qtyEl.value) <= 0) {
+            qtyEl.value = 1;
+          }
+        }
+        if (stockEl) {
+          stockEl.classList.remove('out-of-stock-input');
+        }
+        
+        // Show low stock warning if stock <= 5
+        if (inStock <= 5) {
+          const warning = document.createElement('div');
+          warning.className = 'stock-warning low';
+          warning.textContent = `⚠️ LOW STOCK: Only ${inStock} left`;
+          const wrapper = row.querySelector('.field-input-wrapper:has(input[name="qty_in_stock[]"])');
+          if (wrapper) wrapper.appendChild(warning);
+        }
+      }
+
+      // Fire row calculation
+      recalculateRow(row);
+    }
+  });
+
+  // Override quantity input to respect max stock
+  document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('row-qty')) {
+      const row = e.target.closest('.purchase-single-ledger-row');
+      if (!row) return;
+      
+      const stockEl = row.querySelector('input[name="qty_in_stock[]"]');
+      const maxStock = parseInt(stockEl ? stockEl.value : 0) || 0;
+      const qty = parseInt(e.target.value) || 0;
+      
+      if (maxStock > 0 && qty > maxStock) {
+        e.target.value = maxStock;
+        alert(`Only ${maxStock} units available in stock.`);
+      }
+      recalculateRow(row);
+    }
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  // 4. ROW TOTAL & GRAND TOTALS CALCULATION ENGINE
+  // ════════════════════════════════════════════════════════════════
+
+  // Also use document-level delegation so added rows are included
+  document.addEventListener('input', function(e) {
+    if (!e.target.closest('#medicine-ledger-rows')) return;
+    const classes = ['row-qty', 'row-sale-price', 'row-tax'];
+    if (classes.some(function(c) { return e.target.classList.contains(c); })) {
+      recalculateRow(e.target.closest('.purchase-single-ledger-row'));
+    }
+  });
+
+  const discountEl = document.getElementById('discount_amount');
+  if (discountEl) discountEl.addEventListener('input', recalculateTotals);
+
+  function recalculateRow(row) {
+    if (!row) return;
+    const qtyEl   = row.querySelector('input[name="quantity[]"]');
+    const priceEl = row.querySelector('input[name="sale_price[]"]');
+    const taxEl   = row.querySelector('input[name="tax_percent[]"]');
+    const totalEl = row.querySelector('input[name="row_amount[]"]');
+
+    const qty   = parseFloat(qtyEl   && qtyEl.value   ? qtyEl.value   : 0) || 0;
+    const price = parseFloat(priceEl && priceEl.value ? priceEl.value : 0) || 0;
+    const tax   = parseFloat(taxEl   && taxEl.value   ? taxEl.value   : 0) || 0;
+
+    const base     = qty * price;
+    const taxAmt   = base * (tax / 100);
+    const rowTotal = base + taxAmt;
+
+    if (totalEl) totalEl.value = rowTotal.toFixed(2);
+    recalculateTotals();
+  }
+
+  function recalculateTotals() {
+    let subtotal = 0;
+    let taxTotal = 0;
+
+    document.querySelectorAll('#medicine-ledger-rows .purchase-single-ledger-row').forEach(function(row) {
+      const qtyEl   = row.querySelector('input[name="quantity[]"]');
+      const priceEl = row.querySelector('input[name="sale_price[]"]');
+      const taxEl   = row.querySelector('input[name="tax_percent[]"]');
+
+      const qty   = parseFloat(qtyEl   && qtyEl.value   ? qtyEl.value   : 0) || 0;
+      const price = parseFloat(priceEl && priceEl.value ? priceEl.value : 0) || 0;
+      const taxPct= parseFloat(taxEl   && taxEl.value   ? taxEl.value   : 0) || 0;
+
+      const base = qty * price;
+      subtotal += base;
+      taxTotal += base * (taxPct / 100);
+    });
+
+    const discountEl = document.getElementById('discount_amount');
+    const discount = parseFloat(discountEl ? discountEl.value : 0) || 0;
+    const net      = Math.max(0, subtotal + taxTotal - discount);
+
+    const totalEl = document.getElementById('total_amount');
+    const taxEl = document.getElementById('tax_summary');
+    const netEl = document.getElementById('net_amount');
+    
+    if (totalEl) totalEl.value = subtotal.toFixed(2);
+    if (taxEl) taxEl.value = taxTotal.toFixed(2);
+    if (netEl) netEl.value = net.toFixed(2);
+  }
+
+  
+  // ════════════════════════════════════════════════════════════════
+  // 5. MODAL — Open / Close with AJAX Submit
+  // ════════════════════════════════════════════════════════════════
+  const modal         = document.getElementById('patientModal');
+  const openModalBtn  = document.getElementById('openPatientModalBtn');
+  const closeModalBtn = document.getElementById('closePatientModal');
+  const cancelBtn     = document.getElementById('cancelPatientModal');
+  const modalForm     = document.getElementById('addPatientForm');
+  const successMsg    = document.getElementById('modalSuccessMessage');
+  const saveBtn       = document.getElementById('modalSavePatientBtn');
+
+  function openModal() {
+    if (modal) {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      // Reset form and hide success message
+      if (modalForm) modalForm.reset();
+      if (successMsg) successMsg.classList.remove('show');
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
+      }
+    }
+  }
+
+  function closeModal() {
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  if (openModalBtn) openModalBtn.addEventListener('click', openModal);
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  // ── AJAX Form Submit for Modal ──
+  if (modalForm) {
+    modalForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      
+      // Show loading state
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+      }
+      
+      // FIXED: Changed from /opd/add-patient-modal/ to /pharmacy/add-patient-modal/
+      fetch('/pharmacy/add-patient-modal/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // ✅ data.patient is the nested object from the view
+          const patient    = data.patient || {};
+          const patientId  = patient.id;
+          const patientName = patient.name || document.getElementById('modal_patient_name').value;
+          const patientNum  = patient.patient_number || 'New';
+
+          if (successMsg) {
+            successMsg.textContent = data.message || 'Patient registered successfully!';
+            successMsg.classList.add('show');
+          }
+
+          if (patientSearchInput && patientHiddenInput) {
+            patientSearchInput.value = `${patientName} (${patientNum})`;
+            patientHiddenInput.value = patientId;
+            patientSearchInput.style.borderColor = '#38a169';
+          }
+
+          if (caseIdInput) {
+            caseIdInput.value = generateCaseId();
+          }
+
+          setTimeout(() => {
+            closeModal();
+            if (saveBtn) {
+              saveBtn.disabled = false;
+              saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
+            }
+            const firstCategory = document.querySelector('.med-category-select');
+            if (firstCategory) firstCategory.focus();
+          }, 1500);
+
+        } else {
+          alert(data.message || data.error || 'Error saving patient. Please try again.');
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
+        }
+      });
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 6. DOB → AGE AUTO-CALCULATION (inside modal)
+  // ════════════════════════════════════════════════════════════════
+  const dobInput      = document.getElementById('dob_input');
+  const ageYearsInput = document.getElementById('age_years');
+  const ageMonthsInput= document.getElementById('age_months');
+  const ageDaysInput  = document.getElementById('age_days');
+
+  if (dobInput) {
+    dobInput.addEventListener('change', function () {
+      const birth = new Date(this.value);
+      const today = new Date();
+      if (birth > today) {
+        this.value = '';
+        return;
+      }
+
+      let y = today.getFullYear() - birth.getFullYear();
+      let m = today.getMonth()    - birth.getMonth();
+      let d = today.getDate()     - birth.getDate();
+
+      if (d < 0) {
+        m--;
+        d += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+      }
+      if (m < 0) {
+        y--;
+        m += 12;
+      }
+
+      if (ageYearsInput)  ageYearsInput.value  = y;
+      if (ageMonthsInput) ageMonthsInput.value = m;
+      if (ageDaysInput)   ageDaysInput.value   = d;
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 7. DOCTOR SELECTION WITH AUTO-FILL
+  // ════════════════════════════════════════════════════════════════
+  const doctorSelect = document.getElementById('hospital_doctor');
+  const doctorNameInput = document.getElementById('doctor_name');
+
+  if (doctorSelect && doctorNameInput) {
+    doctorSelect.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      if (selectedOption && selectedOption.value) {
+        const doctorName = selectedOption.getAttribute('data-doctor-name') || selectedOption.text;
+        doctorNameInput.value = doctorName.trim();
+      } else {
+        doctorNameInput.value = '';
+      }
+    });
+  }
+
+});
 </script>
 
 {% endblock %}

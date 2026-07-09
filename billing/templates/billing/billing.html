@@ -15,22 +15,22 @@
         <hr class="dashboard-separator" />
 
         <div class="dashboard-links-grid m-bottom-16">
-          <a href="#" class="meta-metric-pill dashboard-nav-box">
+          <a href="{% url 'appointments:appointments_home' %}" class="meta-metric-pill dashboard-nav-box">
             <i class="fa fa-calendar-check icon-primary"></i>
             <strong>Appointments</strong>
           </a>
-          <a href="#" class="meta-metric-pill dashboard-nav-box">
+          <a href="{% url 'opd:opd_home' %}" class="meta-metric-pill dashboard-nav-box">
             <i class="fa fa-user-md icon-primary"></i>
             <strong>OPD</strong>
           </a>
-          <a href="#" class="meta-metric-pill dashboard-nav-box">
+          <a href="{% url 'laboratory:laboratory_home' %}" class="meta-metric-pill dashboard-nav-box">
             <i class="fa fa-flask icon-primary"></i>
             <strong>Laboratory</strong>
           </a>
         </div>
 
         <div class="dashboard-links-grid">
-          <a href="#" class="meta-metric-pill dashboard-nav-box">
+          <a href="{% url 'radiology:radiology_home' %}" class="meta-metric-pill dashboard-nav-box">
             <i class="fa fa-x-ray icon-primary"></i>
             <strong>Radiology</strong>
           </a>

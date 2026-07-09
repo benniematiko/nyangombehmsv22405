@@ -1755,5 +1755,82 @@ body {
 
 
 
+/* ==========================================================================
+   SIDEBAR SUBMENU / ACCORDION SYSTEM
+   ========================================================================== */
+
+/* Arrow icon inside the trigger link */
+.submenu-arrow {
+    margin-left: auto;          /* pushes it to the far right */
+    font-size: 11px !important;
+    transition: transform 0.25s ease;
+    color: #94a3b8;
+}
+
+/* Rotate arrow when open */
+.has-submenu.submenu-open > a .submenu-arrow {
+    transform: rotate(180deg);
+    color: #ffffff;
+}
+
+/* The nested <ul> — hidden by default */
+.sidebar-submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    background-color: #f1f5f9;
+    border-left: 3px solid #810810;
+}
+
+/* Open state */
+.has-submenu.submenu-open > .sidebar-submenu {
+    max-height: 300px;   /* tall enough for any submenu */
+    opacity: 1;
+}
+
+/* Submenu items */
+.sidebar-submenu li {
+    padding: 0;
+}
+
+.sidebar-submenu a {
+    padding: 9px 16px 9px 32px;  /* indent to show hierarchy */
+    font-size: 13px;
+    color: #475569;
+    gap: 10px;
+}
+
+.sidebar-submenu a i {
+    font-size: 12px !important;
+    color: #94a3b8;
+}
+
+.sidebar-submenu a:hover,
+.sidebar-submenu a.active {
+    background-color: #810810;
+    color: #ffffff;
+}
+
+.sidebar-submenu a:hover i,
+.sidebar-submenu a.active i {
+    color: #ffffff;
+}
+
+/* Parent link highlight when submenu is open (but not full active bg) */
+.has-submenu.submenu-open > a {
+    background-color: #810810;
+    color: #ffffff;
+}
+
+.has-submenu.submenu-open > a i {
+    color: #ffffff;
+}
+
+
+
 
 

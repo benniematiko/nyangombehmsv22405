@@ -214,14 +214,27 @@ class Purchase(models.Model):
         ('Cash', 'Cash'),
         ('M-Pesa', 'M-Pesa'),
         ('Bank', 'Bank Transfer'),
+        ('Insurance', 'Insurance'),
         ('Credit', 'Credit'),
     ]
 
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Paid', 'Paid'),
+        ('Partial', 'Partial'),
+    ]  
+
     purchase_no = models.CharField(max_length=100, unique=True, editable=False)
-    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name='purchases')
-    supplier_bill_number = models.CharField(max_length=100, blank=True, null=True)  # ← ADD HERE   
-    purchase_date = models.DateTimeField(default=timezone.now)
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name='purchases', null=True, blank=True)
     
+    patient = models.ForeignKey('patients.Patient', on_delete=models.PROTECT, related_name='pharmacy_bills', null=True, blank=True)
+    doctor_name = models.CharField(max_length=200, blank=True, null=True)
+    case_id = models.CharField(max_length=100, blank=True, null=True)
+    prescription = models.CharField(max_length=200, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    supplier_bill_number = models.CharField(max_length=100, blank=True, null=True)
+    purchase_date = models.DateTimeField(default=timezone.now)
+
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     tax_summary = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
@@ -244,11 +257,13 @@ class Purchase(models.Model):
         if not self.purchase_no:
             last_purchase = Purchase.objects.all().order_by('id').last()
             next_id = (last_purchase.id + 1) if last_purchase else 1
-            self.purchase_no = f"EMP-PURC-{timezone.now().year}-{next_id:04d}"
+            self.purchase_no = f"PH-BILL-{timezone.now().year}-{next_id:04d}"
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.purchase_no} — {self.supplier.name}"
+        if self.patient:
+            return f"{self.purchase_no} — {self.patient.full_name}"
+        return f"{self.purchase_no} — {self.supplier.name if self.supplier else 'N/A'}"
 
 
 class PurchaseItem(models.Model):
@@ -276,7 +291,6 @@ class PurchaseItem(models.Model):
         verbose_name_plural = "Purchase Items"
 
     def save(self, *args, **kwargs):
-        # Auto-calculate row amount if not set
         if self.row_amount == 0 and self.quantity and self.purchase_price:
             base_amount = self.quantity * self.purchase_price
             tax_amount = base_amount * (self.tax_percent / 100)
@@ -285,3 +299,153 @@ class PurchaseItem(models.Model):
 
     def __str__(self):
         return f"{self.medicine.name} — Batch: {self.batch_no} ({self.purchase.purchase_no})"
+
+
+# ==========================================================================
+# 5. PHARMACY BILLING / INVOICE TRANSACTIONS
+# ==========================================================================
+
+class PharmacyInvoice(models.Model):
+    """
+    Master invoice record for pharmacy billing transactions.
+    Used for tracking patient pharmacy bills and payments.
+    """
+    PAYMENT_STATUS_CHOICES = [
+        ('Paid', 'Paid'),
+        ('Partial', 'Partial'),
+        ('Pending', 'Pending'),
+        ('Refunded', 'Refunded'),
+    ]
+
+    PAYMENT_MODE_CHOICES = [
+        ('Cash', 'Cash'),
+        ('M-Pesa', 'M-Pesa'),
+        ('Bank', 'Bank Transfer'),
+        ('Insurance', 'Insurance'),
+        ('Credit', 'Credit'),
+    ]
+
+    invoice_number = models.CharField(max_length=100, unique=True, editable=False)
+    patient = models.ForeignKey('patients.Patient', on_delete=models.PROTECT, related_name='pharmacy_invoices', null=True, blank=True)
+    patient_name = models.CharField(max_length=200, blank=True, null=True)
+    patient_number = models.CharField(max_length=50, blank=True, null=True)
+    doctor = models.CharField(max_length=200, blank=True, null=True)
+    case_id = models.CharField(max_length=100, blank=True, null=True)
+    prescription = models.TextField(blank=True, null=True)
+    
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    net_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    balance_due = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Pending')
+    payment_mode = models.CharField(max_length=50, choices=PAYMENT_MODE_CHOICES, default='Cash')
+    payment_note = models.TextField(blank=True, null=True)
+    
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='pharmacy_invoices', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Pharmacy Invoices"
+
+    def save(self, *args, **kwargs):
+        if not self.invoice_number:
+            last_invoice = PharmacyInvoice.objects.all().order_by('id').last()
+            next_id = (last_invoice.id + 1) if last_invoice else 1
+            self.invoice_number = f"PH-INV-{timezone.now().year}-{next_id:04d}"
+        
+        # Calculate balance due
+        self.balance_due = self.net_amount - self.amount_paid
+        
+        # Auto-update payment status
+        if self.balance_due <= 0:
+            self.payment_status = 'Paid'
+        elif self.amount_paid > 0 and self.balance_due > 0:
+            self.payment_status = 'Partial'
+        else:
+            self.payment_status = 'Pending'
+            
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.invoice_number} — {self.patient_name or 'Unknown Patient'}"
+
+
+class PharmacyInvoiceItem(models.Model):
+    """
+    Line items for pharmacy invoices.
+    Tracks individual medicines, quantities, and amounts billed.
+    """
+    invoice = models.ForeignKey(PharmacyInvoice, on_delete=models.CASCADE, related_name='items')
+    medicine = models.ForeignKey(Stock, on_delete=models.PROTECT, related_name='invoice_items')
+    medicine_name = models.CharField(max_length=200)
+    category = models.CharField(max_length=100, blank=True, null=True)
+    batch_no = models.CharField(max_length=100, blank=True, null=True)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    quantity = models.PositiveIntegerField(default=1)
+    tax_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    row_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+
+    class Meta:
+        ordering = ['id']
+        verbose_name_plural = "Pharmacy Invoice Items"
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate row total
+        if self.quantity and self.unit_price:
+            base_amount = self.quantity * self.unit_price
+            tax_amount = base_amount * (self.tax_percent / 100)
+            self.row_total = base_amount + tax_amount
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.medicine_name} x {self.quantity} ({self.invoice.invoice_number})"
+
+
+class PharmacyPayment(models.Model):
+    """
+    Tracks individual payments made against pharmacy invoices.
+    """
+    PAYMENT_MODE_CHOICES = [
+        ('Cash', 'Cash'),
+        ('M-Pesa', 'M-Pesa'),
+        ('Bank', 'Bank Transfer'),
+        ('Insurance', 'Insurance'),
+        ('Credit', 'Credit'),
+    ]
+
+    invoice = models.ForeignKey(PharmacyInvoice, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    payment_mode = models.CharField(max_length=50, choices=PAYMENT_MODE_CHOICES, default='Cash')
+    reference = models.CharField(max_length=100, blank=True, null=True)
+    note = models.TextField(blank=True, null=True)
+    received_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='pharmacy_payments')
+    payment_date = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-payment_date']
+        verbose_name_plural = "Pharmacy Payments"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Update invoice amount_paid and balance_due
+        total_paid = self.invoice.payments.aggregate(
+            total=models.Sum('amount')
+        )['total'] or 0
+        self.invoice.amount_paid = total_paid
+        self.invoice.balance_due = self.invoice.net_amount - total_paid
+        if self.invoice.balance_due <= 0:
+            self.invoice.payment_status = 'Paid'
+        elif total_paid > 0 and self.invoice.balance_due > 0:
+            self.invoice.payment_status = 'Partial'
+        else:
+            self.invoice.payment_status = 'Pending'
+        self.invoice.save(update_fields=['amount_paid', 'balance_due', 'payment_status'])
+
+    def __str__(self):
+        return f"Payment {self.id} — {self.invoice.invoice_number} (Kshs {self.amount})"

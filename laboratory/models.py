@@ -1,3 +1,4 @@
+# In laboratory/models.py
 from django.db import models
 from django.contrib.auth.models import User
 from patients.models import Patient
@@ -16,13 +17,18 @@ class LaboratoryTest(models.Model):
         Patient, 
         on_delete=models.CASCADE, 
         related_name='lab_tests',
-        null=True,      # Made nullable to avoid migration issues
+        null=True,
         blank=True
     )
     doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True)
     test_name = models.CharField(max_length=200)
     test_category = models.CharField(max_length=100, blank=True, null=True)
     specimen_type = models.CharField(max_length=100, blank=True, null=True)
+    
+    # ── NEW FIELDS FOR BILLING ──
+    cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Test cost")
+    tax_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, help_text="Tax percentage")
+    
     result = models.TextField(blank=True, null=True)
     normal_range = models.CharField(max_length=200, blank=True, null=True)
     status = models.CharField(max_length=20, choices=TEST_STATUS, default='pending')
@@ -38,6 +44,8 @@ class LaboratoryTest(models.Model):
     
     class Meta:
         ordering = ['-ordered_at']
+
+
 
 
 class LaboratoryInvoice(models.Model):

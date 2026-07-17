@@ -19,7 +19,7 @@
         <a href="{% url 'laboratory:generate_bill' %}" class="btn-hms-primary">
           <i class="fa fa-file-text-o"></i> Generate a Bill
         </a>
-        <a href="" class="btn-hms-secondary">        
+        <a href="{% url 'laboratory:laboratorytestslist' %}" class="btn-hms-secondary">        
           <i class="fa fa-list"></i> Laboratory Test Lists      
         </a>
       </div>
@@ -66,17 +66,18 @@
           </tr>
         </thead>
         <tbody>
+
           {% for invoice in invoices %}
-          <tr>
+          <tr onclick="window.location.href='{% url 'laboratory:invoice_detail' invoice.id %}'">
             <td><span class="badge-bill">{{ invoice.invoice_number }}</span></td>
             <td class="case-id-cell">{{ invoice.case_id|default:"—" }}</td>
-            <td>{{ invoice.created_at|date:"d/m/Y" }}</td>
-            <td title="{{ invoice.patient_name }}">
-              <strong class="patient-name-text">{{ invoice.patient_name|default:"Unknown" }}</strong>
+            <td>{{ invoice.issue_date|date:"d/m/Y" }}</td>
+            <td title="{{ invoice.patient.full_name }}">
+              <strong class="patient-name-text">{{ invoice.patient.full_name|default:"Unknown" }}</strong>
             </td>
-            <td>{{ invoice.doctor|default:"—" }}</td>
+            <td>{{ invoice.doctor_name|default:"—" }}</td>
             <td class="text-right financial-digits">{{ invoice.discount_amount|floatformat:2 }}</td>
-            <td class="text-right financial-digits-bold">{{ invoice.net_amount|floatformat:2 }}</td>
+            <td class="text-right financial-digits-bold">{{ invoice.total_amount|floatformat:2 }}</td>
             <td class="text-right financial-digits-paid">{{ invoice.amount_paid|floatformat:2 }}</td>
             <td class="text-right financial-digits">0.00</td>
             <td class="text-right balance-cell {% if invoice.balance_due <= 0 %}balance-clear{% else %}balance-due{% endif %}">
@@ -85,15 +86,10 @@
                 <a href="{% url 'laboratory:invoice_detail' invoice.id %}" class="popover-btn popover-btn-view" title="View Full Invoice">
                   <i class="fa fa-eye"></i>
                 </a>
-                <button type="button" class="popover-btn popover-btn-show" 
-                        title="Add/View Payments" 
-                        data-invoice-id="{{ invoice.id }}"
-                        onclick="managePayments('{{ invoice.id }}'); event.stopPropagation();">
+                <button type="button" class="popover-btn popover-btn-show" title="Add/View Payments" onclick="managePayments('{{ invoice.id }}'); event.stopPropagation();">
                   <i class="fa fa-money"></i>
                 </button>
-                <button type="button" class="popover-btn popover-btn-print" 
-                        title="Print Invoice"
-                        onclick="printInvoice('{{ invoice.id }}'); event.stopPropagation();">
+                <button type="button" class="popover-btn popover-btn-print" title="Print Invoice" onclick="printInvoice('{{ invoice.id }}'); event.stopPropagation();">
                   <i class="fa fa-print"></i>
                 </button>
               </div>
@@ -106,21 +102,22 @@
             </td>
           </tr>
           {% endfor %}
+
         </tbody>
       </table>
     </div>
 
     <div class="ledger-pagination-row">
       <div class="pagination-counter-info">
-        Records: <strong>{{ invoices.start_index }}</strong> to <strong>{{ invoices.end_index }}</strong> of <strong>{{ total_records }}</strong>
+        Records: <strong>{{ invoices.start_index }}</strong> to <strong>{{ invoices.end_index }}</strong> of <strong>{{ invoices.paginator.count }}</strong>
       </div>
       
       <div class="pagination-nav-controls">
         {% if invoices.has_previous %}
-          <a href="?page=1&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav" title="First Page">
+          <a href="#" onclick="changePage(1); return false;" class="btn-page-nav" title="First Page">
             <i class="fa fa-angle-double-left"></i>
           </a>
-          <a href="?page={{ invoices.previous_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav" title="Previous Page">
+          <a href="#" onclick="changePage({{ invoices.previous_page_number }}); return false;" class="btn-page-nav" title="Previous Page">
             <i class="fa fa-angle-left"></i>
           </a>
         {% else %}
@@ -132,24 +129,17 @@
           {% for num in invoices.paginator.page_range %}
             {% if num == invoices.number %}
               <button type="button" class="btn-page-num active-page">{{ num }}</button>
-            {% elif num > invoices.number|add:'-3' and num < invoices.number|add:'3' %}
-              <a href="?page={{ num }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-num">{{ num }}</a>
+            {% elif num > invoices.number|add:-3 and num < invoices.number|add:3 %}
+              <a href="#" onclick="changePage({{ num }}); return false;" class="btn-page-num">{{ num }}</a>
             {% endif %}
           {% endfor %}
-          
-          {% if invoices.paginator.num_pages > invoices.number|add:'3' %}
-            <span class="page-ellipsis-spacer">...</span>
-            <a href="?page={{ invoices.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-num">
-              {{ invoices.paginator.num_pages }}
-            </a>
-          {% endif %}
         </div>
 
         {% if invoices.has_next %}
-          <a href="?page={{ invoices.next_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav" title="Next Page">
+          <a href="#" onclick="changePage({{ invoices.next_page_number }}); return false;" class="btn-page-nav" title="Next Page">
             <i class="fa fa-angle-right"></i>
           </a>
-          <a href="?page={{ invoices.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav" title="Last Page">
+          <a href="#" onclick="changePage({{ invoices.paginator.num_pages }}); return false;" class="btn-page-nav" title="Last Page">
             <i class="fa fa-angle-double-right"></i>
           </a>
         {% else %}
@@ -163,21 +153,17 @@
 </div>
 
 <style>
-  /* Match pharmacy.html popover pattern exactly */
   .hms-billing-log-table tbody tr {
     position: relative;
     cursor: pointer;
     transition: background-color 0.2s ease;
   }
-
   .hms-billing-log-table tbody tr:hover {
     background-color: #f8fafc;
   }
-
   .balance-cell {
     font-weight: 600;
   }
-
   .row-hover-popover {
     display: none;
     position: absolute;
@@ -192,13 +178,11 @@
     padding: 4px;
     white-space: nowrap;
   }
-
   .hms-billing-log-table tbody tr:hover .row-hover-popover {
     display: flex;
     gap: 4px;
     align-items: center;
   }
-
   .popover-btn {
     padding: 6px 12px;
     font-size: 0.8rem;
@@ -212,19 +196,32 @@
     cursor: pointer;
     transition: all 0.15s ease;
   }
-
   .popover-btn-view    { background: #eff6ff; color: #2563eb; }
   .popover-btn-view:hover  { background: #dbeafe; }
   .popover-btn-show    { background: #f0fdf4; color: #16a34a; }
   .popover-btn-show:hover  { background: #dcfce7; }
   .popover-btn-print   { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
   .popover-btn-print:hover { background: #f1f5f9; }
+  .active-page { background-color: #2563eb !important; color: white !important; font-weight: bold; }
 </style>
 
 <script>
+// ── UNIFIED URL NAVIGATION HANDLER ──
+function changePage(pageNumber) {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('page', pageNumber);
+    
+    const entriesSelect = document.getElementById('entriesPerPage');
+    if (entriesSelect) {
+        urlParams.set('per_page', entriesSelect.value);
+    }
+    
+    window.location.search = urlParams.toString();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
 
-  // ── SEARCH FUNCTIONALITY ──
+  // ── SEARCH FUNCTIONALITY (Client Side) ──
   const searchInput = document.getElementById('ledgerSearch');
   if (searchInput) {
     searchInput.addEventListener('keyup', function() {
@@ -238,20 +235,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // ── URL PARAMETER SYNC ──
-  function updateUrlParams(key, value) {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (value) urlParams.set(key, value);
-    else urlParams.delete(key);
-    if (key !== 'page') urlParams.set('page', '1');
-    window.location.href = `?${urlParams.toString()}`;
-  }
-
   // ── ENTRIES PER PAGE ──
   const entriesPerPage = document.getElementById('entriesPerPage');
   if (entriesPerPage) {
     entriesPerPage.addEventListener('change', function() {
-      updateUrlParams('per_page', this.value);
+      // When changing entry configurations, safe practice is to reset to page 1
+      changePage(1);
     });
   }
 

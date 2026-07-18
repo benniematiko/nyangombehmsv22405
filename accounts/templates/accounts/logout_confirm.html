@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="logout-wrapper" style="display: flex; justify-content: center; align-items: center; min-height: 70vh; font-family: system-ui, sans-serif;">
+    <div class="logout-card" id="logoutCard" style="background: #221c19; color: white; padding: 3rem; border-radius: 8px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); max-width: 450px; width: 100%;">
+        
+        <div id="confirmationState">
+            <h2 style="margin-bottom: 1rem; color: #f3f4f6;">Confirm Logout</h2>
+            <p style="color: #9ca3af; margin-bottom: 2rem; line-height: 1.5;">Are you sure you want to end your session at Eagles Mission Hospital? Any unsaved clinical metrics may be lost.</p>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <form id="logoutForm" action="{% url 'accounts:logout' %}" method="post" style="margin: 0;">
+                
+                    {% csrf_token %}
+                    <button type="submit" id="confirmBtn" style="background: #da7426; color: white; border: none; padding: 0.75rem 2rem; font-weight: 600; border-radius: 4px; cursor: pointer; transition: background 0.2s;">
+                        Yes, Log Me Out
+                    </button>
+                </form>
+                <a href="{% url 'dashboard:home' %}" style="background: transparent; color: #b0afb2; border: 1px solid #2e303a; padding: 0.75rem 2rem; font-weight: 600; border-radius: 4px; text-decoration: none; transition: background 0.2s;">
+                    Cancel
+                </a>
+            </div>
+        </div>
+
+        <div id="loadingState" style="display: none;">
+            <div class="spinner" style="border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #da7426; border-radius: 50%; width: 50px; height: 50px; margin: 0 auto 1.5rem auto; animation: spin 1s linear infinite;"></div>
+            <h3 style="color: white; margin-bottom: 0.5rem;">Securing Session...</h3>
+            <p style="color: #9ca3af; font-size: 14px;">Clearing local clinical tokens securely.</p>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    const form = document.getElementById('logoutForm');
+    const confirmState = document.getElementById('confirmationState');
+    const loadState = document.getElementById('loadingState');
+
+    form.addEventListener('submit', function(e) {
+        // 1. Prevent instant form execution submission
+        e.preventDefault(); 
+        
+        // 2. Hide confirmation elements and show our premium loader
+        confirmState.style.display = 'none';
+        loadState.style.display = 'block';
+        
+        // 3. Let it run smoothly for 2.5 seconds before final POST dispatch
+        setTimeout(() => {
+            form.submit();
+        }, 2500); 
+    });
+</script>
+{% endblock %}

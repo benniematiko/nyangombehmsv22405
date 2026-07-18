@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %} Billing Modules Dashboard | Eagles Mission Hospital{% endblock %} 
+{% block content %}
+
+<div class="billing-canvas-container">
+  <div class="billing-content-body-wrapper">
+    <div
+      class="billing-split-summary-layout split-two-equal dashboard-billing-grid"
+    >
+      <div class="summary-left-card-block dashboard-module-card">
+        <div class="dashboard-card-header">
+          <h3>Single Module Billing</h3>
+        </div>
+
+        <hr class="dashboard-separator" />
+
+        <div class="dashboard-links-grid m-bottom-16">
+          <a href="{% url 'appointments:appointments_home' %}" class="meta-metric-pill dashboard-nav-box">
+            <i class="fa fa-calendar-check icon-primary"></i>
+            <strong>Appointments</strong>
+          </a>
+          <a href="{% url 'opd:opd_home' %}" class="meta-metric-pill dashboard-nav-box">
+            <i class="fa fa-user-md icon-primary"></i>
+            <strong>OPD</strong>
+          </a>
+          <a href="{% url 'laboratory:laboratory_home' %}" class="meta-metric-pill dashboard-nav-box">
+            <i class="fa fa-flask icon-primary"></i>
+            <strong>Laboratory</strong>
+          </a>
+        </div>
+
+        <div class="dashboard-links-grid">
+          <a href="{% url 'radiology:radiology_home' %}" class="meta-metric-pill dashboard-nav-box">
+            <i class="fa fa-x-ray icon-primary"></i>
+            <strong>Radiology</strong>
+          </a>
+          <a href="#" class="meta-metric-pill dashboard-nav-box">
+            <i class="fa fa-tint icon-danger"></i>
+            <strong>Blood Issues</strong>
+          </a>
+          <a href="#" class="meta-metric-pill dashboard-nav-box">
+            <i class="fa fa-boxes icon-danger"></i>
+            <strong>Blood Components</strong>
+          </a>
+        </div>
+      </div>
+
+      <div class="summary-right-ledger-card dashboard-search-card">
+        <div class="dashboard-card-header">
+          <h3>OPD/Billing Through Case ID</h3>
+        </div>
+
+        <hr class="dashboard-separator" />
+
+        <form method="GET" action="{% url 'billing:billing_home' %}">
+
+
+
+
+          <div class="hms-inline-search-container">
+              <label for="case_id_search" class="inline-label">
+                  Case ID <span class="required-indicator">*</span>
+              </label>
+              
+              <input
+                  type="text"
+                  id="case_id_search"
+                  name="case_id"
+                  value="{{ visit.case_id|default:'' }}"
+                  class="hms-form-input inline-input"
+                  placeholder="Scan or enter unique Case ID..."
+                  required
+              />
+              
+              <button type="submit" class="btn-terminal-save inline-btn">
+                  <i class="fas fa-search"></i> Search
+              </button>
+          </div>
+
+       
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

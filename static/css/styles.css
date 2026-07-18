@@ -1,0 +1,1836 @@
+/* ==========================================================================
+   1. Core Reset & Global Framework Topology Variables
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    color: #334155;
+    min-height: 100vh;
+}
+
+/* ==========================================================================
+   2. Master Application Grid Structure (Sidebar + Content Architecture)
+   ========================================================================== */
+.grid {
+    display: grid;
+    grid-template-columns: 14% 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+        "header header"
+        "sidebar content"
+        "footer footer";
+    min-height: 100vh;
+    width: 100%;
+}
+
+.header {
+    grid-area: header;
+    background-color: #1e293b;
+    color: white;
+    padding: 15px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.content {
+    grid-area: content;
+    background-color: #f8fafc;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+}
+
+.footer {
+    grid-area: footer;
+    background-color: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 24px;
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "header"
+            "sidebar"
+            "content"
+            "footer";
+    }
+}
+
+/* ==========================================================================
+   3. Isolated Elegant Portal Layouts (Landing Page & Login Architecture)
+   ========================================================================== */
+.landing-page-body, .login-page-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f7f6;
+    margin: 0;
+    width: 100%;
+    padding: 20px;
+}
+
+.portal-card {
+    background: #ffffff;
+    padding: 3rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    max-width: 440px;
+    width: 100%;
+    border-top: 4px solid #810810;
+    transition: transform 0.3s ease;
+}
+
+.portal-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+
+.portal-card h1 {
+    font-size: 1.6rem;
+    color: #1e293b;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+}
+
+.tagline {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.btn-enter {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #810810;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 0.85rem 2.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(129, 8, 16, 0.15);
+}
+
+.btn-enter:hover {
+    background-color: #61040a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(129, 8, 16, 0.25);
+}
+
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #334155;
+    background-color: #f8fafc;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-group input:focus {
+    outline: none;
+    background-color: #ffffff;
+    border-color: #810810;
+    box-shadow: 0 0 0 4px rgba(129, 8, 16, 0.12);
+}
+
+.btn-submit {
+    display: block;
+    width: 100%;
+    background-color: #810810;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(129, 8, 16, 0.15);
+}
+
+.btn-submit:hover {
+    background-color: #61040a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(129, 8, 16, 0.25);
+}
+
+/* ==========================================================================
+   4. High-Density Asymmetric Dashboard System
+   ========================================================================== */
+.hms-dashboard-fullwidth {
+    width: 100%;
+    padding: 20px;
+    background-color: #f8fafc;
+    min-height: calc(100vh - 120px);
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.dash-meta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 15px;
+    width: 100%;
+}
+
+.meta-title-group h1 {
+    font-size: 24px;
+    color: #0f172a;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.meta-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+}
+
+.system-time-stamp {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hms-financial-matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dashboard-clickable-tile-wrapper {
+    text-decoration: none !important;
+    display: block;
+    outline: none;
+}
+
+.mini-tile {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tile-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+}
+
+.tile-blue-gradient .tile-icon-box  { background-color: #f0fdf4; color: #16a34a; }
+.tile-red-gradient .tile-icon-box   { background-color: #fef2f2; color: #dc2626; }
+.tile-green-gradient .tile-icon-box { background-color: #eff6ff; color: #2563eb; }
+
+.mini-tile::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+.tile-blue-gradient::after  { background-color: #810810; }
+.tile-red-gradient::after   { background-color: #ef4444; }
+.tile-green-gradient::after { background-color: #10b981; }
+
+.tile-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tile-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.tile-number {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+.dashboard-clickable-tile-wrapper:hover .mini-tile {
+    transform: translateY(-4px);
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.06),
+                0 4px 6px -2px rgba(15, 23, 42, 0.03);
+}
+
+.dashboard-clickable-tile-wrapper:hover .tile-icon-box {
+    transform: scale(1.06);
+}
+
+/* ==========================================================================
+   Sidebar Workspace Framework Component Layouts
+   ========================================================================== */
+.sidebar {
+    background-color: #f8fafc;
+    color: black;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #e2e8f0;
+}
+
+.sidebar-brand h2 {
+    color: #881414;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0;
+    padding: 24px;
+}
+
+.sidebar-menu { 
+    list-style-type: none; 
+    padding: 0 0 12px 0;  
+    margin: 0; 
+}
+
+.sidebar-menu li { 
+    padding: 2px 0; 
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 16px;
+    color: black;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 0;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar-menu a i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    color: #475569;
+    transition: color 0.2s ease-in-out;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background-color: #810810;
+    color: #ffffff;
+}
+
+.sidebar-menu a:hover i,
+.sidebar-menu a.active i {
+    color: #ffffff;
+}
+
+.sidebar::-webkit-scrollbar       { width: 5px; }
+.sidebar::-webkit-scrollbar-track { background: #f1f5f9; }
+.sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+/* ==========================================================================
+   PHARMACY APPLICATION COMPONENT STYLES
+   ========================================================================== */
+.pharmacy-container-layout {
+    width: 100%;
+    padding: 20px;
+    background-color: #f8fafc;
+    min-height: calc(100vh - 120px);
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Full width override for consistent layout */
+.template-fullwidth-override {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.pharmacy-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
+}
+
+.panel-title-group h1 {
+    font-size: 20px;
+    color: #0f172a;
+    font-weight: 700;
+    margin: 0 0 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.panel-title-group h1 i { color: #810810; }
+
+.panel-subtitle { 
+    font-size: 12px; 
+    color: #64748b; 
+    margin: 4px 0 0 0;
+}
+
+.pharmacy-billing-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    padding: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   ACTION AND UTILITY NAVIGATION BARS
+   ========================================================================== */
+.ledger-action-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100%;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 14px;
+    box-sizing: border-box;
+}
+
+.ledger-action-row h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.ledger-btn-group {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    width: auto !important;
+    margin-bottom: 0 !important;
+}
+
+.btn-hms-primary {
+    background-color: #810810;
+    color: #ffffff;
+    border: none;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-hms-primary:hover { 
+    background-color: #61040a;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.btn-hms-secondary {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-hms-secondary:hover { background-color: #e2e8f0; color: #0f172a; }
+
+.ledger-utility-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.search-wrapper-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 30%;
+}
+
+.search-wrapper-block label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+}
+
+.search-input-field {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    outline: none;
+    color: #334155;
+    transition: all 0.2s ease;
+}
+
+.search-input-field:focus {
+    border-color: #810810;
+    box-shadow: 0 0 0 2px rgba(129, 8, 16, 0.1);
+}
+
+.export-pagination-group { display: flex; align-items: center; gap: 16px; }
+
+.entries-dropdown-select {
+    padding: 5px 8px;
+    font-size: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    color: #334155;
+    background-color: #ffffff;
+    outline: none;
+}
+
+.entries-dropdown-select:focus { border-color: #810810; }
+
+.export-icon-buttons-container {
+    display: flex;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.btn-export-icon {
+    background-color: #ffffff;
+    color: #475569;
+    border: none;
+    border-right: 1px solid #cbd5e1;
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-export-icon:last-child { border-right: none; }
+.btn-export-icon:hover { background-color: #f8fafc; color: #810810; }
+
+/* ==========================================================================
+   HIGH-DENSITY LEDGER TABLE SYSTEM
+   ========================================================================== */
+.table-fixed-container {
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+.containment-fullwidth {
+    width: 100% !important;
+    overflow-x: auto;
+}
+
+.table-element-fullwidth {
+    width: 100% !important;
+    min-width: 100%;
+}
+
+.hms-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   MEDICINE STOCK TABLE — Rebalanced column widths
+   ========================================================================== */
+.hms-table th:nth-child(1), .hms-table td:nth-child(1) { width: 4%; }
+.hms-table th:nth-child(2), .hms-table td:nth-child(2) { width: 20%; }
+.hms-table th:nth-child(3), .hms-table td:nth-child(3) { width: 14%; }
+.hms-table th:nth-child(4), .hms-table td:nth-child(4) { width: 15%; }
+.hms-table th:nth-child(5), .hms-table td:nth-child(5) { width: 11%; }
+.hms-table th:nth-child(6), .hms-table td:nth-child(6) { width: 12%; }
+.hms-table th:nth-child(7), .hms-table td:nth-child(7) { width: 6%; }
+.hms-table th:nth-child(8), .hms-table td:nth-child(8) { width: 18%; }
+
+/* ==========================================================================
+   PURCHASE HISTORY TABLE - ENHANCED STYLES
+   ========================================================================== */
+.hms-purchase-table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+}
+
+/* Column width definitions */
+.hms-purchase-table .col-purchase-no {
+    width: 13%;
+    min-width: 100px;
+}
+
+.hms-purchase-table .col-purchase-date {
+    width: 10%;
+    min-width: 85px;
+}
+
+.hms-purchase-table .col-bill-no {
+    width: 10%;
+    min-width: 80px;
+}
+
+.hms-purchase-table .col-supplier {
+    width: 22%;
+    min-width: 150px;
+}
+
+.hms-purchase-table .col-total {
+    width: 10%;
+    min-width: 85px;
+}
+
+.hms-purchase-table .col-tax {
+    width: 9%;
+    min-width: 75px;
+}
+
+.hms-purchase-table .col-discount {
+    width: 10%;
+    min-width: 85px;
+}
+
+.hms-purchase-table .col-net {
+    width: 16%;
+    min-width: 130px;
+}
+
+/* Header styling with multi-line support */
+.hms-purchase-table th {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    padding: 12px 8px;
+    border-bottom: 2px solid #cbd5e1;
+    vertical-align: middle;
+    line-height: 1.4;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+/* Allow header text to wrap naturally */
+.hms-purchase-table th br {
+    display: block;
+    content: "";
+    margin: 2px 0;
+}
+
+/* Cell styling */
+.hms-purchase-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Allow supplier name to wrap if needed */
+.hms-purchase-table .supplier-name-cell {
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 200px;
+    line-height: 1.4;
+}
+
+/* Purchase number styling */
+.purchase-number-cell strong {
+    color: #810810;
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+/* Balance cell with popover positioning */
+.hms-purchase-table td:last-child {
+    position: relative;
+    padding-right: 115px;
+}
+
+/* Hover popover for purchase table */
+.hms-purchase-table tbody tr {
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.hms-purchase-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.hms-purchase-table tbody tr:hover .row-hover-popover {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+/* Adjust popover position for purchase table */
+.hms-purchase-table .row-hover-popover {
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* ==========================================================================
+   BILLING LOG TABLE STYLES
+   ========================================================================== */
+.hms-billing-log-table th:nth-child(1),  .hms-billing-log-table td:nth-child(1)  { width: 8%; }
+.hms-billing-log-table th:nth-child(2),  .hms-billing-log-table td:nth-child(2)  { width: 8%; }
+.hms-billing-log-table th:nth-child(3),  .hms-billing-log-table td:nth-child(3)  { width: 10%; }
+.hms-billing-log-table th:nth-child(4),  .hms-billing-log-table td:nth-child(4)  { width: 18%; }
+.hms-billing-log-table th:nth-child(5),  .hms-billing-log-table td:nth-child(5)  { width: 16%; }
+.hms-billing-log-table th:nth-child(6),  .hms-billing-log-table td:nth-child(6)  { width: 8%; }
+.hms-billing-log-table th:nth-child(7),  .hms-billing-log-table td:nth-child(7)  { width: 8%; }
+.hms-billing-log-table th:nth-child(8),  .hms-billing-log-table td:nth-child(8)  { width: 8%; }
+.hms-billing-log-table th:nth-child(9),  .hms-billing-log-table td:nth-child(9)  { width: 8%; }
+.hms-billing-log-table th:nth-child(10), .hms-billing-log-table td:nth-child(10) { width: 8%; }
+
+.hms-table th {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.3px;
+    padding: 12px 10px;
+    border-bottom: 2px solid #cbd5e1;
+}
+
+.hms-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hms-table tbody tr:hover { background-color: #f8fafc; }
+
+/* Table micro-utilities */
+.text-right    { text-align: right; }
+.qty-bold      { font-weight: 700; color: #0f172a; font-family: monospace; font-size: 13px; }
+.badge-bill    { 
+    background-color: #e0f2fe; 
+    color: #0369a1; 
+    padding: 3px 8px; 
+    border-radius: 4px; 
+    font-weight: 700; 
+    font-family: monospace; 
+    font-size: 11px; 
+    display: inline-block;
+    white-space: nowrap;
+}
+.balance-clear { color: #16a34a; font-weight: 600; }
+.balance-due   { color: #dc2626; font-weight: 600; }
+
+/* Financial digits styling */
+.financial-digits {
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: -0.3px;
+}
+
+.financial-digits-bold {
+    font-weight: 700;
+    color: #0f172a;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   LEDGER PAGINATION
+   ========================================================================== */
+.ledger-pagination-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.pagination-counter-info        { font-size: 12px; color: #475569; }
+.pagination-counter-info strong { color: #0f172a; font-weight: 600; }
+.pagination-nav-controls        { display: flex; align-items: center; gap: 6px; }
+.page-numeric-links             { display: flex; align-items: center; gap: 4px; }
+
+.btn-page-nav, .btn-page-num {
+    background-color: #ffffff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-page-nav:not([disabled]):hover, .btn-page-num:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+    text-decoration: none;
+}
+
+.btn-page-num.active-page {
+    background-color: #810810;
+    border-color: #810810;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: default;
+}
+
+.btn-page-nav:disabled {
+    background-color: #f8fafc;
+    color: #cbd5e1;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+}
+
+.page-ellipsis-spacer { font-size: 12px; color: #64748b; padding: 0 4px; cursor: default; }
+
+.pagination-nav-controls a.btn-page-nav,
+.pagination-nav-controls a.btn-page-num {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination-nav-controls a.btn-page-nav:hover,
+.pagination-nav-controls a.btn-page-num:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   PHARMACY DYNAMIC TABLE ROW & POPOVER STYLES
+   ========================================================================== */
+.hms-billing-log-table tbody tr {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.hms-billing-log-table tbody tr:hover { background-color: #f8fafc; }
+
+.case-id-cell          { font-weight: 600; }
+.patient-name-text     { font-weight: 700; }
+.financial-digits-paid { color: #16a34a; }
+.balance-cell          { font-weight: 600; }
+
+.empty-table-placeholder {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.empty-table-placeholder i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.hms-alert-container { 
+    margin: 0 0 20px 0; 
+}
+
+.hms-alert-banner {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.alert-danger  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.alert-success { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+
+/* Hover Popover */
+.row-hover-popover {
+    display: none;
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 4px;
+    white-space: nowrap;
+}
+
+.hms-billing-log-table tbody tr:hover .row-hover-popover {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.popover-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.popover-btn-view  { background: #eff6ff; color: #2563eb; }
+.popover-btn-view:hover  { background: #dbeafe; }
+.popover-btn-show  { background: #f0fdf4; color: #16a34a; }
+.popover-btn-show:hover  { background: #dcfce7; }
+.popover-btn-print { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
+.popover-btn-print:hover { background: #f1f5f9; }
+
+/* ==========================================================================
+   PURCHASE MEDICINE FORM - ROW STYLES
+   ========================================================================== */
+#medicine-ledger-rows .purchase-single-ledger-row {
+    margin-bottom: 16px;
+}
+
+#medicine-ledger-rows .purchase-single-ledger-row label {
+    display: none;
+}
+
+#medicine-ledger-rows .purchase-single-ledger-row:first-child label {
+    display: block;
+    margin-bottom: 6px;
+}
+
+#medicine-ledger-rows .purchase-single-ledger-row:first-child .alignment-control-wrapper {
+    margin-top: 24px; 
+}
+
+#medicine-ledger-rows .purchase-single-ledger-row .alignment-control-wrapper {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.purchase-single-ledger-row {
+    grid-template-columns: repeat(12, 1fr) 40px;
+}
+
+/* ==========================================================================
+   5. HIGH-DENSITY DYNAMIC BILL GENERATION INTERFACE STYLES
+   ========================================================================== */
+.billing-canvas-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #f8fafc;
+    min-height: calc(100vh - 120px);
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.billing-top-action-bar {
+    background-color: #810810;
+    color: #ffffff;
+    padding: 12px 20px;
+    margin-top: 0;
+    border-radius: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.billing-content-body-wrapper { padding: 20px; width: 100%; box-sizing: border-box; }
+
+.billing-left-inputs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-grow: 1;
+    max-width: 85%;
+}
+
+.billing-header-field-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-grow: 1;
+}
+
+.billing-header-field-group label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    color: #fecdd3;
+}
+
+.billing-header-input {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: #ffffff;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.billing-header-input::placeholder { color: #fda4af; }
+
+.billing-header-input:focus {
+    background-color: #ffffff;
+    color: #0f172a;
+    border-color: #ffffff;
+}
+
+.btn-header-action-add {
+    background-color: #ffffff;
+    color: #810810;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-header-action-add:hover { background-color: #ffe4e6; }
+
+.btn-header-close-route {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.btn-header-close-route:hover { transform: scale(1.15); color: #fecdd3; }
+
+.billing-meta-metrics-row {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px 6px 0 0;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.meta-metric-pill { font-size: 12px; color: #475569; }
+.meta-metric-pill strong { color: #0f172a; font-weight: 700; margin-left: 4px; }
+
+.medicine-entry-grid-panel {
+    background: #ffffff;
+    border-left: 1px solid #cbd5e1;
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    border-radius: 0 0 6px 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-x: auto;
+}
+
+.entry-inputs-flex-row {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr) 40px;
+    gap: 8px;
+    align-items: end;
+    width: 100%;
+}
+
+.field-input-wrapper { display: flex; flex-direction: column; gap: 4px; }
+.alignment-control-wrapper { justify-content: flex-end; align-items: center; }
+
+.field-input-wrapper label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.field-input-wrapper label span { color: #dc2626; }
+
+.hms-form-select, .hms-form-input, .hms-form-textarea {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    outline: none;
+    color: #334155;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+
+.hms-form-select:focus, .hms-form-input:focus, .hms-form-textarea:focus {
+    border-color: #810810;
+}
+
+.hms-form-input:read-only {
+    background-color: #f1f5f9;
+    color: #334155;
+    cursor: not-allowed;
+}
+
+.btn-row-remove {
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: #ef4444;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 100%;
+    height: 29px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-row-remove:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    color: #ffffff;
+}
+
+.entry-actions-row-toolbar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 12px;
+    margin-top: 4px;
+}
+
+.btn-append-row {
+    background-color: #f1f5f9;
+    color: #810810;
+    border: 1px solid #e2e8f0;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-append-row:hover {
+    background-color: #810810;
+    border-color: #810810;
+    color: #ffffff;
+}
+
+.billing-split-summary-layout {
+    display: grid;
+    grid-template-columns: 55% 45%;
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: start;
+}
+
+.billing-split-summary-layout.split-two-equal {
+    grid-template-columns: 1fr 1fr;
+}
+
+.summary-left-card-block {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.doctor-inputs-subgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.summary-left-card-block .field-input-wrapper { margin-top: 12px; }
+
+.summary-right-ledger-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.financial-ledger-stack { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+.financial-row-item {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    align-items: center;
+}
+
+.financial-row-item label { font-size: 12px; font-weight: 600; color: #475569; }
+.financial-input-element  { text-align: right; font-weight: 600; }
+
+.financial-input-element:read-only {
+    font-family: monospace;
+    font-size: 13px;
+    color: #0f172a;
+}
+
+.billing-terminal-action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 14px;
+    margin-top: 14px;
+}
+
+.btn-terminal-save-print {
+    background-color: #1e293b;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-terminal-save-print:hover { background-color: #0f172a; }
+
+.btn-terminal-save {
+    background-color: #810810;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-terminal-save:hover { background-color: #61040a; }
+
+/* ==========================================================================
+   STOCK LEVEL DISPLAY & STATUS BADGE SYSTEM
+   ========================================================================== */
+.stock-level-display {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+.badge-status-alert {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+.status-reorder-critical {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fee2e2;
+}
+
+.status-reorder {
+    background-color: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.status-danger-alert {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fee2e2;
+}
+
+.qty-count-zero    { color: #ef4444; font-weight: 700; }
+.qty-count-warning { color: #d97706; font-weight: 700; }
+.qty-count-optimal { color: #0f172a; }
+
+.hms-table th:first-child,
+.checkbox-fit-cell {
+    width: 1%;
+    white-space: nowrap;
+    padding-right: 4px !important;
+}
+
+.hms-table th:nth-child(2),
+.hms-table td:nth-child(2) {
+    padding-left: 12px !important;
+}
+
+/* ==========================================================================
+   6. FULL-SCREEN CANVAS LAYOUT OVERRIDES (NO SIDEBAR)
+   ========================================================================== */
+.grid.full-canvas-view {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+        "header"
+        "content"
+        "footer" !important;
+}
+
+.grid.full-canvas-view .sidebar {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+}
+
+/* ==========================================================================
+   7. MODAL DIALOG FRAMEWORK
+   ========================================================================== */
+.hms-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease-in-out;
+}
+
+.hms-modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.hms-modal-card {
+    background: #ffffff;
+    width: 70%;
+    max-width: 70%;
+    border-radius: 6px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transform: translateY(-20px);
+    transition: transform 0.25s ease-in-out;
+}
+
+.hms-modal-overlay.active .hms-modal-card { transform: translateY(0); }
+
+.hms-modal-header {
+    background-color: #810810;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+}
+
+.hms-modal-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.hms-modal-close-x {
+    background: transparent;
+    border: none;
+    color: #fecdd3;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    transition: color 0.2s ease;
+}
+
+.hms-modal-close-x:hover { color: #ffffff; }
+
+.hms-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(90vh - 120px);
+}
+
+.hms-modal-footer {
+    padding: 14px 20px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.btn-modal-primary {
+    background-color: #810810;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-modal-primary:hover { background-color: #61040a; }
+
+.btn-modal-secondary {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-modal-secondary:hover { background-color: #e2e8f0; color: #0f172a; }
+
+.modal-row-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.modal-row-three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.modal-row-demographics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.modal-row-insurance {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.modal-age-subgrid-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.modal-age-field       { text-align: center; }
+.modal-photo-input     { padding: 4px 8px; font-size: 11px; }
+
+/* ==========================================================================
+   8. BILLING MODULE DASHBOARD & NAV BOX STYLES
+   ========================================================================== */
+.dashboard-billing-grid { gap: 24px !important; align-items: start !important; }
+
+.dashboard-module-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-search-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-top: 4px solid #810810 !important;
+}
+
+.dashboard-card-header h3 { margin: 0; font-size: 1.2rem; color: #1e293b; font-weight: 600; }
+
+.dashboard-separator { border: 0; height: 1px; background: #e2e8f0; margin: 0 0 20px 0; }
+
+.m-bottom-16 { margin-bottom: 16px; }
+.m-bottom-24 { margin-bottom: 24px; }
+
+/* ==========================================================================
+   DASHBOARD MODULE NAV BOX SQUARES (140px × 140px)
+   ========================================================================== */
+.dashboard-links-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.dashboard-nav-box {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 140px !important;
+    height: 140px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background-color: #ffffff;
+    padding: 24px !important;
+    text-decoration: none;
+    color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.dashboard-nav-box:hover {
+    border-color: #810810 !important;
+    background-color: #fff8f8;
+    box-shadow: 0 4px 12px rgba(129, 8, 16, 0.08);
+    transform: translateY(-2px);
+}
+
+.dashboard-nav-box i      { display: block; font-size: 1.6rem; margin-bottom: 10px; }
+.dashboard-nav-box strong { font-size: 0.8rem; font-weight: 600; text-align: center; color: #1e293b; line-height: 1.3; }
+
+/* ==========================================================================
+   COLOR IDENTITY & INDICATOR HELPERS
+   ========================================================================== */
+.icon-primary       { color: #810810; }
+.icon-danger        { color: #e74c3c; }
+.required-indicator { color: #dc2626; }
+
+/* ==========================================================================
+   INLINE SEARCH BAR
+   ========================================================================== */
+.search-input-flex-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.search-input-flex-group .hms-form-input { flex: 1; margin: 0 !important; }
+
+.search-execute-btn {
+    white-space: nowrap;
+    padding: 0 20px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: auto;
+}
+
+.hms-inline-search-container {
+    display: grid !important;
+    grid-template-columns: max-content 1fr max-content !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.hms-inline-search-container .inline-label { margin: 0 !important; padding: 0 !important; white-space: nowrap !important; font-size: 0.95rem; font-weight: 600; }
+.hms-inline-search-container .inline-input { width: 100% !important; margin: 0 !important; }
+.hms-inline-search-container .inline-btn   { margin: 0 !important; white-space: nowrap !important; }
+
+/* ==========================================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+@media (max-width: 1200px) {
+    .hms-purchase-table .col-supplier {
+        min-width: 120px;
+    }
+    
+    .hms-purchase-table .col-net {
+        min-width: 150px;
+    }
+    
+    .hms-purchase-table td:last-child {
+        padding-right: 100px;
+    }
+}
+
+@media (max-width: 992px) {
+    .containment-fullwidth {
+        overflow-x: auto;
+    }
+    
+    .hms-purchase-table {
+        min-width: 900px;
+    }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+@media print {
+    .ledger-action-row,
+    .ledger-utility-row,
+    .ledger-pagination-row,
+    .row-hover-popover,
+    .btn-hms-primary,
+    .btn-hms-secondary,
+    .export-icon-buttons-container,
+    .search-wrapper-block,
+    .sidebar,
+    .header,
+    .footer {
+        display: none !important;
+    }
+    
+    .pharmacy-billing-section {
+        padding: 0;
+        border: none;
+    }
+    
+    .hms-purchase-table th,
+    .hms-purchase-table td {
+        border: 1px solid #ddd;
+    }
+    
+    .grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .content {
+        padding: 0 !important;
+    }
+}
+
+
+
+/* ==========================================================================
+   SIDEBAR SUBMENU / ACCORDION SYSTEM
+   ========================================================================== */
+
+/* Arrow icon inside the trigger link */
+.submenu-arrow {
+    margin-left: auto;          /* pushes it to the far right */
+    font-size: 11px !important;
+    transition: transform 0.25s ease;
+    color: #94a3b8;
+}
+
+/* Rotate arrow when open */
+.has-submenu.submenu-open > a .submenu-arrow {
+    transform: rotate(180deg);
+    color: #ffffff;
+}
+
+/* The nested <ul> — hidden by default */
+.sidebar-submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    background-color: #f1f5f9;
+    border-left: 3px solid #810810;
+}
+
+/* Open state */
+.has-submenu.submenu-open > .sidebar-submenu {
+    max-height: 300px;   /* tall enough for any submenu */
+    opacity: 1;
+}
+
+/* Submenu items */
+.sidebar-submenu li {
+    padding: 0;
+}
+
+.sidebar-submenu a {
+    padding: 9px 16px 9px 32px;  /* indent to show hierarchy */
+    font-size: 13px;
+    color: #475569;
+    gap: 10px;
+}
+
+.sidebar-submenu a i {
+    font-size: 12px !important;
+    color: #94a3b8;
+}
+
+.sidebar-submenu a:hover,
+.sidebar-submenu a.active {
+    background-color: #810810;
+    color: #ffffff;
+}
+
+.sidebar-submenu a:hover i,
+.sidebar-submenu a.active i {
+    color: #ffffff;
+}
+
+/* Parent link highlight when submenu is open (but not full active bg) */
+.has-submenu.submenu-open > a {
+    background-color: #810810;
+    color: #ffffff;
+}
+
+.has-submenu.submenu-open > a i {
+    color: #ffffff;
+}
+
+
+
+
+

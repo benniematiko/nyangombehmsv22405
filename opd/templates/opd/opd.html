@@ -1,0 +1,654 @@
+{% extends "base.html" %}
+{% block title %} OPD Management | Eagles Mission Hospital{% endblock %}
+{% block content %}
+
+<style>
+  /* Navigation links styling */
+.view-links {
+    margin-bottom: 12px;
+}
+
+.view-links a {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.view-links a:hover {
+    color: #990000;
+}
+
+.view-links .separator {
+    color: #cbd5e1;
+    margin: 0 8px;
+}
+</style>
+
+<div class="pharmacy-container-layout">
+  
+  <div class="pharmacy-panel-header">
+    <div class="panel-title-group">
+      <h1><i class="fa fa-plus-square"></i> OPD Department</h1>
+      <p class="panel-subtitle">Financial transactions, billing ledgers, and dispensing records tracker</p>
+    </div>
+  </div>
+
+  <div class="pharmacy-billing-section">
+    
+    <div class="ledger-action-row">
+      <h2>OPD Bill</h2>
+      <div class="ledger-btn-group"> 
+        <a href="{% url 'opd:add_patient' %}" class="btn-hms-primary">
+          <i class="fa fa-file-text-o"></i> + Add Patient 
+        </a>
+      </div>
+    </div>
+
+    <div class="ledger-utility-row">
+      <div class="search-wrapper-block">
+        <label for="ledgerSearch">Search</label>
+        <input type="text" id="ledgerSearch" class="search-input-field" placeholder="Filter by bill, patient, or provider...">
+      </div>
+      
+      <div class="export-pagination-group">
+        <select id="entriesPerPage" class="entries-dropdown-select" aria-label="Records display pagination configuration">
+          <option value="10">Display 10 records</option>
+          <option value="20">Display 20 records</option>
+          <option value="50">Display 50 records</option>
+          <option value="100">Display 100 records</option>
+        </select>
+        
+        <div class="export-icon-buttons-container">
+          <button type="button" class="btn-export-icon" title="Copy Table Data"><i class="fa fa-copy"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to Excel"><i class="fa fa-file-excel-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to CSV"><i class="fa fa-file-text-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to PDF"><i class="fa fa-file-pdf-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Print Table"><i class="fa fa-print"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-links">
+        <a href="#">OPD VIEW</a>
+        <span class="separator">|</span>
+        <a href="#">PATIENT VIEW</a>
+    </div>
+
+    <div class="table-fixed-container">
+      <table class="hms-table hms-billing-log-table">
+        <thead>
+          <tr>
+            <th>OPD No</th>
+            <th>Patient Name</th>
+            <th>Case ID</th>
+            <th>Appointment Date</th>
+            <th>Consultant</th>
+            <th>Reference</th>
+            <th>Symptoms</th>
+            <th>Is Antenatal</th> 
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for visit in visits %}
+          <tr>
+            <td>{{ visit.patient.patient_number }}</td>
+            <td>{{ visit.patient.full_name }}</td>
+            <td><strong>{{ visit.case_id }}</strong></td>
+            <td>{{ visit.appointment_date|date:"Y-m-d H:i" }}</td>
+            <td>{{ visit.casualty_doctor|default:"-" }}</td>
+            <td>{{ visit.reference|default:"-" }}</td>
+            <td>{{ visit.symptoms_title|default:"-"|truncatechars:30 }}</td>
+            <td>
+              {% if visit.casualty == "Yes" %}
+                Yes
+              {% else %}
+                No
+              {% endif %}
+            </td>
+
+            <td>
+              <button type="button"
+                      onclick="downloadPDF({{ visit.id }})"
+                      style="background:none;border:none;color:#10b981;cursor:pointer;"
+                      title="Print Bill">
+                  <i class="fa fa-print"></i>
+              </button>
+
+              <button type="button"
+                      onclick="addPrescription({{ visit.id }})"
+                      style="background:none;border:none;color:#8b5cf6;cursor:pointer;"
+                      title="Add Prescription">
+                  <i class="fa fa-plus-square"></i>
+              </button>
+
+              <button type="button"
+                      onclick="openManualPrescription({{ visit.id }})"
+                      style="background:none;border:none;color:#f59e0b;cursor:pointer;"
+                      title="Manual Prescription">
+                  <i class="fa fa-file-text-o"></i>
+              </button>
+
+              <button type="button"
+                      onclick="openViewDetails({{ visit.id }})"
+                      style="background:none;border:none;color:#3b82f6;cursor:pointer;"
+                      title="Show Details">
+                  <i class="fa fa-eye"></i>
+              </button>
+
+              <button type="button"
+                      onclick="moveToIPD({{ visit.id }})"
+                      style="background:none;border:none;color:#64748b;cursor:pointer;"
+                      title="Move to IPD">
+                  <i class="fa fa-exchange"></i>
+              </button>
+            </td>
+
+          </tr>
+
+          {% empty %}
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 40px;">
+              <i class="fa fa-inbox" style="font-size: 48px; color: #ccc;"></i><br>
+              No OPD consultations found.
+              <br><br>
+              <a href="{% url 'opd:add_patient' %}" class="btn-hms-primary" style="display: inline-block;">
+                <i class="fa fa-plus"></i> Create New Consultation
+              </a>
+            </td>
+           </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ledger-pagination-row">
+      <div class="pagination-counter-info">
+        Records: <strong>{{ visits.start_index }}</strong> to <strong>{{ visits.end_index }}</strong> of <strong>{{ total_count }}</strong>
+      </div>
+      
+      <div class="pagination-nav-controls">
+        {% if visits.has_previous %}
+          <a href="?page=1&per_page={{ request.GET.per_page|default:10 }}" class="btn-page-nav"><i class="fa fa-angle-double-left"></i></a>
+          <a href="?page={{ visits.previous_page_number }}&per_page={{ request.GET.per_page|default:10 }}" class="btn-page-nav"><i class="fa fa-angle-left"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-left"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-left"></i></button>
+        {% endif %}
+        
+        <div class="page-numeric-links">
+          {% for num in visits.paginator.page_range %}
+            {% if num == visits.number %}
+              <button type="button" class="btn-page-num active-page">{{ num }}</button>
+            {% elif num > visits.number|add:'-3' and num < visits.number|add:'3' %}
+              <a href="?page={{ num }}&per_page={{ request.GET.per_page|default:10 }}" class="btn-page-num">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
+          {% if visits.paginator.num_pages > visits.number|add:'3' %}
+            <span class="page-ellipsis-spacer">...</span>
+            <a href="?page={{ visits.paginator.num_pages }}&per_page={{ request.GET.per_page|default:10 }}" class="btn-page-num">{{ visits.paginator.num_pages }}</a>
+          {% endif %}
+        </div>
+
+        {% if visits.has_next %}
+          <a href="?page={{ visits.next_page_number }}&per_page={{ request.GET.per_page|default:10 }}" class="btn-page-nav"><i class="fa fa-angle-right"></i></a>
+          <a href="?page={{ visits.paginator.num_pages }}&per_page={{ request.GET.per_page|default:10 }}" class="btn-page-nav"><i class="fa fa-angle-double-right"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-right"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-right"></i></button>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── MANUAL PRESCRIPTION MODAL ── -->
+  <div id="manualPrescriptionModal" style="
+      display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(15,23,42,0.6); z-index:9999;
+      align-items:center; justify-content:center;">
+      <div style="background:#fff; width:560px; border-radius:6px; overflow:hidden;
+                  box-shadow:0 20px 40px rgba(0,0,0,0.15);">
+          <div style="background:#810810; padding:14px 20px; display:flex;
+                      justify-content:space-between; align-items:center;">
+              <h3 style="color:#fff; margin:0; font-size:14px; font-weight:600; text-transform:uppercase;">
+                  <i class="fa fa-file-text-o" style="margin-right:8px;"></i>
+                  Manual Prescription — <span id="mprx_case_id"></span>
+              </h3>
+              <button onclick="closeManualPrescription()"
+                      style="background:none;border:none;color:#fecdd3;font-size:18px;cursor:pointer;">
+                  &times;
+              </button>
+          </div>
+          <div style="padding:20px;">
+              <p style="font-size:12px;color:#64748b;margin:0 0 8px;">
+                  Patient: <strong id="mprx_patient_name"></strong>
+              </p>
+              <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:6px;">
+                  Prescription / Clinical Notes
+              </label>
+              <textarea id="mprx_notes" rows="6"
+                        style="width:100%;border:1px solid #cbd5e1;border-radius:4px;
+                              padding:8px;font-size:13px;resize:vertical;box-sizing:border-box;"
+                        placeholder="Enter prescription, dosage instructions, clinical notes..."></textarea>
+          </div>
+          <div style="padding:14px 20px;background:#f8fafc;border-top:1px solid #e2e8f0;
+                      display:flex;justify-content:flex-end;gap:8px;">
+              <button onclick="closeManualPrescription()"
+                      style="background:#f1f5f9;border:1px solid #cbd5e1;padding:8px 16px;
+                            font-size:12px;font-weight:600;border-radius:4px;cursor:pointer;">
+                  Cancel
+              </button>
+              <button onclick="saveManualPrescription()"
+                      style="background:#810810;color:#fff;border:none;padding:8px 16px;
+                            font-size:12px;font-weight:600;border-radius:4px;cursor:pointer;">
+                  <i class="fa fa-save"></i> Save Prescription
+              </button>
+          </div>
+      </div>
+  </div>
+
+  <!-- ── VIEW DETAILS MODAL ── -->
+  <div id="viewDetailsModal" style="
+      display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(15,23,42,0.6); z-index:9999;
+      align-items:center; justify-content:center;">
+      <div style="background:#fff; width:80%; max-width:1200px; max-height:85vh; border-radius:6px; overflow:hidden;
+                  box-shadow:0 20px 40px rgba(0,0,0,0.15); display:flex; flex-direction:column;">
+          <div style="background:#810810; padding:14px 20px; display:flex;
+                      justify-content:space-between; align-items:center; flex-shrink:0;">
+              <h3 style="color:#fff; margin:0; font-size:14px; font-weight:600; text-transform:uppercase;">
+                  <i class="fa fa-eye" style="margin-right:8px;"></i> Visit Details
+              </h3>
+              <div style="display:flex; align-items:center; gap:12px;">
+                  <!-- EDIT BUTTON -->
+                  <button onclick="editVisitDetails()"
+                          style="background:none;border:none;color:#93c5fd;font-size:16px;cursor:pointer;padding:6px 10px;border-radius:4px;transition:all 0.2s;display:flex;align-items:center;gap:4px;"
+                          onmouseover="this.style.backgroundColor='rgba(255,255,255,0.15)'; this.style.transform='scale(1.05)';"
+                          onmouseout="this.style.backgroundColor='transparent'; this.style.transform='scale(1)';"
+                          title="Edit Visit">
+                      <i class="fa fa-pencil"></i>
+                      <span style="font-size:11px;font-weight:500;">Edit</span>
+                  </button>
+                  
+                  <!-- DELETE BUTTON -->
+                  <button onclick="deleteVisitDetails()"
+                          style="background:none;border:none;color:#fca5a5;font-size:16px;cursor:pointer;padding:6px 10px;border-radius:4px;transition:all 0.2s;display:flex;align-items:center;gap:4px;"
+                          onmouseover="this.style.backgroundColor='rgba(255,255,255,0.15)'; this.style.transform='scale(1.05)';"
+                          onmouseout="this.style.backgroundColor='transparent'; this.style.transform='scale(1)';"
+                          title="Delete Visit">
+                      <i class="fa fa-trash"></i>
+                      <span style="font-size:11px;font-weight:500;">Delete</span>
+                  </button>
+                  
+                  <!-- CLOSE BUTTON -->
+                  <button onclick="closeViewDetails()"
+                          style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#ffffff;font-size:20px;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s;padding:0;line-height:1;"
+                          onmouseover="this.style.backgroundColor='rgba(255,255,255,0.3)'; this.style.transform='scale(1.1)';"
+                          onmouseout="this.style.backgroundColor='rgba(255,255,255,0.15)'; this.style.transform='scale(1)';"
+                          title="Close Modal">
+                      &times;
+                  </button>
+              </div>
+          </div>
+          <div id="viewDetailsContent" style="padding:16px 20px; font-size:13px; overflow-y:auto; flex:1;">
+              <div style="text-align:center;padding:20px;color:#94a3b8;">
+                  <i class="fa fa-spinner fa-spin fa-2x"></i><br>Loading...
+              </div>
+          </div>
+          <div style="padding:12px 20px;background:#f8fafc;border-top:1px solid #e2e8f0;
+                      display:flex;justify-content:flex-end;flex-shrink:0;">
+              <button onclick="closeViewDetails()"
+                      style="background:#f1f5f9;border:1px solid #cbd5e1;padding:6px 16px;
+                            font-size:12px;font-weight:600;border-radius:4px;cursor:pointer;">
+                  Close
+              </button>
+          </div>
+      </div>
+  </div>
+
+</div>
+
+<script>
+  const CSRF_TOKEN = '{{ csrf_token }}';
+  let currentManualPrescriptionId = null;
+  let currentViewVisitId = null;
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+      // Search
+      const searchInput = document.getElementById('ledgerSearch');
+      const table = document.querySelector('.hms-billing-log-table');
+      if (searchInput && table) {
+          searchInput.addEventListener('keyup', function () {
+              const term = this.value.toLowerCase();
+              for (let row of table.tBodies[0].rows) {
+                  row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+              }
+          });
+      }
+
+      // Entries per page
+      const entriesSelect = document.getElementById('entriesPerPage');
+      if (entriesSelect) {
+          entriesSelect.value = "{{ request.GET.per_page|default:10 }}";
+          entriesSelect.addEventListener('change', function () {
+              const url = new URL(window.location.href);
+              url.searchParams.set('per_page', this.value);
+              url.searchParams.set('page', 1);
+              window.location.href = url.toString();
+          });
+      }
+  });
+
+  // ── 1. PRINT PDF ──
+  function downloadPDF(visitId) {
+      window.open(`/opd/pdf/${visitId}/`, '_blank');
+  }
+
+  // ── 2. ADD PRESCRIPTION → pharmacy bill form ──
+  function addPrescription(visitId) {
+      window.location.href = `/opd/prescription/${visitId}/`;
+  }
+
+  // ── 3. MANUAL PRESCRIPTION MODAL ──
+  function openManualPrescription(visitId) {
+      currentManualPrescriptionId = visitId;
+      const modal = document.getElementById('manualPrescriptionModal');
+      const notesEl = document.getElementById('mprx_notes');
+      const caseEl = document.getElementById('mprx_case_id');
+      const nameEl = document.getElementById('mprx_patient_name');
+
+      // Load existing notes
+      fetch(`/opd/manual-prescription/${visitId}/`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(r => r.json())
+      .then(data => {
+          if (data.success) {
+              if (caseEl) caseEl.textContent = data.case_id;
+              if (nameEl) nameEl.textContent = data.patient_name;
+              if (notesEl) notesEl.value = data.notes || '';
+          }
+      })
+      .catch(() => {
+          if (notesEl) notesEl.value = '';
+      });
+
+      modal.style.display = 'flex';
+  }
+
+  function closeManualPrescription() {
+      document.getElementById('manualPrescriptionModal').style.display = 'none';
+      currentManualPrescriptionId = null;
+  }
+
+  function saveManualPrescription() {
+      if (!currentManualPrescriptionId) return;
+      const notes = document.getElementById('mprx_notes').value.trim();
+      if (!notes) {
+          alert('Please enter prescription notes before saving.');
+          return;
+      }
+
+      fetch(`/opd/manual-prescription/${currentManualPrescriptionId}/`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': CSRF_TOKEN,
+          },
+          body: `prescription_notes=${encodeURIComponent(notes)}`
+      })
+      .then(r => r.json())
+      .then(data => {
+          if (data.success) {
+              closeManualPrescription();
+              alert('Prescription saved successfully.');
+          } else {
+              alert(data.message || 'Error saving prescription.');
+          }
+      })
+      .catch(() => alert('Network error. Please try again.'));
+  }
+
+  // ── 4. VIEW DETAILS MODAL ──  
+  function openViewDetails(visitId) {
+      currentViewVisitId = visitId;
+      const modal = document.getElementById('viewDetailsModal');
+      const content = document.getElementById('viewDetailsContent');
+
+      content.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;"><i class="fa fa-spinner fa-spin fa-2x"></i><br>Loading...</div>';
+      modal.style.display = 'flex';
+
+      fetch(`/opd/api/visit/${visitId}/`)
+          .then(r => r.json())
+          .then(data => {
+              content.innerHTML = `
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid #e2e8f0; border-radius:4px; overflow:hidden;">
+
+                      <!-- Column 1 -->
+                      <div style="border-right:1px solid #e2e8f0;">
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">OPD Checkup ID</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a; font-family:monospace; font-weight:700;">${data.id}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Case ID</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#810810; font-family:monospace; font-weight:700;">${data.case_id}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Old Patient</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.old_patient || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Gender</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.gender || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Phone</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.phone || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Address</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.address || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Blood Group</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.blood_group || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Appointment</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.appointment_date}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Casualty</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.casualty || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Insurance</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.insurance || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Is Antenatal</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.is_antenatal || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Note</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.notes || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:120px 1fr;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Symptoms</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.symptoms || '-'}</span>
+                          </div>
+
+                      </div>
+
+                      <!-- Column 2 -->
+                      <div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">OPD ID</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a; font-family:monospace;">${data.patient_number || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Patient Name</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a; font-weight:600;">${data.patient_name}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Guardian Name</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.guardian_name || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Marital Status</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.marital_status || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Email</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.email || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Age</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.age !== undefined ? data.age + ' yrs' : '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Known Allergies</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.known_allergies || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Case</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.charge_category || '-'}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr; border-bottom:1px solid #f1f5f9;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Reference</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.reference}</span>
+                          </div>
+
+                          <div style="display:grid; grid-template-columns:130px 1fr;">
+                              <span style="padding:4px 10px; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; background:#f8fafc; border-right:1px solid #f1f5f9;">Consultant</span>
+                              <span style="padding:4px 10px; font-size:13px; color:#0f172a;">${data.casualty_doctor}</span>
+                          </div>
+
+                      </div>
+
+                  </div>
+              `;
+          })
+          .catch(() => {
+              content.innerHTML = '<p style="color:#dc2626;text-align:center;padding:20px;">Error loading visit details. Please try again.</p>';
+          });
+  }
+  
+  function closeViewDetails() {
+      document.getElementById('viewDetailsModal').style.display = 'none';
+  }
+
+  // ── 5. EDIT VISIT DETAILS ──
+  function editVisitDetails() {
+      if (!currentViewVisitId) {
+          alert('No visit selected to edit.');
+          return;
+      }
+      
+      // Redirect to edit page - you'll need to create this view
+      window.location.href = `/opd/edit-visit/${currentViewVisitId}/`;
+  }
+
+  // ── 6. DELETE VISIT DETAILS ──
+  function deleteVisitDetails() {
+      if (!currentViewVisitId) {
+          alert('No visit selected to delete.');
+          return;
+      }
+      
+      if (!confirm('⚠️ Are you sure you want to permanently delete this visit record?\n\nThis action cannot be undone!')) {
+          return;
+      }
+      
+      // Use POST method to match your delete_visit view
+      fetch(`/opd/delete-visit/${currentViewVisitId}/`, {
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': CSRF_TOKEN,
+              'Content-Type': 'application/x-www-form-urlencoded',
+          }
+      })
+      .then(response => {
+          if (response.ok) {
+              // Check if response is JSON or redirect
+              return response.json().then(data => {
+                  if (data.success) {
+                      alert('Visit record deleted successfully.');
+                      closeViewDetails();
+                      window.location.reload();
+                  } else {
+                      alert(data.message || 'Delete failed. Please try again.');
+                  }
+              }).catch(() => {
+                  // If response is not JSON (redirect), treat as success
+                  alert('Visit record deleted successfully.');
+                  closeViewDetails();
+                  window.location.reload();
+              });
+          } else {
+              alert('Delete failed. Please try again.');
+          }
+      })
+      .catch(() => alert('Network error. Please try again.'));
+  }
+
+  // ── 7. MOVE TO IPD ──
+  function moveToIPD(visitId) {
+      if (!confirm('Transfer this patient to IPD? This will close their OPD stage.')) return;
+
+      fetch(`/opd/move-to-ipd/${visitId}/`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': CSRF_TOKEN,
+          }
+      })
+      .then(r => r.json())
+      .then(data => {
+          if (data.success) {
+              alert(data.message);
+              window.location.reload();
+          } else {
+              alert(data.message || 'Transfer failed. Please try again.');
+          }
+      })
+      .catch(() => alert('Network error. Please try again.'));
+  }
+
+  // Close modals on backdrop click
+  document.addEventListener('click', function (e) {
+      const mprxModal = document.getElementById('manualPrescriptionModal');
+      const viewModal = document.getElementById('viewDetailsModal');
+      if (e.target === mprxModal) closeManualPrescription();
+      if (e.target === viewModal) closeViewDetails();
+  });
+</script>
+
+{% endblock %}

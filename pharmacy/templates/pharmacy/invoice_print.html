@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Print Invoice | Eagles Mission Hospital{% endblock %}
+
+{% block content %}
+
+<style>
+  /* ── Print Styles ── */
+  @media print {
+    .no-print { display: none !important; }
+    body { 
+      background: #fff !important; 
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .container-fluid { 
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 100% !important;
+    }
+    .invoice-wrapper { 
+      box-shadow: none !important; 
+      border: none !important; 
+      padding: 20px !important;
+      margin: 0 !important;
+    }
+    .invoice-items-table thead th {
+      background: #990000 !important;
+      color: #fff !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .status-badge {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .invoice-logo i {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
+
+  .invoice-wrapper {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 30px 40px;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+  }
+
+  .invoice-logo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 12px 0;
+    border-bottom: 3px solid #990000;
+    margin-bottom: 12px;
+  }
+
+  .invoice-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #990000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .invoice-logo i {
+    font-size: 28px;
+    color: #990000;
+  }
+
+  .invoice-address {
+    text-align: right;
+    font-size: 11px;
+    color: #4a5568;
+    line-height: 1.5;
+  }
+
+  .invoice-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    padding: 6px 0 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+    letter-spacing: 4px;
+  }
+
+  .invoice-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 24px;
+    padding: 6px 0 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+  }
+
+  .invoice-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+  }
+
+  .invoice-info-item label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+  }
+
+  .invoice-info-item .value {
+    font-size: 12px;
+    color: #1e293b;
+    font-weight: 500;
+  }
+
+  .invoice-info-full {
+    padding: 4px 0 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+  }
+
+  .invoice-info-full label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .invoice-info-full .value {
+    font-size: 12px;
+    color: #1e293b;
+    padding: 4px 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    min-height: 30px;
+  }
+
+  .invoice-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 10px 0;
+    font-size: 12px;
+  }
+
+  .invoice-items-table thead th {
+    background: #990000;
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .invoice-items-table tbody td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    color: #2d3748;
+  }
+
+  .invoice-items-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .invoice-items-table .text-right {
+    text-align: right;
+  }
+
+  .invoice-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 24px;
+    padding: 10px 0;
+    border-top: 2px solid #e2e8f0;
+    margin-top: 6px;
+  }
+
+  .invoice-summary-left {
+    padding-right: 16px;
+    border-right: 1px solid #e2e8f0;
+  }
+
+  .invoice-summary-left label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .invoice-summary-left .value {
+    font-size: 12px;
+    color: #1e293b;
+    padding: 4px 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    min-height: 30px;
+  }
+
+  .invoice-summary-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .invoice-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .invoice-summary-row:last-child {
+    border-bottom: none;
+  }
+
+  .invoice-summary-row .label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+  }
+
+  .invoice-summary-row .value {
+    font-weight: 500;
+    font-size: 12px;
+    color: #1e293b;
+  }
+
+  .invoice-summary-row .value.discount {
+    color: #c62828;
+  }
+
+  .invoice-summary-row .value.net {
+    color: #990000;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .invoice-summary-row .value.paid {
+    color: #2e7d32;
+  }
+
+  .invoice-summary-row .value.due {
+    color: #c62828;
+    font-weight: 700;
+  }
+
+  .invoice-summary-row .value.refund {
+    color: #0d6efd;
+  }
+
+  .status-badge {
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 0px;
+    display: inline-block;
+  }
+
+  .status-badge.paid {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .status-badge.partial {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .status-badge.pending {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  /* ── Buttons ── */
+  .no-print { }
+  .btn-print {
+    border-radius: 0px !important;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 24px;
+    background: #990000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-print:hover { background: #800000; }
+  .btn-back {
+    border-radius: 0px !important;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 20px;
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-back:hover { background: #5a6268; }
+  .btn-download-pdf {
+    border-radius: 0px !important;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 24px;
+    background: #1e293b;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-download-pdf:hover { background: #0f172a; }
+
+  .print-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+  }
+  .print-actions .spacer { flex: 1; }
+
+  @media (max-width: 768px) {
+    .invoice-wrapper { padding: 15px; margin: 10px; }
+    .invoice-logo-row { flex-direction: column; text-align: center; }
+    .invoice-address { text-align: center; margin-top: 6px; }
+    .invoice-info-grid { grid-template-columns: 1fr; }
+    .invoice-summary-grid { grid-template-columns: 1fr; }
+    .invoice-summary-left { border-right: none; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 10px; }
+    .print-actions { flex-direction: column; }
+    .print-actions .spacer { display: none; }
+  }
+</style>
+
+<div class="invoice-wrapper" id="invoicePrintArea">
+
+  <!-- Print Actions (hidden when printing) -->
+  <div class="print-actions no-print">
+    <button onclick="window.print()" class="btn-print">
+      <i class="fa fa-print"></i> Print Invoice
+    </button>
+    <button onclick="downloadPDF()" class="btn-download-pdf">
+      <i class="fa fa-file-pdf-o"></i> Download PDF
+    </button>
+    <span class="spacer"></span>
+    <a href="{% url 'pharmacy:pharmacy_home' %}" class="btn-back">
+      <i class="fa fa-arrow-left"></i> Back
+    </a>
+  </div>
+
+  <!-- ── INVOICE CONTENT ── -->
+  <div class="invoice-logo-row">
+    <div class="invoice-logo">
+      <i class="fa fa-hospital-o"></i> Eagles Mission Hospital
+    </div>
+    <div class="invoice-address">
+      <strong>Eagles Mission Hospital</strong><br>
+      P.O. Box 12345-00100, Nairobi<br>
+      Tel: +254 700 123456 | Email: info@eagleshospital.co.ke
+    </div>
+  </div>
+
+  <div class="invoice-title">PHARMACY BILL</div>
+
+  <!-- Bill Info Row -->
+  <div class="invoice-info-grid">
+    <div class="invoice-info-item">
+      <label>Bill Number:</label>
+      <span class="value"><strong>{% if invoice.purchase_no %}{{ invoice.purchase_no }}{% else %}{{ invoice.invoice_number }}{% endif %}</strong></span>
+    </div>
+    <div class="invoice-info-item">
+      <label>Date &amp; Time:</label>
+      <span class="value">{{ invoice.created_at|date:"d/m/Y H:i" }}</span>
+    </div>
+    <div class="invoice-info-item">
+      <label>Patient Name:</label>
+      <span class="value">{{ patient_name|default:invoice.patient.full_name|default:"Unknown Patient" }}</span>
+    </div>
+    <div class="invoice-info-item">
+      <label>Phone Number:</label>
+      <span class="value">{{ invoice.patient.phone_number|default:"N/A" }}</span>
+    </div>
+    <div class="invoice-info-item">
+      <label>Doctor Name:</label>
+      <span class="value">{{ doctor_name|default:invoice.doctor_name|default:"N/A" }}</span>
+    </div>
+    <div class="invoice-info-item">
+      <label>Case ID:</label>
+      <span class="value">{{ case_id|default:invoice.case_id|default:invoice.supplier_bill_number|default:"N/A" }}</span>
+    </div>
+  </div>
+
+  <!-- Prescription Row -->
+  <div class="invoice-info-full">
+    <label>Prescription:</label>
+    <div class="value">{{ invoice.prescription|default:"No prescription notes" }}</div>
+  </div>
+
+  <!-- Items Table -->
+  <table class="invoice-items-table">
+    <thead>
+      <tr>
+        <th style="width:25%;">Medicine</th>
+        <th style="width:15%;">Batch No</th>
+        <th style="width:15%;">Expiry Date</th>
+        <th style="width:12%;" class="text-right">Unit Price</th>
+        <th style="width:8%;" class="text-right">Qty</th>
+        <th style="width:10%;" class="text-right">Tax (%)</th>
+        <th style="width:15%;" class="text-right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>
+          {% if item.medicine %}
+            {{ item.medicine.name }}
+          {% elif item.medicine_name %}
+            {{ item.medicine_name }}
+          {% else %}
+            Unknown
+          {% endif %}
+        </td>
+        <td>{{ item.batch_no|default:"-" }}</td>
+        <td>
+          {% if item.expiry_date %}
+            {{ item.expiry_date|date:"d/m/Y" }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td class="text-right">
+          {% if item.sale_price %}
+            {{ item.sale_price|floatformat:2 }}
+          {% elif item.unit_price %}
+            {{ item.unit_price|floatformat:2 }}
+          {% else %}
+            0.00
+          {% endif %}
+        </td>
+        <td class="text-right">{{ item.quantity|default:0 }}</td>
+        <td class="text-right">
+          {% if item.tax_percent %}
+            {{ item.tax_percent|floatformat:2 }}
+          {% else %}
+            0.00
+          {% endif %}
+        </td>
+        <td class="text-right">
+          {% if item.row_amount %}
+            {{ item.row_amount|floatformat:2 }}
+          {% elif item.row_total %}
+            {{ item.row_total|floatformat:2 }}
+          {% else %}
+            0.00
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" style="text-align:center; padding:20px; color:#718096;">
+          No items found for this invoice.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Summary Section -->
+  <div class="invoice-summary-grid">
+    <div class="invoice-summary-left">
+      <label>Created By:</label>
+      <div class="value">{{ invoice.created_by.get_full_name|default:"System" }}</div>
+      <label style="margin-top:8px;">Status:</label>
+      <div class="value">
+        <span class="status-badge 
+          {% if invoice.status == 'Paid' or invoice.status == 'Fully Paid' %}paid
+          {% elif invoice.status == 'Partial' %}partial
+          {% else %}pending{% endif %}">
+          {{ invoice.status|default:"Pending" }}
+        </span>
+      </div>
+    </div>
+    <div class="invoice-summary-right">
+      <div class="invoice-summary-row">
+        <span class="label">Total (sh):</span>
+        <span class="value">{{ invoice.total_amount|floatformat:2 }}</span>
+      </div>
+      <div class="invoice-summary-row">
+        <span class="label">Discount:</span>
+        <span class="value discount">- {{ invoice.discount_amount|floatformat:2 }}</span>
+      </div>
+      <div class="invoice-summary-row" style="border-top: 1px solid #990000; padding-top: 4px; margin-top: 2px;">
+        <span class="label" style="font-weight:700; color:#990000;">Net Amount (sh):</span>
+        <span class="value net">{{ invoice.net_amount|floatformat:2 }}</span>
+      </div>
+      <div class="invoice-summary-row">
+        <span class="label">Paid Amount (sh):</span>
+        <span class="value paid">
+          {% with paid_amount=invoice.payment_amount %}
+            {% if paid_amount %}
+              {{ paid_amount|floatformat:2 }}
+            {% else %}
+              0.00
+            {% endif %}
+          {% endwith %}
+        </span>
+      </div>
+      <div class="invoice-summary-row">
+        <span class="label">Refund Amount (sh):</span>
+        <span class="value refund">0.00</span>
+      </div>
+      <div class="invoice-summary-row" style="border-top: 2px solid #e2e8f0; padding-top: 4px; margin-top: 2px;">
+        <span class="label" style="font-weight:700; color:#c62828;">Balance Due (sh):</span>
+        <span class="value due">
+          {% with net=invoice.net_amount|default:0 paid=invoice.payment_amount|default:0 %}
+            {{ net|add:paid|floatformat:2 }}
+          {% endwith %}
+        </span>
+      </div>
+      {% if invoice.payment_note %}
+      <div class="invoice-summary-row" style="border-top:1px solid #e2e8f0; padding-top:4px; margin-top:4px;">
+        <span class="label" style="font-weight:400; color:#718096;">Note:</span>
+        <span class="value" style="font-weight:400; color:#4a5568;">{{ invoice.payment_note }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #a0aec0;">
+    <p style="margin: 2px 0;">Thank you for choosing Eagles Mission Hospital.</p>
+    <p style="margin: 2px 0;">This is a computer-generated receipt. No signature required.</p>
+    <p style="margin: 2px 0;">Generated on: {% now "d/m/Y H:i:s" %} EAT</p>
+  </div>
+
+</div>
+
+<script>
+  function downloadPDF() {
+    window.print();
+  }
+</script>
+
+{% endblock %}

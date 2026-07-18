@@ -1,0 +1,905 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Radiology Management | Eagles Mission Hospital{% endblock %}
+{% block content %}
+
+<style>
+  /* ── Invoice Modal Styles ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: #ffffff;
+    width: 85%;
+    max-width: 950px;
+    max-height: 95vh;
+    overflow-y: auto;
+    border-radius: 0px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  /* ── Modal Header ── */
+  .modal-header {
+    border-bottom: 1px solid #61040a;
+    background: #990000;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .modal-header h5 {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .modal-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .modal-action-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 4px 8px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    border-radius: 0px;
+  }
+
+  .modal-action-btn:hover {
+    opacity: 1;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 28px;
+    cursor: pointer;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+    padding: 0 4px;
+    line-height: 1;
+  }
+
+  .modal-close:hover {
+    opacity: 1;
+  }
+
+  .modal-body {
+    padding: 20px;
+    font-size: 13px;
+    background: #ffffff;
+  }
+
+  .modal-footer {
+    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+
+  /* ── Invoice Content ── */
+  .invoice-logo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 12px 0;
+    border-bottom: 2px solid #990000;
+    margin-bottom: 12px;
+  }
+
+  .invoice-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #990000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .invoice-logo i {
+    font-size: 28px;
+  }
+
+  .invoice-address {
+    text-align: right;
+    font-size: 11px;
+    color: #4a5568;
+    line-height: 1.5;
+  }
+
+  .invoice-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    padding: 6px 0 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+    letter-spacing: 3px;
+  }
+
+  .invoice-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 24px;
+    padding: 6px 0 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+  }
+
+  .invoice-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+  }
+
+  .invoice-info-item label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+  }
+
+  .invoice-info-item .value {
+    font-size: 12px;
+    color: #1e293b;
+    font-weight: 500;
+  }
+
+  .invoice-info-full {
+    padding: 4px 0 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+  }
+
+  .invoice-info-full label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .invoice-info-full .value {
+    font-size: 12px;
+    color: #1e293b;
+    padding: 4px 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    min-height: 30px;
+  }
+
+  /* ── Invoice Items Table ── */
+  .invoice-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 10px 0;
+    font-size: 12px;
+  }
+
+  .invoice-items-table thead th {
+    background: #990000;
+    color: #fff;
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .invoice-items-table tbody td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    color: #2d3748;
+  }
+
+  .invoice-items-table tbody tr:hover {
+    background: #f7fafc;
+  }
+
+  .invoice-items-table .text-right {
+    text-align: right;
+  }
+
+  /* ── Invoice Summary ── */
+  .invoice-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 24px;
+    padding: 10px 0;
+    border-top: 2px solid #e2e8f0;
+    margin-top: 6px;
+  }
+
+  .invoice-summary-left {
+    padding-right: 16px;
+    border-right: 1px solid #e2e8f0;
+  }
+
+  .invoice-summary-left label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .invoice-summary-left .value {
+    font-size: 12px;
+    color: #1e293b;
+    padding: 4px 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    min-height: 30px;
+  }
+
+  .invoice-summary-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .invoice-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .invoice-summary-row:last-child {
+    border-bottom: none;
+  }
+
+  .invoice-summary-row .label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+  }
+
+  .invoice-summary-row .value {
+    font-weight: 500;
+    font-size: 12px;
+    color: #1e293b;
+  }
+
+  .invoice-summary-row .value.discount {
+    color: #c62828;
+  }
+
+  .invoice-summary-row .value.net {
+    color: #990000;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .invoice-summary-row .value.paid {
+    color: #2e7d32;
+  }
+
+  .invoice-summary-row .value.due {
+    color: #c62828;
+    font-weight: 700;
+  }
+
+  .invoice-summary-row .value.refund {
+    color: #0d6efd;
+  }
+
+  .status-badge {
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 0px;
+  }
+
+  .status-badge.paid {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .status-badge.partial {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .status-badge.pending {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  .status-badge.completed {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  /* ── Modal Footer Buttons ── */
+  .btn-modal-action {
+    padding: 8px 20px;
+    border: none;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 0px !important;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-modal-action.pay {
+    background: #990000;
+    color: #fff;
+  }
+
+  .btn-modal-action.pay:hover {
+    background: #800000;
+  }
+
+  .btn-modal-action.close-modal {
+    background: #6c757d;
+    color: #fff;
+  }
+
+  .btn-modal-action.close-modal:hover {
+    background: #5a6268;
+  }
+
+  .loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: #718096;
+  }
+
+  .loading-spinner i {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .invoice-info-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .invoice-summary-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .invoice-summary-left {
+      border-right: none;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .modal-content {
+      width: 95%;
+    }
+    
+    .invoice-logo-row {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .invoice-address {
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .invoice-items-table {
+      font-size: 11px;
+    }
+
+    .invoice-items-table thead th,
+    .invoice-items-table tbody td {
+      padding: 4px 6px;
+    }
+
+    .modal-header-actions .modal-action-btn span {
+      display: none;
+    }
+  }
+</style>
+
+<div class="radiology-container-layout template-fullwidth-override">
+  
+  <div class="radiology-panel-header">
+    <div class="panel-title-group">
+      <h1><i class="fa fa-radiation"></i> Radiology Department</h1>
+      <p class="panel-subtitle">Imaging transactions, clinical billing ledgers, and reporting trackers</p>
+    </div>
+  </div>
+
+  <div class="radiology-billing-section">
+    
+    <div class="ledger-action-row">
+      <h2>Radiology Bill</h2>
+      <div class="ledger-btn-group">
+        <a href="{% url 'radiology:radiologygenerate_bill' %}" class="btn-hms-primary">
+          <i class="fa fa-file-text-o"></i> Generate Bill
+        </a>
+        <a href="{% url 'radiology:radiology_investigations' %}" class="btn-hms-secondary">        
+          <i class="fa fa-heartbeat"></i> Investigations      
+        </a>
+      </div>
+    </div>
+
+    <div class="ledger-utility-row">
+      <div class="search-wrapper-block">
+        <label for="ledgerSearch">Search</label>
+        <input type="text" id="ledgerSearch" class="search-input-field" placeholder="Filter by bill, patient, or doctor...">
+      </div>
+
+      <div class="export-pagination-group">
+        <select id="entriesPerPage" class="entries-dropdown-select" aria-label="Records display pagination configuration">
+          <option value="10">Display 10 records</option>
+          <option value="20" {% if request.GET.per_page == '20' or not request.GET.per_page %}selected{% endif %}>Display 20 records</option>
+          <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>Display 50 records</option>
+          <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>Display 100 records</option>
+        </select>
+        
+        <div class="export-icon-buttons-container">
+          <button type="button" class="btn-export-icon" title="Copy Table Data"><i class="fa fa-copy"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to Excel"><i class="fa fa-file-excel-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to CSV"><i class="fa fa-file-text-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to PDF"><i class="fa fa-file-pdf-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Print Table"><i class="fa fa-print"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-fixed-container containment-fullwidth">
+      <table class="hms-table hms-billing-log-table table-element-fullwidth" id="billingTable">
+        <thead>
+          <tr>
+            <th>Bill No</th>
+            <th>Case ID</th>
+            <th>Reporting Date</th>
+            <th>Patient Name</th>
+            <th>Reference Doctor</th>
+            <th>Note</th>
+            <th class="text-right">Discount (sh)</th>
+            <th class="text-right">Amount (sh)</th>
+            <th class="text-right">Paid Amount (sh)</th>
+            <th class="text-right">Balance Amount (sh)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for invoice in invoices %}
+          <tr>
+            <td><span class="badge-bill">{{ invoice.invoice_number }}</span></td>
+            <td class="case-id-cell">{{ invoice.case_id|default:"—" }}</td>
+            <td>{{ invoice.created_at|date:"d/m/Y" }}</td>
+            <td title="{{ invoice.patient_name }}">
+              <strong class="patient-name-text">{{ invoice.patient_name|default:"Unknown Patient" }}</strong>
+            </td>
+            <td>{{ invoice.doctor|default:"—" }}</td>
+            <td><small class="text-muted">{{ invoice.payment_note|default:"—" }}</small></td>
+            <td class="text-right financial-digits">{{ invoice.discount_amount|floatformat:2 }}</td>
+            <td class="text-right financial-digits-bold">{{ invoice.net_amount|floatformat:2 }}</td>
+            <td class="text-right financial-digits-paid">{{ invoice.amount_paid|floatformat:2 }}</td>
+            <td class="text-right balance-cell {% if invoice.balance_due <= 0 %}balance-clear{% else %}balance-due{% endif %}">
+              {{ invoice.balance_due|floatformat:2 }}
+              <div class="row-hover-popover">
+                <a href="{% url 'radiology:invoice_detail' invoice.id %}" class="popover-btn popover-btn-view" title="View Full Invoice">
+                  <i class="fa fa-eye"></i>
+                </a>
+                <button type="button" class="popover-btn popover-btn-show" 
+                        title="Show Details" 
+                        data-invoice-id="{{ invoice.id }}"
+                        onclick="openInvoiceModal('{{ invoice.id }}'); event.stopPropagation();">
+                  <i class="fa fa-folder-open"></i>
+                </button>
+                <button type="button" class="popover-btn popover-btn-print" title="Print" onclick="printInvoice('{{ invoice.id }}'); event.stopPropagation();">
+                  <i class="fa fa-print"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="10" class="empty-table-placeholder">
+              No radiology billing records found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ledger-pagination-row">
+      <div class="pagination-counter-info">
+        Records: <strong>{{ invoices.start_index }}</strong> to <strong>{{ invoices.end_index }}</strong> of <strong>{{ total_records }}</strong>
+      </div>
+      <div class="pagination-nav-controls">
+        {% if invoices.has_previous %}
+          <a href="?page=1&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-nav"><i class="fa fa-angle-double-left"></i></a>
+          <a href="?page={{ invoices.previous_page_number }}&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-nav"><i class="fa fa-angle-left"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-left"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-left"></i></button>
+        {% endif %}
+        
+        <div class="page-numeric-links">
+          {% for num in invoices.paginator.page_range %}
+            {% if num == invoices.number %}
+              <button type="button" class="btn-page-num active-page">{{ num }}</button>
+            {% elif num > invoices.number|add:'-3' and num < invoices.number|add:'3' %}
+              <a href="?page={{ num }}&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-num">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
+        </div>
+        
+        {% if invoices.has_next %}
+          <a href="?page={{ invoices.next_page_number }}&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-nav"><i class="fa fa-angle-right"></i></a>
+          <a href="?page={{ invoices.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}&category={{ request.GET.category|default:'' }}" class="btn-page-nav"><i class="fa fa-angle-double-right"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-right"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-right"></i></button>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="invoiceModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5><i class="fa fa-file-text-o" style="margin-right:8px;"></i> Bill Details</h5>
+      <div class="modal-header-actions">
+        <button type="button" class="modal-action-btn" onclick="printModalInvoice()" title="Print">
+          <i class="fa fa-print"></i> <span>Print</span>
+        </button>
+        <button type="button" class="modal-action-btn" onclick="editModalInvoice()" title="Edit">
+          <i class="fa fa-edit"></i> <span>Edit</span>
+        </button>
+        <button type="button" class="modal-action-btn" onclick="deleteModalInvoice()" title="Delete">
+          <i class="fa fa-trash"></i> <span>Delete</span>
+        </button>
+        <button type="button" class="modal-close" onclick="closeInvoiceModal()">&times;</button>
+      </div>
+    </div>
+    
+    <div class="modal-body" id="invoiceModalBody">
+      <div class="loading-spinner">
+        <div><i class="fa fa-spinner fa-spin"></i></div>
+        <div>Loading invoice details...</div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn-modal-action close-modal" onclick="closeInvoiceModal()">
+        <i class="fa fa-times"></i> Close
+      </button>
+      <a href="#" class="btn-modal-action pay" id="modalPayBtn">
+        <i class="fa fa-credit-card"></i> Make Payment
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+
+    // ── SEARCH FUNCTIONALITY ──
+    const searchInput = document.getElementById('ledgerSearch');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#billingTable tbody tr');
+        
+        tableRows.forEach(row => {
+          if (row.querySelector('.empty-table-placeholder')) return;
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+      });
+    }
+    
+    // ── URL PARAMETER SYNC ──
+    function updateUrlParams(key, value) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (value) {
+        urlParams.set(key, value);
+      } else {
+        urlParams.delete(key);
+      }
+      if (key !== 'page') {
+        urlParams.set('page', '1');
+      }
+      window.location.href = `?${urlParams.toString()}`;
+    }
+
+    // ── ENTRIES PER PAGE ──
+    const entriesPerPage = document.getElementById('entriesPerPage');
+    if (entriesPerPage) {
+      entriesPerPage.addEventListener('change', function() {
+        updateUrlParams('per_page', this.value);
+      });
+    }
+    
+    // ── PRINT INVOICE ──
+    window.printInvoice = function(invoiceId) {
+      window.open(`/radiology/invoice/${invoiceId}/print/`, '_blank');
+    }
+
+    // ── INVOICE MODAL ──
+    let currentInvoiceId = null;
+
+    window.openInvoiceModal = function(invoiceId) {
+      const modal = document.getElementById('invoiceModal');
+      const body = document.getElementById('invoiceModalBody');
+      const payBtn = document.getElementById('modalPayBtn');
+      
+      currentInvoiceId = invoiceId;
+      
+      body.innerHTML = `
+        <div class="loading-spinner">
+          <div><i class="fa fa-spinner fa-spin"></i></div>
+          <div>Loading invoice details...</div>
+        </div>
+      `;
+      
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      
+      // Fetch data from radiology endpoint
+      fetch(`/radiology/invoice/${invoiceId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            body.innerHTML = `
+              <div style="text-align:center; padding:40px; color:#c62828;">
+                <i class="fa fa-exclamation-circle" style="font-size:32px; margin-bottom:12px;"></i>
+                <div>${data.error || 'Failed to load invoice details'}</div>
+              </div>
+            `;
+            return;
+          }
+          
+          const inv = data.invoice;
+          
+          if (inv.balance_due > 0) {
+            payBtn.href = `/radiology/payment/?purchase_id=${inv.id}`;
+            payBtn.style.display = 'inline-flex';
+          } else {
+            payBtn.style.display = 'none';
+          }
+          
+          let itemsHtml = '';
+          if (inv.items && inv.items.length > 0) {
+            itemsHtml = `
+              <table class="invoice-items-table">
+                <thead>
+                  <tr>
+                    <th>Service Category</th>
+                    <th>Test Name</th>
+                    <th>Scan Code</th>
+                    <th>Unit Price</th>
+                    <th>Quantity</th>
+                    <th class="text-right">Amount (Kshs)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${inv.items.map((item) => `
+                    <tr>
+                      <td>${item.category || 'Radiology'}</td>
+                      <td>${item.name}</td>
+                      <td>${item.scan_code || '-'}</td>
+                      <td>${item.unit_price ? item.unit_price.toFixed(2) : '0.00'}</td>
+                      <td>${item.quantity}</td>
+                      <td class="text-right">${item.row_total ? item.row_total.toFixed(2) : '0.00'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `;
+          } else {
+            itemsHtml = `<p style="color:#718096; font-style:italic; padding:12px;">No procedure details found for this invoice.</p>`;
+          }
+          
+          let paymentsHtml = '';
+          if (inv.payments && inv.payments.length > 0) {
+            paymentsHtml = `
+              <div style="margin-top:12px;">
+                <strong>Payment History:</strong>
+                <ul style="margin:8px 0 0 20px;">
+                  ${inv.payments.map(p => `
+                    <li>${p.date} - ${p.mode} - Kshs ${p.amount.toFixed(2)} (Ref: ${p.reference})</li>
+                  `).join('')}
+                </ul>
+              </div>
+            `;
+          }
+          
+          body.innerHTML = `
+            <div class="invoice-logo-row">
+              <div class="invoice-logo">
+                <i class="fa fa-hospital-o"></i> Eagles Mission Hospital
+              </div>
+              <div class="invoice-address">
+                <strong>Eagles Mission Hospital</strong><br>
+                P.O. Box 12345-00100, Nairobi<br>
+                Tel: +254 700 123456 | Email: info@eagleshospital.co.ke
+              </div>
+            </div>
+            
+            <div class="invoice-title">RADIOLOGY BILL</div>
+            
+            <div class="invoice-info-grid">
+              <div class="invoice-info-item">
+                <label>Bill Number:</label>
+                <span class="value"><strong>${inv.bill_no}</strong></span>
+              </div>
+              <div class="invoice-info-item">
+                <label>Reporting Date:</label>
+                <span class="value">${inv.date}</span>
+              </div>
+              <div class="invoice-info-item">
+                <label>Patient Name:</label>
+                <span class="value">${inv.patient_name}</span>
+              </div>
+              <div class="invoice-info-item">
+                <label>Phone Number:</label>
+                <span class="value">${inv.phone || inv.patient_phone || 'N/A'}</span>
+              </div>
+              <div class="invoice-info-item">
+                <label>Reference Doctor:</label>
+                <span class="value">${inv.doctor}</span>
+              </div>
+              <div class="invoice-info-item">
+                <label>Case ID:</label>
+                <span class="value">${inv.case_id}</span>
+              </div>
+            </div>
+            
+            <div class="invoice-info-full">
+              <label>Note / Clinical History:</label>
+              <div class="value">${inv.payment_note || 'No clinical notes attached'}</div>
+            </div>
+            
+            ${itemsHtml}
+            ${paymentsHtml}
+            
+            <div class="invoice-summary-grid">
+              <div class="invoice-summary-left">
+                <label>Captured By:</label>
+                <div class="value">${inv.created_by || 'System'}</div>
+              </div>
+              <div class="invoice-summary-right">
+                <div class="invoice-summary-row">
+                  <span class="label">Total (sh):</span>
+                  <span class="value">${inv.total_amount.toFixed(2)}</span>
+                </div>
+                <div class="invoice-summary-row">
+                  <span class="label">Discount:</span>
+                  <span class="value discount">- ${inv.discount_amount.toFixed(2)}</span>
+                </div>
+                <div class="invoice-summary-row" style="border-top: 1px solid #990000; padding-top: 4px; margin-top: 2px;">
+                  <span class="label" style="font-weight:700; color:#990000;">Amount (sh):</span>
+                  <span class="value net">${inv.net_amount.toFixed(2)}</span>
+                </div>
+                <div class="invoice-summary-row">
+                  <span class="label">Paid Amount (sh):</span>
+                  <span class="value paid">${inv.amount_paid.toFixed(2)}</span>
+                </div>
+                <div class="invoice-summary-row" style="border-top: 2px solid #e2e8f0; padding-top: 4px; margin-top: 2px;">
+                  <span class="label" style="font-weight:700; color:#c62828;">Balance Amount (sh):</span>
+                  <span class="value due">${inv.balance_due.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .catch(error => {
+          body.innerHTML = `
+            <div style="text-align:center; padding:40px; color:#c62828;">
+              <i class="fa fa-exclamation-triangle" style="font-size:32px; margin-bottom:12px;"></i>
+              <div>Error loading structural details: ${error.message}</div>
+            </div>
+          `;
+        });
+    }
+
+    window.closeInvoiceModal = function() {
+      const modal = document.getElementById('invoiceModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      currentInvoiceId = null;
+    }
+
+    window.printModalInvoice = function() {
+      if (currentInvoiceId) {
+        window.open(`/radiology/invoice/${currentInvoiceId}/print/`, '_blank');
+      }
+    }
+
+    window.editModalInvoice = function() {
+      if (currentInvoiceId) {
+        alert('Edit functionality under construction!');
+      }
+    }
+
+    window.deleteModalInvoice = function() {
+      if (currentInvoiceId) {
+        if (confirm('Are you sure you want to delete this structural bill? This action cannot be undone.')) {
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+          if (!csrfToken) {
+            alert('CSRF token missing.');
+            return;
+          }
+          
+          fetch(`/radiology/invoice/${currentInvoiceId}/delete/`, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': csrfToken.value,
+              'Content-Type': 'application/json',
+            },
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              closeInvoiceModal();
+              location.reload();
+            } else {
+              alert('Error: ' + (data.error || 'Unknown workflow fault'));
+            }
+          })
+          .catch(error => {
+            alert('Failure targeting operational endpoint: ' + error.message);
+          });
+        }
+      }
+    }
+
+    document.getElementById('invoiceModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeInvoiceModal();
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('invoiceModal');
+        if (modal.classList.contains('active')) {
+          closeInvoiceModal();
+        }
+      }
+    });
+
+  });
+</script>
+
+{% endblock %}

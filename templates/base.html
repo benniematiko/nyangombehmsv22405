@@ -1,0 +1,304 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Eagles Mission Hospital {% endblock %}</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    <style>
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast-notification {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 300px;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideInRight 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .toast-notification.success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .toast-notification.error {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .toast-notification.warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .toast-notification.info {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .toast-notification i {
+            font-size: 20px;
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .toast-message {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .toast-close {
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .toast-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="grid {% if hide_sidebar %}full-canvas-view{% endif %}">
+        <!-- <div class="header">
+            <div class="logo">
+                <a href="{% url 'dashboard:home' %}" style="color: white; text-decoration: none; font-size: 20px; font-weight: bold;">🏥 Eagles Mission Hospital</a>
+            </div>
+            {% if request.user.is_authenticated %}
+                <div class="user-info">
+                    <span>Welcome, {{ request.user.first_name|default:request.user.username }}</span>
+                    <a href="{% url 'accounts:logout' %}" style="color: white; margin-left: 15px;">Logout</a>
+                </div>
+            {% endif %}
+        </div> -->
+
+        <div class="header">
+            <div class="logo">
+                <a href="{% url 'dashboard:home' %}" style="color: white; text-decoration: none; font-size: 20px; font-weight: bold;">🏥 Eagles Mission Hospital</a>
+            </div>
+            {% if request.user.is_authenticated %}
+                <div class="user-info" style="display: flex; align-items: center;">
+                    <span>Welcome, {{ request.user.first_name|default:request.user.username }}</span>
+                    
+                    <!-- Secure POST form styled to look exactly like a clean text link -->
+                    <form action="{% url 'accounts:logout' %}" method="post" style="display: inline; margin-left: 15px;">
+                        {% csrf_token %}
+                        <!-- <button type="submit" style="background: none; border: none; color: white; padding: 0; font: inherit; cursor: pointer; text-decoration: underline;">
+                            Logout
+                        </button> -->
+                        
+                        <a href="{% url 'accounts:logout_confirm' %}" style="color: white; margin-left: 15px;">Logout</a>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if not hide_sidebar %}
+            {% include "sidebar.html" %}
+        {% endif %}
+        
+        <main class="content">
+            {% block content %}          
+            {% endblock %}
+        </main>
+        
+        <div class="footer">
+            &copy; {% now "Y" %} ProClinic Hospital Management Information System. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Hidden div to store Django messages for toast notifications - IMPROVED VERSION -->
+    <div id="django-messages-data" style="display: none;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="django-msg" data-message="{{ message|escapejs }}" data-tags="{{ message.tags }}"></div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Global JavaScript -->
+    <script>
+        // ==========================================================================
+        // EAGLES MISSION HOSPITAL - GLOBAL TOAST NOTIFICATION SYSTEM
+        // ==========================================================================
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Global Toast Function
+        window.showToast = function(message, type = 'success', title = '') {
+            if (!message) return;
+            
+            // Set titles based on type if not provided
+            const titles = {
+                success: '✓ Success!',
+                error: '✗ Error!',
+                warning: '⚠ Warning!',
+                info: 'ℹ Info'
+            };
+            
+            const finalTitle = title || titles[type] || 'Notification';
+            const iconMap = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            const icon = iconMap[type] || 'fa-bell';
+            
+            // Create toast container if it doesn't exist
+            let toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.className = 'toast-container';
+                document.body.appendChild(toastContainer);
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            toast.innerHTML = `
+                <i class="fa ${icon}"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${escapeHtml(finalTitle)}</div>
+                    <div class="toast-message">${escapeHtml(message)}</div>
+                </div>
+                <span class="toast-close">&times;</span>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Close button functionality
+            const closeBtn = toast.querySelector('.toast-close');
+            closeBtn.addEventListener('click', function() {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            });
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (toast && toast.parentNode) {
+                    toast.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        };
+
+        // Helper function for AJAX success
+        window.showAjaxSuccess = function(message, redirectUrl = null) {
+            showToast(message, 'success', '✓ Saved Successfully!');
+            if (redirectUrl) {
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1500);
+            }
+        };
+
+        // Helper function for AJAX error
+        window.showAjaxError = function(message) {
+            showToast(message, 'error', '✗ Error!');
+        };
+
+        // Helper function for form validation warnings
+        window.showValidationWarning = function(message) {
+            showToast(message, 'warning', '⚠ Validation Error');
+        };
+
+        // Helper function for info messages
+        window.showInfo = function(message) {
+            showToast(message, 'info', 'ℹ Information');
+        };
+
+        // Auto-display Django messages on page load - IMPROVED VERSION (no JSON parsing)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for Django messages in the hidden div (using DOM elements, not JSON)
+            const messageElements = document.querySelectorAll('#django-messages-data .django-msg');
+            
+            messageElements.forEach(function(el) {
+                const message = el.getAttribute('data-message');
+                const tags = el.getAttribute('data-tags');
+                
+                if (message && message.trim()) {
+                    let type = 'info';
+                    if (tags && tags.includes('success')) type = 'success';
+                    else if (tags && tags.includes('error')) type = 'error';
+                    else if (tags && tags.includes('warning')) type = 'warning';
+                    
+                    showToast(message, type);
+                }
+            });
+        });
+
+        // Test function to verify toast is working
+        window.testToast = function() {
+            showToast('Toast notification system is working perfectly!', 'success', '✓ Test Success');
+        };
+
+        console.log('Global Toast System Loaded - Use showToast() to display notifications');
+    </script>
+
+    <!-- Additional page-specific JavaScript -->
+    <script src="{% static 'js/scripts.js' %}?v=2" defer></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

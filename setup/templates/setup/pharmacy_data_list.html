@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | Setup | Eagles Mission Hospital{% endblock %}
+
+{% block content %}
+<style>
+  .page-container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #990000; padding-bottom: 12px; }
+  .page-header h1 { color: #990000; margin: 0; font-size: 24px; }
+  .page-header h1 i { margin-right: 10px; }
+  .btn-back { background: #6c757d; color: #fff; border: none; padding: 8px 16px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block; }
+  .btn-back:hover { background: #5a6268; }
+  .btn-add { background: #990000; color: #fff; border: none; padding: 8px 20px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block; }
+  .btn-add:hover { background: #800000; }
+  .data-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e2e8f0; }
+  .data-table thead th { background: #f1f5f9; padding: 10px 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #e2e8f0; }
+  .data-table tbody td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
+  .data-table tbody tr:hover { background: #f8fafc; }
+  .status-badge { padding: 2px 10px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .status-badge.active { background: #d4edda; color: #155724; }
+  .status-badge.inactive { background: #f8d7da; color: #721c24; }
+  .btn-action { padding: 4px 10px; font-size: 11px; border: none; cursor: pointer; text-decoration: none; }
+  .btn-action.edit { background: #2563eb; color: #fff; }
+  .btn-action.edit:hover { background: #1d4ed8; }
+  .btn-action.delete { background: #dc2626; color: #fff; }
+  .btn-action.delete:hover { background: #b91c1c; }
+  .empty-state { text-align: center; padding: 40px; color: #718096; }
+</style>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1><i class="fa fa-cubes"></i> {{ title }}</h1>
+    <div>
+      <a href="{% url 'setup:setup_home' %}" class="btn-back"><i class="fa fa-arrow-left"></i> Back</a>
+      {% if module == 'categories' %}
+        <a href="{% url 'setup:pharmacy_category_add' %}" class="btn-add"><i class="fa fa-plus"></i> Add Category</a>
+      {% elif module == 'groups' %}
+        <a href="{% url 'setup:pharmacy_group_add' %}" class="btn-add"><i class="fa fa-plus"></i> Add Group</a>
+      {% elif module == 'compositions' %}
+        <a href="{% url 'setup:pharmacy_composition_add' %}" class="btn-add"><i class="fa fa-plus"></i> Add Composition</a>
+      {% elif module == 'suppliers' %}
+        <a href="{% url 'setup:pharmacy_supplier_add' %}" class="btn-add"><i class="fa fa-plus"></i> Add Supplier</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        {% if module == 'suppliers' %}
+          <th>Contact Person</th>
+          <th>Phone</th>
+          <th>Location</th>
+        {% else %}
+          <th>Description</th>
+        {% endif %}
+        <th>Status</th>
+        <th style="text-align:center;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if module == 'categories' %}
+        {% for item in categories %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><strong>{{ item.name }}</strong></td>
+          <td>{{ item.description|default:"—" }}</td>
+          <td><span class="status-badge {% if item.is_active %}active{% else %}inactive{% endif %}">{% if item.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+          <td style="text-align:center;">
+            <a href="{% url 'setup:pharmacy_category_edit' item.id %}" class="btn-action edit"><i class="fa fa-edit"></i></a>
+            <form method="POST" action="{% url 'setup:pharmacy_category_delete' item.id %}" style="display:inline;" onsubmit="return confirm('Delete this category?')">
+              {% csrf_token %}
+              <button type="submit" class="btn-action delete"><i class="fa fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty-state"><i class="fa fa-info-circle"></i> No categories found.</td></tr>
+        {% endfor %}
+      
+      {% elif module == 'groups' %}
+        {% for item in groups %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><strong>{{ item.name }}</strong></td>
+          <td>{{ item.description|default:"—" }}</td>
+          <td><span class="status-badge {% if item.is_active %}active{% else %}inactive{% endif %}">{% if item.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+          <td style="text-align:center;">
+            <a href="{% url 'setup:pharmacy_group_edit' item.id %}" class="btn-action edit"><i class="fa fa-edit"></i></a>
+            <form method="POST" action="{% url 'setup:pharmacy_group_delete' item.id %}" style="display:inline;" onsubmit="return confirm('Delete this group?')">
+              {% csrf_token %}
+              <button type="submit" class="btn-action delete"><i class="fa fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty-state"><i class="fa fa-info-circle"></i> No groups found.</td></tr>
+        {% endfor %}
+      
+      {% elif module == 'compositions' %}
+        {% for item in compositions %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><strong>{{ item.name }}</strong></td>
+          <td>{{ item.description|default:"—" }}</td>
+          <td><span class="status-badge {% if item.is_active %}active{% else %}inactive{% endif %}">{% if item.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+          <td style="text-align:center;">
+            <a href="{% url 'setup:pharmacy_composition_edit' item.id %}" class="btn-action edit"><i class="fa fa-edit"></i></a>
+            <form method="POST" action="{% url 'setup:pharmacy_composition_delete' item.id %}" style="display:inline;" onsubmit="return confirm('Delete this composition?')">
+              {% csrf_token %}
+              <button type="submit" class="btn-action delete"><i class="fa fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty-state"><i class="fa fa-info-circle"></i> No compositions found.</td></tr>
+        {% endfor %}
+      
+      {% elif module == 'suppliers' %}
+        {% for item in suppliers %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><strong>{{ item.name }}</strong></td>
+          <td>{{ item.contact_person|default:"—" }}</td>
+          <td>{{ item.phone_number|default:"—" }}</td>
+          <td>{{ item.location|default:"—" }}</td>
+          <td><span class="status-badge {% if item.is_active %}active{% else %}inactive{% endif %}">{% if item.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+          <td style="text-align:center;">
+            <a href="{% url 'setup:pharmacy_supplier_edit' item.id %}" class="btn-action edit"><i class="fa fa-edit"></i></a>
+            <form method="POST" action="{% url 'setup:pharmacy_supplier_delete' item.id %}" style="display:inline;" onsubmit="return confirm('Delete this supplier?')">
+              {% csrf_token %}
+              <button type="submit" class="btn-action delete"><i class="fa fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty-state"><i class="fa fa-info-circle"></i> No suppliers found.</td></tr>
+        {% endfor %}
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

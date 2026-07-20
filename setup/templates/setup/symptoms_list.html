@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+{% block title %} Symptom Classifications | Eagles Mission Hospital{% endblock %}
+
+{% block content %}
+<style>
+  .symptom-wrapper {
+    padding: 24px;
+    background: #f8fafc;
+    min-height: calc(100vh - 60px);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .symptom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #990000;
+  }
+
+  .symptom-header h1 {
+    color: #1e293b;
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .symptom-header h1 i {
+    color: #990000;
+    margin-right: 8px;
+  }
+
+  .btn-back {
+    background: #ffffff;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-back:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+    border-color: #cbd5e1;
+  }
+
+  .symptom-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 900px) {
+    .symptom-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .panel-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 20px;
+  }
+
+  .panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f1f5f9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 6px;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    background: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #990000;
+  }
+
+  .btn-submit {
+    background: #990000;
+    color: #ffffff;
+    border: none;
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-submit:hover {
+    background: #730000;
+  }
+
+  .search-box-container {
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .search-box-container i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+  }
+
+  .search-control {
+    padding-left: 36px;
+  }
+
+  .symptom-table-container {
+    overflow-x: auto;
+  }
+
+  .symptom-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .symptom-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    padding: 12px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .symptom-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: top;
+  }
+
+  .symptom-table tr:hover td {
+    background: #f8fafc;
+  }
+
+  .badge-type {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 4px;
+  }
+
+  .badge-chronic { background: #fee2e2; color: #991b1b; }
+  .badge-acute { background: #fef3c7; color: #92400e; }
+  .badge-general { background: #e0f2fe; color: #0369a1; }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 13px;
+    transition: color 0.15s;
+  }
+
+  .btn-edit { color: #2563eb; }
+  .btn-edit:hover { color: #1d4ed8; }
+  .btn-delete { color: #dc2626; }
+  .btn-delete:hover { color: #b91c1c; }
+</style>
+
+<div class="symptom-wrapper">
+  
+  <div class="symptom-header">
+    <h1><i class="fa fa-heartbeat"></i> Symptom Classifications Master</h1>
+    <a href="{% url 'setup:setup_home' %}" class="btn-back">
+      <i class="fa fa-arrow-left"></i> Back to Setup
+    </a>
+  </div>
+
+  <div class="symptom-layout">
+    
+    <!-- LEFT SIDEBAR: ENTRY/EDIT FORM -->
+    <div class="panel-card">
+      <div class="panel-title" id="formPanelTitle">Add New Symptom</div>
+      <form id="symptomForm">
+        {% csrf_token %}
+        <input type="hidden" id="symptomId" name="symptom_id" value="">
+        
+        <div class="form-group">
+          <label for="symptomCode">Symptom Code / Code Value</label>
+          <input type="text" id="symptomCode" name="code" class="form-control" placeholder="e.g., SYMP-HEADACHE-01" required>
+        </div>
+
+        <div class="form-group">
+          <label for="symptomName">Symptom Title Name</label>
+          <input type="text" id="symptomName" name="name" class="form-control" placeholder="e.g., Tension Headache" required>
+        </div>
+
+        <div class="form-group">
+          <label for="symptomType">Classification Type</label>
+          <select id="symptomType" name="type" class="form-control" required>
+            <option value="general">General / Unassigned</option>
+            <option value="acute">Acute Condition</option>
+            <option value="chronic">Chronic Condition</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="symptomDescription">Clinical Description</label>
+          <textarea id="symptomDescription" name="description" class="form-control" rows="4" placeholder="Brief details about presentation and standard diagnostic rules..." style="resize: none;"></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitFormBtn">Save Classification</button>
+      </form>
+    </div>
+
+    <!-- RIGHT SIDEBAR: MASTER DATA GRID -->
+    <div class="panel-card">
+      <div class="panel-title">Active Database Records</div>
+      
+      <div class="search-box-container">
+        <i class="fa fa-search"></i>
+        <input type="text" id="tableSearch" class="form-control search-control" placeholder="Filter classification records by name or database identifier...">
+      </div>
+
+      <div class="symptom-table-container">
+        <table class="symptom-table">
+          <thead>
+            <tr>
+              <th style="width: 20%;">Code Value</th>
+              <th style="width: 25%;">Title Name</th>
+              <th style="width: 15%;">Classification</th>
+              <th>Clinical Description</th>
+              <th style="width: 12%; text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="symptomTableBody">
+            {% if symptoms %}
+              {% for item in symptoms %}
+              <tr data-id="{{ item.id }}">
+                <td class="cell-code" style="font-weight: 700; color: #475569;">{{ item.code }}</td>
+                <td class="cell-name" style="font-weight: 600;">{{ item.name }}</td>
+                <td class="cell-type">
+                  <span class="badge-type badge-{{ item.type }}">{{ item.get_type_display|default:item.type }}</span>
+                </td>
+                <td class="cell-description" style="color: #64748b; font-size: 13px;">{{ item.description|default:"—" }}</td>
+                <td style="text-align: center; white-space: nowrap;">
+                  <button type="button" class="action-btn btn-edit" title="Edit Entry"><i class="fa fa-edit"></i></button>
+                  <button type="button" class="action-btn btn-delete" title="Delete Entry"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr id="emptyRowPlaceholder">
+                <td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;">
+                  <i class="fa fa-folder-open-o" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                  No symptom classifications configured. Add one on the left panel.
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("symptomForm");
+  const searchInput = document.getElementById("tableSearch");
+  const tableBody = document.getElementById("symptomTableBody");
+
+  // ========== ASYNCHRONOUS FORM SUBMISSION (ADD / EDIT) ==========
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+    
+    // In production, point this action path safely to your ajax views handler
+    fetch("{% url 'setup:save_symptom_ajax' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrftoken,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: document.getElementById("symptomId").value,
+        code: document.getElementById("symptomCode").value.trim(),
+        name: document.getElementById("symptomName").value.trim(),
+        type: document.getElementById("symptomType").value,
+        description: document.getElementById("symptomDescription").value.trim()
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert("Symptom setup state synchronized successfully.");
+        window.location.reload(); // Quick refresh to render pristine Django querysets
+      } else {
+        alert("Validation error: " + data.message);
+      }
+    })
+    .catch(err => console.error("Synchronization execution error:", err));
+  });
+
+  // ========== DYNAMIC LOCAL SEARCH FILTERING ==========
+  if (searchInput) {
+    searchInput.addEventListener("input", function () {
+      const filterValue = this.value.toLowerCase().trim();
+      const rows = tableBody.querySelectorAll("tr:not(#emptyRowPlaceholder)");
+
+      rows.forEach(row => {
+        const codeText = row.querySelector(".cell-code")?.textContent.toLowerCase() || "";
+        const nameText = row.querySelector(".cell-name")?.textContent.toLowerCase() || "";
+        const descText = row.querySelector(".cell-description")?.textContent.toLowerCase() || "";
+
+        if (codeText.includes(filterValue) || nameText.includes(filterValue) || descText.includes(filterValue)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    });
+  }
+
+  // ========== ROW CLICK INTERCHANGE (EDIT EXECUTION) ==========
+  tableBody.addEventListener("click", function(e) {
+    const editBtn = e.target.closest(".btn-edit");
+    if (!editBtn) return;
+
+    const row = editBtn.closest("tr");
+    const id = row.dataset.id;
+    const code = row.querySelector(".cell-code").textContent.trim();
+    const name = row.querySelector(".cell-name").textContent.trim();
+    const description = row.querySelector(".cell-description").textContent.trim();
+    
+    // Extract raw type variant from class configurations
+    const badge = row.querySelector(".badge-type");
+    let type = "general";
+    if (badge.classList.contains("badge-acute")) type = "acute";
+    if (badge.classList.contains("badge-chronic")) type = "chronic";
+
+    // Re-populate state into management form
+    document.getElementById("symptomId").value = id;
+    document.getElementById("symptomCode").value = code;
+    document.getElementById("symptomName").value = name;
+    document.getElementById("symptomType").value = type;
+    document.getElementById("symptomDescription").value = description === "—" ? "" : description;
+
+    document.getElementById("formPanelTitle").textContent = "Edit Classification";
+    document.getElementById("submitFormBtn").textContent = "Update Classification";
+    document.getElementById("symptomCode").focus();
+  });
+});
+</script>
+{% endblock %}

@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'appointments',
     'radiology',
     'finance',
+    'inventory',
+    'setup',
     'django.contrib.humanize',
 ]
 

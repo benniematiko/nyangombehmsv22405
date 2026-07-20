@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %} Charge Tariffs Master | Eagles Mission Hospital{% endblock %}
+
+{% block content %}
+<style>
+  .tariff-container {
+    padding: 20px;
+    width: 100%; /* Spans full workspace width smoothly */
+    box-sizing: border-box;
+  }
+
+  .tariff-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #990000;
+    padding-bottom: 12px;
+  }
+
+  .tariff-header h1 {
+    color: #990000;
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .tariff-header h1 i {
+    margin-right: 10px;
+  }
+
+  .btn-back {
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .btn-back:hover {
+    background: #5a6268;
+  }
+
+  /* Clean interactive placeholder canvas panel */
+  .coming-soon-card {
+    background: #fff;
+    padding: 80px 24px;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+    color: #64748b;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .coming-soon-card i {
+    font-size: 48px;
+    color: #94a3b8;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .coming-soon-card h2 {
+    margin: 0 0 8px 0;
+    color: #334155;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .coming-soon-card p {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+  }
+
+  @media (max-width: 768px) {
+    .tariff-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .tariff-header .btn-back {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<div class="tariff-container">
+  <div class="tariff-header">
+    <h1><i class="fa fa-money"></i> Charge Tariffs Master</h1>
+    <a href="{% url 'setup:setup_home' %}" class="btn-back">
+      <i class="fa fa-arrow-left"></i> Back
+    </a>
+  </div>
+
+  <div class="coming-soon-card">
+    <i class="fa fa-line-chart"></i>
+    <h2>Module Under Construction</h2>
+    <p>Charge tariffs master billing matrices and management structures are coming soon.</p>
+  </div>
+</div>
+{% endblock %}

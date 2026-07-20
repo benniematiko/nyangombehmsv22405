@@ -32,7 +32,7 @@ class Supplier(models.Model):
 
 
 class MedicineCategory(models.Model):
-    """System definition category tags for drugs."""
+    """System definition category tags for drugs (e.g., Tablets, Injections, Syrups)."""
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -46,9 +46,49 @@ class MedicineCategory(models.Model):
         return self.name
 
 
+class MedicineGroup(models.Model):
+    """
+    Medicine groups for therapeutic classification (e.g., Antibiotics, Analgesics, Antihistamines).
+    This represents the clinical grouping of medicines based on their therapeutic use.
+    """
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = "Medicine Groups"
+
+    def __str__(self):
+        return self.name
+
+
+class MedicineComposition(models.Model):
+    """
+    Medicine compositions/active ingredients (e.g., Acetaminophen, Amoxicillin).
+    This represents the active pharmaceutical ingredient(s) in a medicine.
+    """
+    name = models.CharField(max_length=200, unique=True)
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = "Medicine Compositions"
+
+    def __str__(self):
+        return self.name
+
+
 class Medicine(models.Model):
     """Base generic medicine descriptor table profiles."""
     category = models.ForeignKey(MedicineCategory, on_delete=models.CASCADE, related_name='medicines')
+    group = models.ForeignKey(MedicineGroup, on_delete=models.CASCADE, related_name='medicines', null=True, blank=True)
+    composition = models.ForeignKey(MedicineComposition, on_delete=models.CASCADE, related_name='medicines', null=True, blank=True)
     name = models.CharField(max_length=255, unique=True)
     generic_name = models.CharField(max_length=255, blank=True, null=True)
     manufacturer = models.CharField(max_length=255, blank=True, null=True)

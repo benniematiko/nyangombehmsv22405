@@ -19,6 +19,8 @@ urlpatterns = [
     path('radiology/', include('radiology.urls')),
     path('patients/', include('patients.urls')),  # This creates the /patients/ prefix
     path('finance/', include('finance.urls')),
+    path('inventory/', include('inventory.urls')),
+    path('setup/', include('setup.urls')),
     
     
 

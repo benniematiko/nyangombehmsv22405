@@ -55,7 +55,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 24px;
-    background-color: #2d3748; /* Added rich deep slate background color */
+    background-color: #2d3748;
     border-bottom: 1px solid #1a202c;
   }
 
@@ -63,7 +63,7 @@
     margin: 0;
     font-size: 15px;
     font-weight: 600;
-    color: #ffffff; /* Contrast adjusted text color */
+    color: #ffffff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     display: flex;
@@ -74,7 +74,7 @@
   .hms-modal-close-btn {
     background: transparent;
     border: none;
-    color: #cbd5e0; /* Light gray for crisp readability */
+    color: #cbd5e0;
     font-size: 20px;
     cursor: pointer;
     padding: 0;
@@ -97,7 +97,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    margin-bottom: 10px; /* Reduced vertical gap between rows */
+    margin-bottom: 10px;
   }
 
   .modal-form-grid-row:last-of-type {
@@ -126,7 +126,7 @@
   .modal-text-input,
   .modal-select-input,
   .modal-textarea-input {
-    height: 32px; /* Tightened element height */
+    height: 32px;
     padding: 4px 10px;
     font-size: 12px;
     border: 1px solid #cbd5e0;
@@ -140,7 +140,7 @@
   }
 
   .modal-textarea-input {
-    height: 50px; /* Compact height for note box field */
+    height: 50px;
     resize: vertical;
   }
 
@@ -158,7 +158,7 @@
     border: 1px dashed #cbd5e0;
     padding: 4px 10px;
     background: #f7fafc;
-    height: 32px; /* Set directly equivalent to other form fields */
+    height: 32px;
     box-sizing: border-box;
   }
 
@@ -211,6 +211,26 @@
   .btn-modal-submit:hover {
     background-color: #1a202c;
   }
+
+  .btn-modal-cancel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 20px;
+    background-color: #6c757d;
+    color: #ffffff;
+    border: none;
+    border-radius: 0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .btn-modal-cancel:hover {
+    background-color: #5a6268;
+  }
 </style>
 
 <div class="pharmacy-container-layout">
@@ -253,9 +273,9 @@
       </div>
       
       <div class="export-pagination-group">
-        <select class="entries-dropdown-select" aria-label="Records display pagination configuration">
+        <select id="entriesPerPage" class="entries-dropdown-select" aria-label="Records display pagination configuration">
           <option value="10">Display 10 records</option>
-          <option value="20">Display 20 records</option>
+          <option value="20" selected>Display 20 records</option>
           <option value="100">Display 100 records</option>
         </select>
         
@@ -270,7 +290,7 @@
     </div>
 
     <div class="table-fixed-container">
-      <table class="hms-table hms-billing-log-table">
+      <table class="hms-table hms-billing-log-table" id="medicinesTable">
         <thead>
           <tr>
             <th><input type="checkbox" id="selectAllLedgers"></th>
@@ -284,9 +304,9 @@
           </tr>
         </thead>
         
-        <tbody>
+        <tbody id="tableBody">
           {% for medicine in medicines %}
-          <tr>
+          <tr class="medicine-row">
             <td class="checkbox-fit-cell"><input type="checkbox" class="ledger-checkbox" value="MED-{{ medicine.id }}"></td>
             <td><strong>{{ medicine.item_name }}</strong></td>
             <td>{{ medicine.company_name }}</td>
@@ -334,25 +354,24 @@
 
     <div class="ledger-pagination-row">
       <div class="pagination-counter-info">
-        Records: <strong>1</strong> to <strong>{{ medicines.count }}</strong> of <strong>{{ medicines.count }}</strong>
+        Records: <strong id="startRecord">1</strong> to <strong id="endRecord">20</strong> of <strong id="totalRecords">{{ medicines|length }}</strong>
       </div>
       
       <div class="pagination-nav-controls">
-        <button type="button" class="btn-page-nav" title="First Page" disabled><i class="fa fa-angle-double-left"></i></button>
-        <button type="button" class="btn-page-nav" title="Previous Page" disabled><i class="fa fa-angle-left"></i></button>
+        <button type="button" class="btn-page-nav" id="firstPage" title="First Page"><i class="fa fa-angle-double-left"></i></button>
+        <button type="button" class="btn-page-nav" id="prevPage" title="Previous Page"><i class="fa fa-angle-left"></i></button>
         
-        <div class="page-numeric-links">
-          <button type="button" class="btn-page-num active-page">1</button>
-        </div>
+        <div class="page-numeric-links" id="pageNumbers"></div>
 
-        <button type="button" class="btn-page-nav" title="Next Page" disabled><i class="fa fa-angle-right"></i></button>
-        <button type="button" class="btn-page-nav" title="Last Page" disabled><i class="fa fa-angle-double-right"></i></button>
+        <button type="button" class="btn-page-nav" id="nextPage" title="Next Page"><i class="fa fa-angle-right"></i></button>
+        <button type="button" class="btn-page-nav" id="lastPage" title="Last Page"><i class="fa fa-angle-double-right"></i></button>
       </div>
     </div>
 
   </div>
 </div>
 
+<!-- ==================== ADD MEDICINE MODAL ==================== -->
 <div class="hms-modal-backdrop" id="addMedicineModal">
   <div class="hms-modal-window">
     <div class="hms-modal-header">
@@ -360,7 +379,7 @@
       <button type="button" class="hms-modal-close-btn" id="closeAddMedicineModalBtn">&times;</button>
     </div>
 
-    <form method="POST" action="{% url 'pharmacy:addmedicine' %}" enctype="multipart/form-data">
+    <form method="POST" action="{% url 'pharmacy:addmedicine' %}" enctype="multipart/form-data" id="addMedicineForm">
       {% csrf_token %}
       <div class="hms-modal-body-scroll">
         
@@ -373,23 +392,19 @@
             <label for="id_category">Medicine Category <span>*</span></label>
             <select id="id_category" name="category" class="modal-select-input" required>
               <option value="" disabled selected>Select Category...</option>
-              {% for cat in categories %}
-                <option value="{{ cat.id }}">{{ cat.name }}</option>
-              {% endfor %}
             </select>
           </div>
           <div class="modal-field-column">
             <label for="id_company">Medicine Company <span>*</span></label>
             <select id="id_company" name="company" class="modal-select-input" required>
               <option value="" disabled selected>Select Company...</option>
-              {% for comp in companies %}
-                <option value="{{ comp.id }}">{{ comp.name }}</option>
-              {% endfor %}
             </select>
           </div>
           <div class="modal-field-column">
             <label for="id_composition">Medicine Composition</label>
-            <input type="text" id="id_composition" name="composition" class="modal-text-input" placeholder="e.g. Acetaminophen">
+            <select id="id_composition" name="composition" class="modal-select-input">
+              <option value="" disabled selected>Select Composition...</option>
+            </select>
           </div>
         </div>
 
@@ -398,9 +413,6 @@
             <label for="id_group">Medicine Group <span>*</span></label>
             <select id="id_group" name="group" class="modal-select-input" required>
               <option value="" disabled selected>Select Group...</option>
-              {% for grp in groups %}
-                <option value="{{ grp.id }}">{{ grp.name }}</option>
-              {% endfor %}
             </select>
           </div>
           <div class="modal-field-column">
@@ -465,12 +477,107 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // ====================== PAGINATION & FILTERING state ======================
+    let currentPage = 1;
+    let rowsPerPage = 20;
+    const tableBody = document.getElementById('tableBody');
+    const allRows = Array.from(tableBody.getElementsByClassName('medicine-row'));
+
+    const startRecordEl = document.getElementById('startRecord');
+    const endRecordEl = document.getElementById('endRecord');
+    const totalRecordsEl = document.getElementById('totalRecords');
+    const pageNumbersContainer = document.getElementById('pageNumbers');
+    const entriesSelect = document.getElementById('entriesPerPage');
+    const searchInput = document.getElementById('ledgerSearch');
+
+    function getFilteredRows() {
+      const term = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      return allRows.filter(row => row.textContent.toLowerCase().includes(term));
+    }
+
+    function renderTablePage() {
+      const filteredRows = getFilteredRows();
+      const totalRecords = filteredRows.length;
+      
+      const start = (currentPage - 1) * rowsPerPage;
+      const end = Math.min(start + rowsPerPage, totalRecords);
+
+      // Hide everything first
+      allRows.forEach(row => row.style.display = 'none');
+
+      // Show only active filtered chunk
+      filteredRows.forEach((row, index) => {
+        if (index >= start && index < end) {
+          row.style.display = '';
+        }
+      });
+
+      startRecordEl.textContent = totalRecords === 0 ? 0 : start + 1;
+      endRecordEl.textContent = end;
+      totalRecordsEl.textContent = totalRecords;
+
+      renderPaginationControls(totalRecords);
+    }
+
+    function renderPaginationControls(totalRecords) {
+      pageNumbersContainer.innerHTML = '';
+      const totalPages = Math.ceil(totalRecords / rowsPerPage) || 1;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `btn-page-num ${i === currentPage ? 'active-page' : ''}`;
+        btn.textContent = i;
+        btn.addEventListener('click', () => {
+          currentPage = i;
+          renderTablePage();
+        });
+        pageNumbersContainer.appendChild(btn);
+      }
+
+      document.getElementById('firstPage').disabled = currentPage === 1;
+      document.getElementById('prevPage').disabled = currentPage === 1;
+      document.getElementById('nextPage').disabled = currentPage === totalPages;
+      document.getElementById('lastPage').disabled = currentPage === totalPages;
+    }
+
+    entriesSelect.addEventListener('change', function() {
+      rowsPerPage = parseInt(this.value);
+      currentPage = 1;
+      renderTablePage();
+    });
+
+    document.getElementById('firstPage').addEventListener('click', () => { currentPage = 1; renderTablePage(); });
+    document.getElementById('prevPage').addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderTablePage(); } });
+    document.getElementById('nextPage').addEventListener('click', () => {
+      const filteredRows = getFilteredRows();
+      const totalPages = Math.ceil(filteredRows.length / rowsPerPage) || 1;
+      if (currentPage < totalPages) { currentPage++; renderTablePage(); }
+    });
+    document.getElementById('lastPage').addEventListener('click', () => {
+      const filteredRows = getFilteredRows();
+      currentPage = Math.ceil(filteredRows.length / rowsPerPage) || 1;
+      renderTablePage();
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        currentPage = 1;
+        renderTablePage();
+      });
+    }
+
+    renderTablePage();
+
+    // ====================== ORIGINAL MODAL SCRIPT ======================
     const selectAllCheckboxes = document.getElementById('selectAllLedgers');
     const openModalBtn = document.getElementById('openAddMedicineModalBtn');
     const closeModalBtn = document.getElementById('closeAddMedicineModalBtn');
     const modalBackdrop = document.getElementById('addMedicineModal');
     const modalFileInput = document.getElementById('id_medicine_photo');
     const modalFileText = document.querySelector('#modal-file-text-indicator span');
+    const modalForm = document.getElementById('addMedicineForm');
+    const submitBtn = document.querySelector('.btn-modal-submit');
 
     if (selectAllCheckboxes) {
       selectAllCheckboxes.addEventListener('change', function() {
@@ -482,6 +589,11 @@
     function executeModalHide() {
       modalBackdrop.style.display = 'none';
       document.body.style.overflow = 'auto';
+      // Reset submit button
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa fa-save"></i> Save Medicine';
+      }
     }
 
     if (openModalBtn && modalBackdrop) {
@@ -489,6 +601,20 @@
         e.preventDefault();
         modalBackdrop.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        // Reset form
+        modalForm.reset();
+        // Load dropdowns when modal opens
+        loadAllDropdowns();
+        // Reset file input display
+        if (modalFileText) {
+          modalFileText.textContent = 'Upload prescription...';
+          modalFileText.style.color = '#718096';
+        }
+        // Reset submit button
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa fa-save"></i> Save Medicine';
+        }
       });
     }
 
@@ -515,6 +641,86 @@
         }
       });
     }
+
+    // ====================== DYNAMIC DROPDOWN API HANDLERS ======================
+    function populateSelect(selectEl, data, placeholder) {
+      if (!selectEl || selectEl.tagName !== 'SELECT') return;
+      
+      selectEl.innerHTML = '';
+      
+      var placeholderOpt = document.createElement('option');
+      placeholderOpt.value = '';
+      placeholderOpt.disabled = true;
+      placeholderOpt.selected = true;
+      placeholderOpt.textContent = placeholder;
+      selectEl.appendChild(placeholderOpt);
+
+      data.forEach(function(item) {
+        var opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.name;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    function fetchAndPopulate(url, selectId, placeholder, errorText) {
+      var selectEl = document.getElementById(selectId);
+      if (!selectEl) return;
+
+      selectEl.innerHTML = '<option disabled selected>Loading…</option>';
+
+      fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        if (!data || !data.length) {
+          selectEl.innerHTML = '<option disabled selected>' + errorText + '</option>';
+          return;
+        }
+        populateSelect(selectEl, data, placeholder);
+      })
+      .catch(function() {
+        selectEl.innerHTML = '<option disabled selected>⚠ Error loading</option>';
+      });
+    }
+
+    function loadAllDropdowns() {
+      fetchAndPopulate('/pharmacy/api/medicine-categories/', 'id_category', 'Select Category...', 'No categories found');
+      fetchAndPopulate('/pharmacy/api/medicine-companies/', 'id_company', 'Select Company...', 'No companies found');
+      fetchAndPopulate('/pharmacy/api/medicine-compositions/', 'id_composition', 'Select Composition...', 'No compositions found');
+      fetchAndPopulate('/pharmacy/api/medicine-groups/', 'id_group', 'Select Group...', 'No groups found');
+    }
+
+    // ====================== DELETE SELECTED ======================
+    const deleteBtn = document.getElementById('deleteSelectedBtn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function() {
+        const selected = document.querySelectorAll('.ledger-checkbox:checked');
+        if (selected.length === 0) {
+          alert('Please select at least one medicine to delete.');
+          return;
+        }
+        if (confirm('Are you sure you want to delete the selected medicine(s)?')) {
+          // Implement delete functionality
+          alert('Delete functionality will be implemented in the backend.');
+        }
+      });
+    }
+
+    // ====================== EXPORT BUTTONS ======================
+    document.querySelectorAll('.btn-export-icon').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        alert(this.getAttribute('title') + ' functionality coming soon.');
+      });
+    });
+
+    // Initial load of dropdowns
+    loadAllDropdowns();
   });
 </script>
+
 {% endblock %}

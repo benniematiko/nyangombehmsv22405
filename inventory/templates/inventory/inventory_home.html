@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+{% block title %} Inventory Management | Eagles Mission Hospital{% endblock %}
+
+{% block content %}
+<style>
+  .inv-container {
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Header Controls */
+  .inv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #990000;
+    padding-bottom: 12px;
+  }
+
+  .inv-header h1 {
+    color: #990000;
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .inv-header h1 i {
+    margin-right: 10px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-action-primary {
+    background: #990000;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-action-primary:hover {
+    background: #800000;
+  }
+
+  .btn-action-secondary {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-action-secondary:hover {
+    background: #1d4ed8;
+  }
+
+  /* KPI Grid Deck */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .kpi-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .kpi-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #fff;
+  }
+
+  .kpi-icon.total { background: #334155; }
+  .kpi-icon.low { background: #ea580c; }
+  .kpi-icon.expired { background: #dc2626; }
+  .kpi-icon.pending { background: #0d9488; }
+
+  .kpi-info h3 {
+    margin: 0;
+    font-size: 24px;
+    color: #1e293b;
+    font-weight: 700;
+  }
+
+  .kpi-info p {
+    margin: 4px 0 0 0;
+    font-size: 12px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* Two-Column Tracking Grid Layout */
+  .dashboard-split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .alert-card-panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-header h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .inv-mini-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .inv-mini-table th {
+    background: #fff;
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #64748b;
+    font-size: 12px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .inv-mini-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 13px;
+  }
+
+  .status-tag {
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .status-tag.critical { background: #fee2e2; color: #991b1b; }
+  .status-tag.warning { background: #ffedd5; color: #9a3412; }
+
+  /* Operational Navigation Blocks */
+  .quick-links-section h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #64748b;
+    margin: 0 0 12px 0;
+    letter-spacing: 0.5px;
+  }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .nav-block-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+    text-decoration: none;
+    color: #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .nav-block-card:hover {
+    border-color: #990000;
+    transform: translateY(-1px);
+  }
+
+  .nav-block-card strong {
+    font-size: 14px;
+    color: #1e293b;
+  }
+
+  .nav-block-card p {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+  }
+
+  /* Responsive Rules Matrix */
+  @media (max-width: 1024px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .links-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .inv-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .header-actions { width: 100%; }
+    .header-actions a { flex: 1; justify-content: center; }
+    .kpi-grid, .dashboard-split-grid, .links-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="inv-container">
+  
+  <!-- Header Block Context -->
+  <div class="inv-header">
+    <h1><i class="fa fa-cubes"></i> Inventory & Stock Dashboard</h1>
+    <div class="header-actions">
+      <a href="#" class="btn-action-secondary"><i class="fa fa-download"></i> Receive Stock</a>
+      <a href="#" class="btn-action-primary"><i class="fa fa-plus"></i> Add New Item</a>
+    </div>
+  </div>
+
+  <!-- Real-Time Metrics Summary Row -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon total"><i class="fa fa-list"></i></div>
+      <div class="kpi-info">
+        <h3>842</h3>
+        <p>Total Stock Items</p>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon low"><i class="fa fa-exclamation-triangle"></i></div>
+      <div class="kpi-info">
+        <h3>14</h3>
+        <p>Low Stock Alerts</p>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon expired"><i class="fa fa-calendar-times-o"></i></div>
+      <div class="kpi-info">
+        <h3>3</h3>
+        <p>Expired Batches</p>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon pending"><i class="fa fa-truck"></i></div>
+      <div class="kpi-info">
+        <h3>5</h3>
+        <p>Pending Orders</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Split Analytical Grid: Critical Operations Monitoring -->
+  <div class="dashboard-split-grid">
+    
+    <!-- Left Module: Stock Depletion Monitor -->
+    <div class="alert-card-panel">
+      <div class="panel-header">
+        <h2><i class="fa fa-level-down" style="color:#ea580c;"></i> Low Stock Warnings</h2>
+        <a href="#" style="font-size: 12px; text-decoration: none; color: #2563eb; font-weight: 600;">View All</a>
+      </div>
+      <div class="table-responsive-wrapper">
+        <table class="inv-mini-table">
+          <thead>
+            <tr>
+              <th>Item Description</th>
+              <th>Dept</th>
+              <th>Current Qty</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Amoxicillin 500mg Caps</strong></td>
+              <td>Pharmacy</td>
+              <td style="color:#dc2626; font-weight:700;">45 Pcs</td>
+              <td><span class="status-tag critical">Critical</span></td>
+            </tr>
+            <tr>
+              <td><strong>Surgical Gloves (Size 7)</strong></td>
+              <td>Main Store</td>
+              <td style="color:#ea580c; font-weight:600;">120 Pcs</td>
+              <td><span class="status-tag warning">Reorder</span></td>
+            </tr>
+            <tr>
+              <td><strong>Paracetamol Syrups</strong></td>
+              <td>Pharmacy</td>
+              <td style="color:#ea580c; font-weight:600;">18 Bottles</td>
+              <td><span class="status-tag warning">Reorder</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Module: Expiration Tracker -->
+    <div class="alert-card-panel">
+      <div class="panel-header">
+        <h2><i class="fa fa-hourglass-end" style="color:#dc2626;"></i> Expiry Risk Monitor</h2>
+        <a href="#" style="font-size: 12px; text-decoration: none; color: #2563eb; font-weight: 600;">View All</a>
+      </div>
+      <div class="table-responsive-wrapper">
+        <table class="inv-mini-table">
+          <thead>
+            <tr>
+              <th>Item / Batch Code</th>
+              <th>Location</th>
+              <th>Expiry Date</th>
+              <th>Condition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>BCG Vaccine (Batch #B902)</strong></td>
+              <td>Laboratory</td>
+              <td style="font-weight:600; color:#334155;">12/08/2026</td>
+              <td><span class="status-tag warning">Next Month</span></td>
+            </tr>
+            <tr>
+              <td><strong>Metformin 850mg (Batch #M21)</strong></td>
+              <td>Pharmacy</td>
+              <td style="font-weight:700; color:#dc2626;">04/06/2026</td>
+              <td><span class="status-tag critical">Expired</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Operational Deep Links Section Layout -->
+  <div class="quick-links-section">
+    <h2>Sub-Modules & Operations</h2>
+    <div class="links-grid">
+      
+      <a href="#" class="nav-block-card">
+        <strong><i class="fa fa-search" style="color: #990000; margin-right:4px;"></i> Master Item Catalog</strong>
+        <p>View complete list of hospital items, pharmaceutical drug formulations, and fixed clinical assets.</p>
+      </a>
+
+      <a href="#" class="nav-block-card">
+        <strong><i class="fa fa-exchange" style="color: #990000; margin-right:4px;"></i> Internal Stock Requisitions</strong>
+        <p>Track stock distribution requests from wards, out-patient departments, and laboratory stations.</p>
+      </a>
+
+      <a href="#" class="nav-block-card">
+        <strong><i class="fa fa-users" style="color: #990000; margin-right:4px;"></i> Supplier Directory</strong>
+        <p>Manage medical pharmaceutical distribution companies, device vendors, and historical performance charts.</p>
+      </a>
+
+      <a href="#" class="nav-block-card">
+        <strong><i class="fa fa-calculator" style="color: #990000; margin-right:4px;"></i> Stock Take & Auditing</strong>
+        <p>Log physical inventory verification figures and map structural adjustments directly against systemic values.</p>
+      </a>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

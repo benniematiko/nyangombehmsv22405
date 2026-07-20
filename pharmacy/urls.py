@@ -37,7 +37,11 @@ urlpatterns = [
     path('get-patient/<int:patient_id>/', views.get_patient_by_id, name='get_patient_by_id'),
     path('get-transactions/', views.get_transactions, name='get_transactions'),
     path('delete-transaction/', views.delete_transaction, name='delete_transaction'),
-    
-    # ====================== ADD THIS NEW ROUTE ======================
     path('add-patient-modal/', views.add_patient_modal, name='add_patient_modal'),
+
+    # ====================== API ENDPOINTS FOR MEDICINE DROPDOWNS ======================
+    path('api/medicine-categories/', views.get_medicine_categories, name='api_medicine_categories'),
+    path('api/medicine-companies/', views.get_medicine_companies, name='api_medicine_companies'),
+    path('api/medicine-compositions/', views.get_medicine_compositions, name='api_medicine_compositions'),
+    path('api/medicine-groups/', views.get_medicine_groups, name='api_medicine_groups'),  # ← ADD THIS
 ]

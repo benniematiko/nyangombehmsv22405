@@ -16,11 +16,16 @@ import logging
 # ==========================================================================
 
 # Pharmacy models
+
 from .models import (
     Stock, Prescription, Supplier, MedicineCategory,
-    Medicine, Purchase, PurchaseItem,
+    Medicine, MedicineGroup, MedicineComposition,
+    Purchase, PurchaseItem,
     PharmacyInvoice, PharmacyInvoiceItem, PharmacyPayment
 )
+
+
+
 
 # Other app models
 from patients.models import Patient
@@ -125,25 +130,9 @@ def pharmacy_home(request):
     # ============================================================
     # ✅ PHARMACY TOTAL COLLECTED REVENUE
     # ============================================================
-    # SOURCE OF TRUTH: Purchase model (payment_amount field)
-    # This matches what the pharmacy page displays.
-    # The dashboard tile should use the SAME calculation.
-    # 
-    # Reference: dashboard/views.py should also use:
-    #   from pharmacy.models import Purchase
-    #   pharmacy_total = Purchase.objects.aggregate(
-    #       total=Sum('payment_amount')
-    #   )['total'] or 0
-    # ============================================================
-    
     pharmacy_total = Purchase.objects.aggregate(
         total=Sum('payment_amount')
     )['total'] or Decimal('0.00')
-    
-    # Alternative if you want to include only Paid/Partial invoices:
-    # pharmacy_total = Purchase.objects.filter(
-    #     status__in=['Paid', 'Partial']
-    # ).aggregate(total=Sum('payment_amount'))['total'] or Decimal('0.00')
 
     context = {
         'pending_prescriptions': pending_prescriptions,
@@ -155,7 +144,7 @@ def pharmacy_home(request):
         'total_sales': total_sales,
         'invoices': invoices,
         'total_records': paginator.count,
-        'pharmacy_collected_revenue': pharmacy_total,  # ← This is the total
+        'pharmacy_collected_revenue': pharmacy_total,
     }
     return render(request, 'pharmacy/pharmacy.html', context)
 
@@ -408,7 +397,7 @@ def invoice_print(request, invoice_id):
             'patient_name': invoice.visit.patient.full_name if invoice.visit and invoice.visit.patient else 'N/A',
             'doctor_name': doctor_name,
             'case_id': invoice.visit.case_id if invoice.visit else 'N/A',
-            'paid_amount': invoice.amount_paid,  # ← Pass explicitly
+            'paid_amount': invoice.amount_paid,
         }
     except BillingInvoice.DoesNotExist:
         try:
@@ -422,7 +411,7 @@ def invoice_print(request, invoice_id):
                 'patient_name': purchase.patient.full_name if purchase.patient else 'N/A',
                 'doctor_name': purchase.doctor_name or 'N/A',
                 'case_id': purchase.case_id or purchase.supplier_bill_number or 'N/A',
-                'paid_amount': purchase.payment_amount,  # ← Pass explicitly
+                'paid_amount': purchase.payment_amount,
             }
         except Purchase.DoesNotExist:
             messages.error(request, "Invoice not found.")
@@ -772,8 +761,7 @@ def search_patients(request):
         'phone': getattr(p, 'phone_number', ''),
         'gender': getattr(p, 'gender', '')
     } for p in patients]
-    return JsonRget_patient_by_idesponse(data, safe=False)
-
+    return JsonResponse(data, safe=False)
 
 
 @login_required
@@ -818,9 +806,6 @@ def get_patient_by_id(request, patient_id):
         })
     except Patient.DoesNotExist:
         return JsonResponse({'error': 'Not found'}, status=404)
-
-
-
 
 
 @login_required
@@ -1043,3 +1028,117 @@ def add_patient_modal(request):
             'success': False,
             'message': f'Error saving patient: {str(e)}'
         }, status=500)
+
+
+# ===================================================================
+# 7. API ENDPOINTS FOR MEDICINE DROPDOWNS
+# ===================================================================
+
+@login_required
+def get_medicine_categories(request):
+    """
+    AJAX endpoint — returns all active medicine categories.
+    Used by the Add Medicine modal dropdown.
+    GET /pharmacy/api/medicine-categories/
+    """
+    categories = MedicineCategory.objects.filter(
+        is_active=True
+    ).order_by('name').values('id', 'name')
+
+    return JsonResponse(list(categories), safe=False)
+
+
+@login_required
+def get_medicine_companies(request):
+    """
+    AJAX endpoint — returns distinct manufacturer names from the Medicine table.
+    These act as 'companies' in the modal. 
+    Since there is no separate Company model, we pull from Medicine.manufacturer.
+    GET /pharmacy/api/medicine-companies/
+    """
+    manufacturers = (
+        Medicine.objects
+        .filter(is_active=True)
+        .exclude(manufacturer__isnull=True)
+        .exclude(manufacturer__exact='')
+        .values_list('manufacturer', flat=True)
+        .distinct()
+        .order_by('manufacturer')
+    )
+
+    # Return as id/name pairs — using the name as the value since there's no Company model
+    data = [{'id': name, 'name': name} for name in manufacturers]
+    return JsonResponse(data, safe=False)
+
+
+@login_required
+def get_medicine_compositions(request):
+    """
+    AJAX endpoint — returns distinct generic_name values from the Medicine table.
+    These map to 'composition' in the modal (generic_name = active ingredient).
+    GET /pharmacy/api/medicine-compositions/
+    """
+    compositions = (
+        Medicine.objects
+        .filter(is_active=True)
+        .exclude(generic_name__isnull=True)
+        .exclude(generic_name__exact='')
+        .values_list('generic_name', flat=True)
+        .distinct()
+        .order_by('generic_name')
+    )
+
+    data = [{'id': name, 'name': name} for name in compositions]
+    return JsonResponse(data, safe=False)
+
+# ===================================================================
+# 7. API ENDPOINTS FOR MEDICINE DROPDOWNS
+# ===================================================================
+
+@login_required
+def get_medicine_categories(request):
+    """
+    AJAX endpoint — returns all active medicine categories.
+    GET /pharmacy/api/medicine-categories/
+    """
+    categories = MedicineCategory.objects.filter(
+        is_active=True
+    ).order_by('name').values('id', 'name')
+    return JsonResponse(list(categories), safe=False)
+
+
+@login_required
+def get_medicine_companies(request):
+    """
+    AJAX endpoint — returns all active suppliers.
+    These act as 'companies' in the modal.
+    GET /pharmacy/api/medicine-companies/
+    """
+    suppliers = Supplier.objects.filter(
+        is_active=True
+    ).order_by('name').values('id', 'name')
+    return JsonResponse(list(suppliers), safe=False)
+
+
+@login_required
+def get_medicine_compositions(request):
+    """
+    AJAX endpoint — returns all active medicine compositions.
+    GET /pharmacy/api/medicine-compositions/
+    """
+    compositions = MedicineComposition.objects.filter(
+        is_active=True
+    ).order_by('name').values('id', 'name')
+    return JsonResponse(list(compositions), safe=False)
+
+
+@login_required
+def get_medicine_groups(request):
+    """
+    AJAX endpoint — returns all active medicine groups.
+    GET /pharmacy/api/medicine-groups/
+    """
+    groups = MedicineGroup.objects.filter(
+        is_active=True
+    ).order_by('name').values('id', 'name')
+    return JsonResponse(list(groups), safe=False)

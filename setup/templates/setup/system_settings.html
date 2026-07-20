@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block title %} System Settings | Eagles Mission Hospital{% endblock %}
+
+{% block content %}
+<style>
+  .settings-container {
+    padding: 20px;
+    width: 100%; /* Uses full available workspace width */
+    box-sizing: border-box;
+  }
+
+  .settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #990000;
+    padding-bottom: 12px;
+  }
+
+  .settings-header h1 {
+    color: #990000;
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .settings-header h1 i {
+    margin-right: 10px;
+  }
+
+  .btn-back {
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+  }
+
+  .btn-back:hover {
+    background: #5a6268;
+  }
+
+  .settings-form {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .settings-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    padding: 24px;
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .settings-card h3 {
+    margin: 0 0 16px 0;
+    color: #1e293b;
+    font-size: 16px;
+    font-weight: 700;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .settings-card h3 i {
+    color: #990000;
+    margin-right: 8px;
+  }
+
+  .form-group {
+    margin-bottom: 0; /* Handled gracefully by CSS grid gap spacing */
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 0px !important;
+    font-size: 13px;
+    box-sizing: border-box;
+    background-color: #fff;
+  }
+
+  /* Structural configuration layout grids for widescreen setups */
+  .grid-2-cols {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 4px 0;
+  }
+
+  .checkbox-label {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    font-size: 13px;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #990000;
+  }
+
+  .btn-save {
+    background: #990000;
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .btn-save:hover {
+    background: #800000;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+  }
+
+  /* Breakdowns down to tablets and mobile sizes */
+  @media (max-width: 768px) {
+    .grid-2-cols {
+      grid-template-columns: 1fr;
+    }
+
+    .settings-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .settings-header .btn-back {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+
+<div class="settings-container">
+  <div class="settings-header">
+    <h1><i class="fa fa-cogs"></i> System Settings</h1>
+    <a href="{% url 'setup:setup_home' %}" class="btn-back"><i class="fa fa-arrow-left"></i> Back</a>
+  </div>
+
+  <form method="POST" class="settings-form">
+    {% csrf_token %}
+    
+    <!-- Block 1: General Settings Setup -->
+    <div class="settings-card">
+      <h3><i class="fa fa-calendar"></i> General Settings</h3>
+      <div class="grid-2-cols">
+        <div class="form-group">
+          <label>System Timezone</label>
+          <select name="timezone">
+            <option value="Africa/Nairobi">Africa/Nairobi (EAT)</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Language</label>
+          <select name="language">
+            <option value="en">English</option>
+            <option value="sw">Swahili</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Block 2: Appointment Parameters -->
+    <div class="settings-card">
+      <h3><i class="fa fa-calendar-check-o"></i> Appointment Settings</h3>
+      <div class="grid-2-cols">
+        <div class="form-group">
+          <label>Default Appointment Duration (mins)</label>
+          <input type="number" name="appointment_duration" value="30" min="5" max="120">
+        </div>
+        <div class="form-group">
+          <label>Max Appointments Per Day</label>
+          <input type="number" name="max_appointments" value="50" min="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Block 3: Billing Parameters -->
+    <div class="settings-card">
+      <h3><i class="fa fa-credit-card"></i> Billing Settings</h3>
+      <div class="grid-2-cols">
+        <div class="form-group">
+          <label>Default Tax Rate (%)</label>
+          <input type="number" name="default_tax" value="16" step="0.01" min="0" max="100">
+        </div>
+        <div class="form-group">
+          <label>Invoice Prefix</label>
+          <input type="text" name="invoice_prefix" value="INV-">
+        </div>
+      </div>
+    </div>
+
+    <!-- Block 4: Messaging Configurations -->
+    <div class="settings-card">
+      <h3><i class="fa fa-envelope"></i> Notification Settings</h3>
+      <div class="checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" name="email_notifications" checked>
+          Enable Email Notifications
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="sms_notifications">
+          Enable SMS Notifications
+        </label>
+      </div>
+    </div>
+
+    <!-- Footer Action Tray -->
+    <div class="form-actions">
+      <button type="submit" class="btn-save"><i class="fa fa-save"></i> Save Settings</button>
+      <a href="{% url 'setup:setup_home' %}" class="btn-back">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

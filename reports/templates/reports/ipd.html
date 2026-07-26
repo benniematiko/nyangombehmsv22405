@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} IPD Reports | Eagles Mission Hospital{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<style>
+  /* ── IPD Tab Navigation Bar ── */
+  .reports-nav-container {
+    background: #ffffff;
+    border-bottom: 2px solid #990000;
+    margin-bottom: 20px;
+    padding: 10px 10px 0 10px;
+  }
+
+  .reports-nav-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .reports-nav-tabs .nav-item {
+    margin-bottom: -2px;
+  }
+
+  .reports-nav-tabs .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-bottom: none;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .reports-nav-tabs .nav-link:hover {
+    background: #f1f5f9;
+    color: #990000;
+  }
+
+  .reports-nav-tabs .nav-link.active {
+    background: #990000;
+    color: #ffffff;
+    border-color: #990000;
+  }
+
+  .reports-nav-tabs .nav-link i {
+    font-size: 15px;
+  }
+
+  /* ── Action Toolbar & Utilities ── */
+  .ledger-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .ledger-action-row h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .ledger-utility-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .search-wrapper-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .search-wrapper-block label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+  }
+
+  .search-input-field {
+    width: 100%;
+    max-width: 350px;
+    padding: 6px 12px;
+    font-size: 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 0px;
+    outline: none;
+  }
+
+  .search-input-field:focus {
+    border-color: #990000;
+  }
+
+  .export-pagination-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .entries-dropdown-select {
+    padding: 6px 10px;
+    font-size: 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 0px;
+    background: #fff;
+  }
+
+  .export-icon-buttons-container {
+    display: flex;
+    gap: 4px;
+  }
+
+  .btn-export-icon {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    color: #4a5568;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+
+  .btn-export-icon:hover {
+    background: #990000;
+    color: #fff;
+    border-color: #990000;
+  }
+
+  /* ── Status Badges & Utilities ── */
+  .badge-ipd {
+    background: #e2e8f0;
+    color: #1e293b;
+    padding: 2px 8px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .balance-due {
+    color: #c62828;
+    font-weight: 700;
+  }
+
+  .balance-clear {
+    color: #2e7d32;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .reports-nav-tabs .nav-link {
+      padding: 8px 12px;
+      font-size: 12px;
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="pharmacy-container-layout template-fullwidth-override">
+  
+  <!-- Header Section -->
+  <div class="pharmacy-panel-header">
+    <div class="panel-title-group">
+      <h1><i class="fa fa-bed"></i> Inpatient Department (IPD) Reports</h1>
+      <p class="panel-subtitle">Manage inpatient admission logs, ward/bed allocations, balance statements, and discharge summaries</p>
+    </div>
+  </div>
+
+  <!-- ── 3 FLEXED REPORT NAV TABS ── -->
+  <div class="reports-nav-container">
+    <ul class="reports-nav-tabs">
+      <li class="nav-item">
+        <a href="?report_type=ipd_report{% if request.GET.per_page %}&per_page={{ request.GET.per_page }}{% endif %}" 
+           class="nav-link {% if active_report == 'ipd_report' or not active_report %}active{% endif %}">
+          <i class="fa fa-procedures"></i> IPD Report
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="?report_type=ipd_balance{% if request.GET.per_page %}&per_page={{ request.GET.per_page }}{% endif %}" 
+           class="nav-link {% if active_report == 'ipd_balance' %}active{% endif %}">
+          <i class="fa fa-money"></i> IPD Balance Report
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="?report_type=ipd_discharged{% if request.GET.per_page %}&per_page={{ request.GET.per_page }}{% endif %}" 
+           class="nav-link {% if active_report == 'ipd_discharged' %}active{% endif %}">
+          <i class="fa fa-user-check"></i> IPD Discharged Patient
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ── REPORT DISPLAY CONTAINER BELOW TABS ── -->
+  <div class="pharmacy-billing-section">
+
+    <div class="ledger-action-row">
+      <h2>
+        {% if active_report == 'ipd_balance' %}
+          IPD Patient Outstanding Balance Summary
+        {% elif active_report == 'ipd_discharged' %}
+          IPD Discharged Patient Records
+        {% else %}
+          General Inpatient Admissions Log
+        {% endif %}
+      </h2>
+      <div class="ledger-btn-group">
+        <button type="button" class="btn-hms-primary" onclick="window.print();">
+          <i class="fa fa-print"></i> Print Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Utility & Filtering Toolbar -->
+    <div class="ledger-utility-row">
+      <div class="search-wrapper-block">
+        <label for="ipdSearch">Search</label>
+        <input type="text" id="ipdSearch" class="search-input-field" placeholder="Search by IPD No, Patient, Ward, Doctor...">
+      </div>
+
+      <div class="export-pagination-group">
+        <select id="entriesPerPage" class="entries-dropdown-select" aria-label="Records display pagination configuration">
+          <option value="10" {% if request.GET.per_page == '10' %}selected{% endif %}>Display 10 records</option>
+          <option value="20" {% if request.GET.per_page == '20' or not request.GET.per_page %}selected{% endif %}>Display 20 records</option>
+          <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>Display 50 records</option>
+          <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>Display 100 records</option>
+        </select>
+        
+        <div class="export-icon-buttons-container">
+          <button type="button" class="btn-export-icon" title="Copy Table Data"><i class="fa fa-copy"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to Excel"><i class="fa fa-file-excel-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to CSV"><i class="fa fa-file-text-o"></i></button>
+          <button type="button" class="btn-export-icon" onclick="window.print();" title="Print Table"><i class="fa fa-print"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Table Area -->
+    <div class="table-fixed-container containment-fullwidth">
+      <table class="hms-table hms-billing-log-table table-element-fullwidth" id="ipdReportTable">
+        <thead>
+          <tr>
+            <th>IPD No</th>
+            <th>Patient ID</th>
+            <th>Patient Name</th>
+            <th>Gender / Age</th>
+            <th>Ward / Bed</th>
+            <th>Consultant Doctor</th>
+            <th>Admission Date</th>
+            {% if active_report == 'ipd_balance' %}
+              <th class="text-right">Total Charges (sh)</th>
+              <th class="text-right">Paid Amount (sh)</th>
+              <th class="text-right">Balance Due (sh)</th>
+            {% elif active_report == 'ipd_discharged' %}
+              <th>Discharge Date</th>
+              <th>Discharge Status</th>
+              <th>Diagnosis / Notes</th>
+            {% else %}
+              <th class="text-right">Bill Status</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in ipd_records %}
+          <tr>
+            <td><span class="badge-ipd">{{ record.ipd_number }}</span></td>
+            <td>{{ record.patient_number|default:"—" }}</td>
+            <td><strong class="patient-name-text">{{ record.patient_name }}</strong></td>
+            <td>{{ record.gender|default:"—" }} / {{ record.age|default:"—" }}</td>
+            <td>{{ record.ward_name|default:"General Ward" }} / Bed {{ record.bed_number|default:"—" }}</td>
+            <td>{{ record.doctor_name|default:"—" }}</td>
+            <td>{{ record.admission_date|date:"d/m/Y H:i" }}</td>
+
+            {% if active_report == 'ipd_balance' %}
+              <td class="text-right">{{ record.total_charge|floatformat:2 }}</td>
+              <td class="text-right">{{ record.paid_amount|floatformat:2 }}</td>
+              <td class="text-right balance-due">{{ record.balance_due|floatformat:2 }}</td>
+            {% elif active_report == 'ipd_discharged' %}
+              <td>{{ record.discharge_date|date:"d/m/Y H:i"|default:"—" }}</td>
+              <td><span class="badge-ipd">{{ record.discharge_status|default:"Discharged" }}</span></td>
+              <td>{{ record.notes|truncatechars:35|default:"Routine IPD discharge" }}</td>
+            {% else %}
+              <td class="text-right">
+                {% if record.balance_due <= 0 %}
+                  <span class="balance-clear">Cleared</span>
+                {% else %}
+                  <span class="balance-due">Pending (sh {{ record.balance_due|floatformat:2 }})</span>
+                {% endif %}
+              </td>
+            {% endif %}
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="10" class="empty-table-placeholder" style="text-align:center; padding:30px; color:#718096;">
+              No inpatient records found for this view.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Section -->
+    <div class="ledger-pagination-row" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+      <div class="pagination-counter-info">
+        Records: <strong>{{ ipd_records.start_index|default:0 }}</strong> to <strong>{{ ipd_records.end_index|default:0 }}</strong> of <strong>{{ total_records|default:0 }}</strong>
+      </div>
+      <div class="pagination-nav-controls" style="display:flex; gap:4px;">
+        {% if ipd_records.has_previous %}
+          <a href="?report_type={{ active_report|default:'ipd_report' }}&page=1&per_page={{ request.GET.per_page|default:20 }}" class="btn-export-icon"><i class="fa fa-angle-double-left"></i></a>
+          <a href="?report_type={{ active_report|default:'ipd_report' }}&page={{ ipd_records.previous_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-export-icon"><i class="fa fa-angle-left"></i></a>
+        {% endif %}
+        
+        <span style="padding:6px 12px; background:#990000; color:#fff; font-size:13px; font-weight:600;">
+          {{ ipd_records.number|default:1 }}
+        </span>
+
+        {% if ipd_records.has_next %}
+          <a href="?report_type={{ active_report|default:'ipd_report' }}&page={{ ipd_records.next_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-export-icon"><i class="fa fa-angle-right"></i></a>
+          <a href="?report_type={{ active_report|default:'ipd_report' }}&page={{ ipd_records.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-export-icon"><i class="fa fa-angle-double-right"></i></a>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    
+    // Client-side table search filter
+    const searchInput = document.getElementById('ipdSearch');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#ipdReportTable tbody tr');
+        
+        rows.forEach(row => {
+          if (row.querySelector('.empty-table-placeholder')) return;
+          const rowText = row.textContent.toLowerCase();
+          row.style.display = rowText.includes(searchTerm) ? '' : 'none';
+        });
+      });
+    }
+
+    // Per-page records select handler
+    const entriesPerPage = document.getElementById('entriesPerPage');
+    if (entriesPerPage) {
+      entriesPerPage.addEventListener('change', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('per_page', this.value);
+        urlParams.set('page', '1');
+        window.location.href = `?${urlParams.toString()}`;
+      });
+    }
+  });
+</script>
+
+{% endblock %}

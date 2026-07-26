@@ -6,12 +6,35 @@ app_name = 'setup'
 urlpatterns = [
     # Dashboard
     path('', views.setup_home, name='setup_home'),
+    path('patientsetup/', views.patient_setup, name='patient_setup'),
     
     # ============================================================
     # CORE ADMINISTRATION
     # ============================================================
     
     # Hospital Settings
+    path('hospitalcharges/', views.hospital_charges, name='hospital_charges'),
+
+    path('bedsetup/', views.bed_setup, name='bed_setup'),
+    path('printheaderfooter/', views.print_header_footer, name='print_header_footer'),
+    path('frontofficesetup/', views.front_office_setup, name='front_office_setup'),
+    path('operationssetup/', views.operations_setup, name='operations_setup'),
+    path('pharmacysetup/', views.pharmacy_setup, name='pharmacy_setup'),
+
+    path('laboratorysetup/', views.laboratory_setup, name='laboratory_setup'),
+    path('radiologysetup/', views.radiology_setup, name='radiology_setup'),
+    path('bloodbanksetup/', views.bloodbank_setup, name='bloodbank_setup'),
+    path('symptomssetup/', views.symptoms_setup, name='symptoms_setup'),
+    path('findingssetup/', views.findings_setup, name='findings_setup'),
+    path('vitalssetup/', views.vitals_setup, name='vitals_setup'),
+    path('zoomsettings/', views.zoom_settings, name='zoom_settings'),
+    path('financesetup/', views.finance_setup, name='finance_setup'),
+    path('hrsetup/', views.hr_setup, name='hr_setup'),
+    path('referralsetup/', views.referral_setup, name='referral_setup'),
+    path('appointmentsetup/', views.appointment_setup, name='appointment_setup'),
+    path('inventorysetup/', views.inventory_setup, name='inventory_setup'),
+    path('customfields/', views.custom_fields, name='custom_fields'),
+
     path('hospital-settings/', views.hospital_settings, name='hospital_settings'),
     
     # System Settings
@@ -84,4 +107,7 @@ urlpatterns = [
     
     # Audit Logs
     path('audit-logs/', views.audit_logs, name='audit_logs'),
+
+
+     path('addpatient/', views.add_patient, name='add_patient'),
 ]

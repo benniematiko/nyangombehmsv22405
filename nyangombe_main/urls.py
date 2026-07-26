@@ -20,6 +20,24 @@ urlpatterns = [
     path('patients/', include('patients.urls')),  # This creates the /patients/ prefix
     path('finance/', include('finance.urls')),
     path('inventory/', include('inventory.urls')),
+    path('bloodbank/', include('bloodbank.urls')),
+    path('ambulance/', include('ambulance.urls')),
+    path('insurance/', include('insurance.urls')),
+    path('frontoffice/', include('frontoffice.urls')),
+
+    path('birthdeath/', include('birthdeath.urls')),
+    path('hr/', include('hr.urls')),
+    path('dutyroster/', include('dutyroster.urls')),
+
+    path('messaging/', include('messaging.urls')),
+    path('download-center/', include('downloadcenter.urls')),
+    path('certificates/', include('certificate.urls')),
+    path('cms/', include('frontcms.urls')),
+    path('live-consultation/', include('liveconsultation.urls')),
+
+    path('referrals/', include('referrals.urls')),
+    path('annualcalendar/', include('annualcalendar.urls')),
+    path('reports/', include('reports.urls')),
     path('setup/', include('setup.urls')),
     
     

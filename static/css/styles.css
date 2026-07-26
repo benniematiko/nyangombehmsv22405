@@ -359,14 +359,14 @@ body {
     padding: 24px;
 }
 
-.sidebar-menu { 
-    list-style-type: none; 
-    padding: 0 0 12px 0;  
-    margin: 0; 
+.sidebar-menu {
+    list-style-type: none;
+    padding: 0 0 12px 0;
+    margin: 0;
 }
 
-.sidebar-menu li { 
-    padding: 2px 0; 
+.sidebar-menu li {
+    padding: 2px 0;
 }
 
 .sidebar-menu a {
@@ -446,9 +446,9 @@ body {
 
 .panel-title-group h1 i { color: #810810; }
 
-.panel-subtitle { 
-    font-size: 12px; 
-    color: #64748b; 
+.panel-subtitle {
+    font-size: 12px;
+    color: #64748b;
     margin: 4px 0 0 0;
 }
 
@@ -509,7 +509,7 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.btn-hms-primary:hover { 
+.btn-hms-primary:hover {
     background-color: #61040a;
     color: #ffffff;
     text-decoration: none;
@@ -812,14 +812,14 @@ body {
 /* Table micro-utilities */
 .text-right    { text-align: right; }
 .qty-bold      { font-weight: 700; color: #0f172a; font-family: monospace; font-size: 13px; }
-.badge-bill    { 
-    background-color: #e0f2fe; 
-    color: #0369a1; 
-    padding: 3px 8px; 
-    border-radius: 4px; 
-    font-weight: 700; 
-    font-family: monospace; 
-    font-size: 11px; 
+.badge-bill    {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 11px;
     display: inline-block;
     white-space: nowrap;
 }
@@ -944,8 +944,8 @@ body {
     font-size: 16px;
 }
 
-.hms-alert-container { 
-    margin: 0 0 20px 0; 
+.hms-alert-container {
+    margin: 0 0 20px 0;
 }
 
 .hms-alert-banner {
@@ -1018,7 +1018,7 @@ body {
 }
 
 #medicine-ledger-rows .purchase-single-ledger-row:first-child .alignment-control-wrapper {
-    margin-top: 24px; 
+    margin-top: 24px;
 }
 
 #medicine-ledger-rows .purchase-single-ledger-row .alignment-control-wrapper {
@@ -1696,11 +1696,11 @@ body {
     .hms-purchase-table .col-supplier {
         min-width: 120px;
     }
-    
+
     .hms-purchase-table .col-net {
         min-width: 150px;
     }
-    
+
     .hms-purchase-table td:last-child {
         padding-right: 100px;
     }
@@ -1710,7 +1710,7 @@ body {
     .containment-fullwidth {
         overflow-x: auto;
     }
-    
+
     .hms-purchase-table {
         min-width: 900px;
     }
@@ -1733,63 +1733,108 @@ body {
     .footer {
         display: none !important;
     }
-    
+
     .pharmacy-billing-section {
         padding: 0;
         border: none;
     }
-    
+
     .hms-purchase-table th,
     .hms-purchase-table td {
         border: 1px solid #ddd;
     }
-    
+
     .grid {
         grid-template-columns: 1fr !important;
     }
-    
+
     .content {
         padding: 0 !important;
     }
 }
 
-
-
 /* ==========================================================================
-   SIDEBAR SUBMENU / ACCORDION SYSTEM
+   9. SIDEBAR SUBMENU / ACCORDION SYSTEM (rebuilt — button-based triggers,
+      display:none/block panels, no max-height guesswork)
    ========================================================================== */
 
-/* Arrow icon inside the trigger link */
+/* Trigger button — visually identical to a .sidebar-menu a, but a real
+   <button> so no anchor default-behavior or href="#" jump/scroll fights
+   with the click handler. `all: unset` strips default button chrome,
+   then we re-apply the sidebar link look. */
+.submenu-trigger {
+    all: unset;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 16px;
+    color: black;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out;
+}
+
+.submenu-trigger:hover {
+    background-color: #810810;
+    color: #ffffff;
+}
+
+.submenu-trigger i:first-child {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    color: #475569;
+    transition: color 0.2s ease-in-out;
+}
+
+.submenu-trigger:hover i {
+    color: #ffffff;
+}
+
+/* Arrow icon inside the trigger */
 .submenu-arrow {
-    margin-left: auto;          /* pushes it to the far right */
+    margin-left: auto;
     font-size: 11px !important;
     transition: transform 0.25s ease;
     color: #94a3b8;
 }
 
-/* Rotate arrow when open */
-.has-submenu.submenu-open > a .submenu-arrow {
+.submenu-trigger:hover .submenu-arrow {
+    color: #ffffff;
+}
+
+/* Rotate arrow + highlight trigger when its submenu is open */
+.has-submenu.submenu-open > .submenu-trigger .submenu-arrow {
     transform: rotate(180deg);
     color: #ffffff;
 }
 
-/* The nested <ul> — hidden by default */
+.has-submenu.submenu-open > .submenu-trigger {
+    background-color: #810810;
+    color: #ffffff;
+}
+
+.has-submenu.submenu-open > .submenu-trigger i {
+    color: #ffffff;
+}
+
+/* The nested <ul> — hidden by default via display:none, no transition
+   dependency on a guessed max-height value */
 .sidebar-submenu {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease, opacity 0.3s ease;
-    opacity: 0;
+    display: none;
     background-color: #f1f5f9;
     border-left: 3px solid #810810;
 }
 
 /* Open state */
 .has-submenu.submenu-open > .sidebar-submenu {
-    max-height: 300px;   /* tall enough for any submenu */
-    opacity: 1;
+    display: block;
 }
 
 /* Submenu items */
@@ -1798,10 +1843,14 @@ body {
 }
 
 .sidebar-submenu a {
+    display: flex;
+    align-items: center;
     padding: 9px 16px 9px 32px;  /* indent to show hierarchy */
     font-size: 13px;
     color: #475569;
+    text-decoration: none;
     gap: 10px;
+    transition: all 0.2s ease-in-out;
 }
 
 .sidebar-submenu a i {
@@ -1819,18 +1868,3 @@ body {
 .sidebar-submenu a.active i {
     color: #ffffff;
 }
-
-/* Parent link highlight when submenu is open (but not full active bg) */
-.has-submenu.submenu-open > a {
-    background-color: #810810;
-    color: #ffffff;
-}
-
-.has-submenu.submenu-open > a i {
-    color: #ffffff;
-}
-
-
-
-
-

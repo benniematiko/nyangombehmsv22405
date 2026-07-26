@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Blood Bank Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Blood Bank Management</h1>
+    
+    <!-- Statistics Cards -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Donors</h5>
+                    <h2 class="card-text">{{ total_donors }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Available Donors</h5>
+                    <h2 class="card-text">{{ available_donors }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Total Donations</h5>
+                    <h2 class="card-text">{{ total_donations }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Requests</h5>
+                    <h2 class="card-text">{{ pending_requests }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Blood Stock -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Blood Stock Levels</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for stock in blood_stocks %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card {% if stock.is_critical %}border-danger{% elif stock.is_low %}border-warning{% endif %}">
+                                <div class="card-body text-center">
+                                    <h3>{{ stock.blood_type }}</h3>
+                                    <p>{{ stock.quantity_ml }} ml</p>
+                                    <div class="progress">
+                                        <div class="progress-bar {% if stock.is_critical %}bg-danger{% elif stock.is_low %}bg-warning{% else %}bg-success{% endif %}" 
+                                             style="width: {{ stock.get_percentage }}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p>No blood stock records found.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Donations and Urgent Requests -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Recent Donations</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for donation in recent_donations %}
+                        <li class="list-group-item">
+                            {{ donation.donor.get_full_name }} - {{ donation.blood_type }}
+                            ({{ donation.quantity_ml }}ml)
+                            <small class="text-muted">{{ donation.donation_date|date:"M d, Y" }}</small>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No recent donations</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Urgent Blood Requests</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for request in urgent_requests %}
+                        <li class="list-group-item list-group-item-danger">
+                            {{ request.patient_name }} - {{ request.blood_type }}
+                            ({{ request.quantity_ml }}ml)
+                            <small class="text-muted">By: {{ request.required_by|date:"M d, Y" }}</small>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No urgent requests</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

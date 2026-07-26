@@ -20,15 +20,216 @@ def setup_home(request):
     }
     return render(request, 'setup/setup_home.html', context)
 
+@login_required
+def patient_setup(request):
+    """Setup patient setup """    
+    context = {
+        # Existing counts (if any)        
+    }
+    return render(request, 'setup/patient_setup.html', context)
+
+
+
+@login_required
+def front_office_setup(request):
+    """Setup office setup """    
+    context = {
+        # Existing counts (if any)        
+    }
+    return render(request, 'setup/front_office_setup.html', context)
+
+@login_required
+def operations_setup(request):
+    """Setup office setup """    
+    context = {
+        # Existing counts (if any)        
+    }
+    return render(request, 'setup/operations_setup.html', context)
+
+
+@login_required
+def pharmacy_setup(request):
+    """Setup office setup """    
+    context = {
+        # Existing counts (if any)        
+    }
+    return render(request, 'setup/pharmacy_setup.html', context)
+
+
+@login_required
+def pharmacy_setup(request):
+    """Setup office setup """    
+    context = {
+        # Existing counts (if any)        
+    }
+    return render(request, 'setup/pharmacy_setup.html', context)
+
+@login_required
+def laboratory_setup(request):
+    """Setup laboratory setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/laboratory_setup.html', context)
+
+
+@login_required
+def radiology_setup(request):
+    """Setup radiology setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/radiology_setup.html', context)
+
+
+@login_required
+def bloodbank_setup(request):
+    """Setup blood bank setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/bloodbank_setup.html', context)
+
+
+@login_required
+def symptoms_setup(request):
+    """Setup symptoms setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/symptoms_setup.html', context)
+
+
+@login_required
+def findings_setup(request):
+    """Setup findings setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/findings_setup.html', context)
+
+
+@login_required
+def vitals_setup(request):
+    """Setup vitals setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/vitals_setup.html', context)
+
+
+@login_required
+def zoom_settings(request):
+    """Setup zoom settings"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/zoom_settings.html', context)
+
+
+@login_required
+def finance_setup(request):
+    """Setup finance setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/finance_setup.html', context)
+
+
+@login_required
+def hr_setup(request):
+    """Setup HR setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/hr_setup.html', context)
+
+
+@login_required
+def referral_setup(request):
+    """Setup referral setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/referral_setup.html', context)
+
+
+@login_required
+def appointment_setup(request):
+    """Setup appointment setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/appointment_setup.html', context)
+
+
+@login_required
+def inventory_setup(request):
+    """Setup inventory setup"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/inventory_setup.html', context)
+
+
+@login_required
+def custom_fields(request):
+    """Setup custom fields"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/custom_fields.html', context)
+
+
+@login_required
+def add_patient(request):
+    """Setup custom fields"""
+    context = {
+        # Existing counts / config (if any)
+    }
+    return render(request, 'setup/add_patient.html', context)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ============================================================
 # CORE ADMINISTRATION
 # ============================================================
 
 @login_required
+def hospital_charges(request):
+    """Manage hospital settings."""
+    return render(request, 'setup/hospital_charges.html')
+
+
+@login_required
+def bed_setup(request):
+    """Manage hospital settings."""
+    return render(request, 'setup/bed_setup.html')
+
+@login_required
 def hospital_settings(request):
     """Manage hospital settings."""
     return render(request, 'setup/hospital_settings.html')
+
+
+@login_required
+def print_header_footer(request):
+    """Manage hospital settings."""
+    return render(request, 'setup/print_header_footer.html')
 
 
 @login_required

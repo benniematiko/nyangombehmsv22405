@@ -14,6 +14,10 @@ urlpatterns = [
     
     # Generate page (if you still need it)
     path('generate/', views.generate_consultation, name='generate_consultation'),
+
+
+    path('print/<int:visit_id>/', views.print_invoice, name='print_invoice'),
+    path('pdf/<int:visit_id>/', views.download_pdf_invoice, name='download_pdf_invoice'),
     
     # Invoice & Other actions
     path('print/<int:visit_id>/', views.print_invoice, name='print_invoice'),

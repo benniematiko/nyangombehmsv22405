@@ -1,0 +1,138 @@
+{% extends 'setup/setup_home.html' %}
+
+{% block pane_title %}Attendance Setting{% endblock %}
+{% block pane_desc %}Configure biometric attendance and the time rules for each role.{% endblock %}
+
+{% block settings_content %}
+
+<style>
+    .at-card { border: 1px solid #e2e8f0; background: #fff; margin-bottom: 20px; }
+    .at-card-head {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 12px 16px; background: #f5f5f5; border-bottom: 1px solid #e2e8f0;
+        font-size: 13px; font-weight: 700; color: #1e293b;
+    }
+    .at-card-body { padding: 16px; }
+    .at-title { font-size: 16px; font-weight: 400; color: #1e293b; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; margin: 0; }
+
+    .btn-dark {
+        background: #22232b; color: #fff; border: none; border-radius: 0;
+        padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .btn-dark:hover { background: #3a3b45; }
+
+    /* Biometric block */
+    .bio-row { display: grid; grid-template-columns: 220px 1fr; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .bio-row > label { font-size: 12.5px; font-weight: 600; color: #334155; }
+    .bio-row input[type="text"] {
+        width: 100%; padding: 9px 12px; font-size: 13px;
+        border: 1px solid #cbd5e1; border-radius: 0; outline: none;
+    }
+    .bio-row input[type="text"]:focus { border-color: #810810; }
+    .radio-group { display: flex; gap: 22px; }
+    .radio-group label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; cursor: pointer; }
+    .radio-group input { accent-color: #810810; }
+    .bio-footer { border-top: 1px solid #e2e8f0; padding: 12px 16px; text-align: right; }
+
+    /* Role grid */
+    .at-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 12px 30px; align-items: center; }
+    .at-grid .th { font-size: 12.5px; font-weight: 700; color: #334155; }
+    .at-grid .type { font-size: 12.5px; color: #334155; }
+    .code-P { color: #16a34a; } .code-L { color: #b45309; } .code-F { color: #a16207; } .code-SH { color: #854d0e; }
+
+    .time-box { display: flex; }
+    .time-box input {
+        flex: 1; min-width: 0; padding: 8px 10px; font-size: 13px; color: #334155;
+        border: 1px solid #cbd5e1; border-right: none; border-radius: 0; outline: none;
+    }
+    .time-box input:focus { border-color: #810810; }
+    .time-box input::-webkit-calendar-picker-indicator { display: none; }
+    .time-box button {
+        width: 34px; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569;
+        border-radius: 0; cursor: pointer;
+    }
+    .time-box button:hover { background: #eef2f7; }
+
+    @media (max-width: 992px) {
+        .at-grid { grid-template-columns: 1fr; gap: 6px; }
+        .at-grid .th { display: none; }
+        .bio-row { grid-template-columns: 1fr; }
+    }
+</style>
+
+<!-- ===================== BIOMETRIC ===================== -->
+<div class="at-card">
+    <h3 class="at-title">Biometric Attendance Setting</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="biometric">
+        <div class="at-card-body">
+            <div class="bio-row">
+                <label>Biometric Attendance</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="biometric" value="disabled" checked> Disabled</label>
+                    <label><input type="radio" name="biometric" value="enabled"> Enabled</label>
+                </div>
+            </div>
+            <div class="bio-row">
+                <label for="devices">Devices (Separate By Comma)</label>
+                <input type="text" id="devices" name="devices">
+            </div>
+        </div>
+        <div class="bio-footer"><button type="submit" class="btn-dark">Save</button></div>
+    </form>
+</div>
+
+<!-- ===================== ATTENDANCE PER ROLE ===================== -->
+<h3 class="at-title" style="border:1px solid #e2e8f0; border-bottom:none; background:#fff;">Attendance Setting</h3>
+
+{% for role in roles %}
+<form method="post" class="at-card" style="margin-bottom:16px;">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="role">
+    <input type="hidden" name="role" value="{{ role.slug }}">
+
+    <div class="at-card-head">
+        <span>Role: {{ role.name }}</span>
+        <button type="submit" class="btn-dark">Update</button>
+    </div>
+
+    <div class="at-card-body">
+        <div class="at-grid">
+            <div class="th">Attendance Type</div>
+            <div class="th">Entry From (hh:mm:ss)</div>
+            <div class="th">Entry Upto (hh:mm:ss)</div>
+            <div class="th">Total Hour</div>
+
+            {% for t in types %}
+            <div class="type">{{ t.label }} (<span class="code-{{ t.code }}">{{ t.code }}</span>)</div>
+
+            <div class="time-box">
+                <input type="time" step="1" name="{{ role.slug }}_{{ t.code|lower }}_from">
+                <button type="button" class="pick-time"><i class="fa fa-clock-o"></i></button>
+            </div>
+            <div class="time-box">
+                <input type="time" step="1" name="{{ role.slug }}_{{ t.code|lower }}_upto">
+                <button type="button" class="pick-time"><i class="fa fa-clock-o"></i></button>
+            </div>
+            <div class="time-box">
+                <input type="time" step="1" name="{{ role.slug }}_{{ t.code|lower }}_total">
+                <button type="button" class="pick-time"><i class="fa fa-clock-o"></i></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</form>
+{% endfor %}
+
+<script>
+    // Clock icon opens the time picker of the input beside it
+    document.querySelectorAll('.pick-time').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = btn.previousElementSibling;
+            if (input.showPicker) { input.showPicker(); } else { input.focus(); }
+        });
+    });
+</script>
+
+{% endblock %}

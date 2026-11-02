@@ -107,3 +107,9 @@ class PatientVisit(models.Model):
 
     def __str__(self):
         return f"Case {self.case_id} — {self.patient.full_name}"
+
+
+@property
+def balance(self):
+    """Calculate balance amount"""
+    return max(0, self.subtotal_base - self.paid_amount)

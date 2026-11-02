@@ -1,853 +1,116 @@
 {% extends "base.html" %}
-{% block title %} System Setup | Eagles Mission Hospital{% endblock %}
+{% block title %}System Setup | Eagles Mission Hospital{% endblock %}
 
 {% block content %}
 
 <style>
-  .setup-container {
-    padding: 24px;
-    background: #f8fafc;
-    min-height: calc(100vh - 60px);
-    font-family: inherit;
-  }
+  .setup-container { padding: 24px; background: #f8fafc; min-height: calc(100vh - 60px); }
 
   .setup-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #990000;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #990000;
   }
+  .setup-header h1 { font-size: 22px; font-weight: 700; color: #1e293b; margin: 0; }
+  .setup-header h1 i { color: #990000; margin-right: 8px; }
 
-  .setup-header h1 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #1e293b;
-    margin: 0;
-  }
+  /* TWO COLUMNS */
+  .setup-layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start; }
 
-  .setup-header h1 i {
-    color: #990000;
-    margin-right: 8px;
-  }
-
-  /* Two Column Split Layout */
-  .setup-layout {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 24px;
-    align-items: start;
-  }
-
-  /* Left Column: Sidebar Nav */
-  .setup-sidebar {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-
-  .setup-nav-group {
-    border-bottom: 1px solid #f1f5f9;
-  }
-
+  /* LEFT COLUMN */
+  .setup-sidebar { background: #fff; border: 1px solid #e2e8f0; border-radius: 0; }
+  .setup-nav-group { border-bottom: 1px solid #f1f5f9; }
   .setup-nav-header {
-    padding: 10px 16px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #64748b;
-    background: #f8fafc;
+    padding: 10px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .5px; color: #64748b; background: #f8fafc;
   }
-
   .setup-nav-link {
-    display: flex;
-    align-items: center;
-    padding: 11px 16px;
-    font-size: 13.5px;
-    color: #334155;
-    text-decoration: none;
-    transition: all 0.15s ease;
-    border-left: 3px solid transparent;
+    display: flex; align-items: center; padding: 11px 16px; font-size: 13.5px;
+    color: #334155; text-decoration: none; border-left: 3px solid transparent;
   }
+  .setup-nav-link i { width: 20px; font-size: 14px; color: #64748b; margin-right: 10px; }
+  .setup-nav-link:hover { background: #fff5f5; color: #990000; }
+  .setup-nav-link:hover i { color: #990000; }
+  .setup-nav-link.active { background: #fff0f0; color: #990000; font-weight: 600; border-left-color: #990000; }
+  .setup-nav-link.active i { color: #990000; }
 
-  .setup-nav-link i {
-    width: 20px;
-    font-size: 14px;
-    color: #64748b;
-    margin-right: 10px;
-  }
+  /* RIGHT COLUMN */
+  .setup-content-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 0; padding: 24px; min-height: 520px; }
+  .pane-header { margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .pane-header h2 { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0 0 4px; }
+  .pane-header p { font-size: 13px; color: #64748b; margin: 0; }
 
-  .setup-nav-link:hover {
-    background: #fff5f5;
-    color: #990000;
-  }
-
-  .setup-nav-link:hover i {
-    color: #990000;
-  }
-
-  .setup-nav-link.active {
-    background: #fff0f0;
-    color: #990000;
-    font-weight: 600;
-    border-left-color: #990000;
-  }
-
-  .setup-nav-link.active i {
-    color: #990000;
-  }
-
-  /* Right Column: Settings Detail Area */
-  .setup-content-panel {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    padding: 24px;
-    min-height: 520px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-
-  .setting-pane {
-    display: none;
-  }
-
-  .setting-pane.active {
-    display: block;
-  }
-
-  .pane-header {
-    margin-bottom: 24px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .pane-header h2 {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1e293b;
-    margin: 0 0 4px 0;
-  }
-
-  .pane-header p {
-    font-size: 13px;
-    color: #64748b;
-    margin: 0;
-  }
-
-  /* Form Elements & Layout Controls */
-  .form-row-single {
-    margin-bottom: 18px;
-  }
-
-  .form-row-2col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 18px;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-group label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #334155;
-    margin-bottom: 6px;
-  }
-
-  .required-asterisk {
-    color: #dc2626;
-    margin-left: 2px;
-  }
-
-  .form-control {
-    width: 100%;
-    padding: 9px 12px;
-    font-size: 13.5px;
-    color: #1e293b;
-    background-color: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 5px;
-    box-sizing: border-box;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .form-control:focus {
-    outline: none;
-    border-color: #990000;
-    box-shadow: 0 0 0 3px rgba(153, 0, 0, 0.1);
-  }
-
-  textarea.form-control {
-    resize: vertical;
-    min-height: 72px;
-  }
-
-  /* Nested Grid for Currency Block */
-  .nested-grid-box {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    padding: 16px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .nested-column {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  /* File Input with Inline Trigger */
-  .file-inline-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .btn-link-action {
-    background: none;
-    border: none;
-    color: #990000;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: underline;
-    padding: 0;
-  }
-
-  .btn-link-action:hover {
-    color: #700000;
-  }
-
-  /* Buttons */
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background-color: #ffffff;
-    color: #334155;
-    border: 1px solid #cbd5e1;
-    border-radius: 5px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .btn-secondary:hover {
-    background-color: #f1f5f9;
-    border-color: #94a3b8;
-  }
-
-  .btn-submit-primary {
-    padding: 10px 24px;
-    background-color: #990000;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-  }
-
-  .btn-submit-primary:hover {
-    background-color: #770000;
-  }
-
-  /* Color Input Picker Row */
-  .color-picker-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .color-picker-group input[type="color"] {
-    -webkit-appearance: none;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    width: 38px;
-    height: 38px;
-    padding: 2px;
-    background-color: #ffffff;
-    cursor: pointer;
-  }
-
-  /* Radio Option Cards */
-  .miscellaneous-subrow {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-  }
-
-  .radio-inline-group {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin-top: 4px;
-  }
-
-  .radio-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: #334155;
-    cursor: pointer;
-    font-weight: 500;
-  }
-
-  .radio-label input[type="radio"] {
-    accent-color: #990000;
-    width: 15px;
-    height: 15px;
-  }
-
-  /* Theme Pills */
-  .theme-pills-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .theme-pill-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    background-color: #ffffff;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    color: #334155;
-    transition: all 0.15s ease;
-  }
-
-  .theme-pill-label:hover {
-    border-color: #94a3b8;
-    background-color: #f8fafc;
-  }
-
-  .theme-pill-label input[type="radio"] {
-    accent-color: #990000;
-  }
-
-  .form-actions-row {
-    margin-top: 24px;
-    padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  @media (max-width: 992px) {
-    .setup-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .form-row-2col,
-    .nested-grid-box,
-    .miscellaneous-subrow {
-      grid-template-columns: 1fr;
-    }
-  }
+  @media (max-width: 992px) { .setup-layout { grid-template-columns: 1fr; } }
 </style>
 
 <div class="setup-container">
-  
+
   <div class="setup-header">
     <h1><i class="fa fa-gears"></i> System Setup</h1>
-    <span style="font-size:13px; color:#64748b;">
-      <i class="fa fa-clock-o"></i> Last updated: {% now "d/m/Y H:i" %}
-    </span>
   </div>
 
   <div class="setup-layout">
 
-    <!-- LEFT COLUMN: SIDEBAR MENU -->
-    <aside class="setup-sidebar">
-      
+    <!-- LEFT COLUMN -->
+    <aside class="setup-sidebar" id="setupNav">
+
       <div class="setup-nav-group">
         <div class="setup-nav-header">General Configuration</div>
-        <a href="#general-setting" class="setup-nav-link active" onclick="switchSetting(event, 'general-setting')">
-          <i class="fa fa-sliders"></i> General Setting
-        </a>
-        <a href="#attendance-setting" class="setup-nav-link" onclick="switchSetting(event, 'attendance-setting')">
-          <i class="fa fa-calendar-check-o"></i> Attendance Setting
-        </a>
-        <a href="#notification-setting" class="setup-nav-link" onclick="switchSetting(event, 'notification-setting')">
-          <i class="fa fa-bell"></i> Notification Setting
-        </a>
-        <a href="#system-notification" class="setup-nav-link" onclick="switchSetting(event, 'system-notification')">
-          <i class="fa fa-desktop"></i> System Notification Setting
-        </a>
-        <a href="#sms-setting" class="setup-nav-link" onclick="switchSetting(event, 'sms-setting')">
-          <i class="fa fa-commenting"></i> SMS Setting
-        </a>
-        <a href="#email-setting" class="setup-nav-link" onclick="switchSetting(event, 'email-setting')">
-          <i class="fa fa-envelope"></i> Email Setting
-        </a>
+
+        <a href="{% url 'setup:general_settings' %}" class="setup-nav-link"><i class="fa fa-sliders"></i> General Setting</a>
+        <a href="{% url 'setup:attendance_settings' %}" class="setup-nav-link"><i class="fa fa-calendar-check-o"></i> Attendance Setting</a>
+        
+       
+       <a href="{% url 'setup:notification_settings' %}" class="setup-nav-link"><i class="fa fa-bell"></i> Notification Setting</a>
+       
+       
+       
+       <a href="/admin/notification/system_notification_setting" class="setup-nav-link"><i class="fa fa-desktop"></i> System Notification Setting</a>
+        
+       
+       <a href="/smsconfig" class="setup-nav-link"><i class="fa fa-commenting"></i> SMS Setting</a>
+        <a href="/emailconfig" class="setup-nav-link"><i class="fa fa-envelope"></i> Email Setting</a>
       </div>
 
       <div class="setup-nav-group">
-        <div class="setup-nav-header">Finance & Web</div>
-        <a href="#payment-methods" class="setup-nav-link" onclick="switchSetting(event, 'payment-methods')">
-          <i class="fa fa-credit-card"></i> Payment Methods
-        </a>
-        <a href="#front-cms" class="setup-nav-link" onclick="switchSetting(event, 'front-cms')">
-          <i class="fa fa-globe"></i> Front CMS Setting
-        </a>
-        <a href="#prefix-setting" class="setup-nav-link" onclick="switchSetting(event, 'prefix-setting')">
-          <i class="fa fa-hashtag"></i> Prefix Setting
-        </a>
+        <div class="setup-nav-header">Finance &amp; Web</div>
+        <a href="/admin/paymentsettings" class="setup-nav-link"><i class="fa fa-credit-card"></i> Payment Methods</a>
+        <a href="/admin/frontcms" class="setup-nav-link"><i class="fa fa-globe"></i> Front CMS Setting</a>
+        <a href="/admin/prefix" class="setup-nav-link"><i class="fa fa-hashtag"></i> Prefix Setting</a>
       </div>
 
       <div class="setup-nav-group">
-        <div class="setup-nav-header">System & Security</div>
-        <a href="#roles-permissions" class="setup-nav-link" onclick="switchSetting(event, 'roles-permissions')">
-          <i class="fa fa-shield"></i> Roles &amp; Permissions
-        </a>
-        <a href="#backup-restore" class="setup-nav-link" onclick="switchSetting(event, 'backup-restore')">
-          <i class="fa fa-database"></i> Backup / Restore
-        </a>
-        <a href="#languages" class="setup-nav-link" onclick="switchSetting(event, 'languages')">
-          <i class="fa fa-language"></i> Languages
-        </a>
-        <a href="#users" class="setup-nav-link" onclick="switchSetting(event, 'users')">
-          <i class="fa fa-users"></i> Users
-        </a>
-        <a href="#captcha-settings" class="setup-nav-link" onclick="switchSetting(event, 'captcha-settings')">
-          <i class="fa fa-check-square-o"></i> Captcha Settings
-        </a>
-        <a href="#modules" class="setup-nav-link" onclick="switchSetting(event, 'modules')">
-          <i class="fa fa-cubes"></i> Modules
-        </a>
-        <a href="#system-update" class="setup-nav-link" onclick="switchSetting(event, 'system-update')">
-          <i class="fa fa-refresh"></i> System Update
-        </a>
+        <div class="setup-nav-header">System &amp; Security</div>
+        <a href="/admin/roles" class="setup-nav-link"><i class="fa fa-shield"></i> Roles &amp; Permissions</a>
+        <a href="/admin/admin/backup" class="setup-nav-link"><i class="fa fa-database"></i> Backup / Restore</a>
+        <a href="/admin/language" class="setup-nav-link"><i class="fa fa-language"></i> Languages</a>
+        <a href="/admin/users" class="setup-nav-link"><i class="fa fa-users"></i> Users</a>
+        <a href="/admin/captcha" class="setup-nav-link"><i class="fa fa-check-square-o"></i> Captcha Settings</a>
+        <a href="/admin/module" class="setup-nav-link"><i class="fa fa-cubes"></i> Modules</a>
+        <a href="/admin/updater" class="setup-nav-link"><i class="fa fa-refresh"></i> System Update</a>
       </div>
 
     </aside>
 
-    <!-- RIGHT COLUMN: CONTENT PANELS -->
+    <!-- RIGHT COLUMN -->
     <main class="setup-content-panel">
-
-      <!-- 1. General Setting -->
-      <div id="general-setting" class="setting-pane active">
-        <div class="pane-header">
-          <h2>General Setting</h2>
-          <p>Manage fundamental site details, timezone, base currency, and hospital metadata.</p>
-        </div>
-
-        <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-
-          <!-- Row 1: Hospital Name & Hospital Code -->
-          <div class="form-row-2col">
-            <div class="form-group">
-              <label for="hospital_name">Hospital Name<span class="required-asterisk">*</span></label>
-              <input type="text" id="hospital_name" name="hospital_name" class="form-control" placeholder="Eagles Mission Hospital" required>
-            </div>
-            <div class="form-group">
-              <label for="hospital_code">Hospital Code</label>
-              <input type="text" id="hospital_code" name="hospital_code" class="form-control" placeholder="EMH-001">
-            </div>
-          </div>
-
-          <!-- Row 2: Address -->
-          <div class="form-row-single">
-            <div class="form-group">
-              <label for="address">Address<span class="required-asterisk">*</span></label>
-              <textarea id="address" name="address" class="form-control" rows="2" placeholder="Enter physical address..." required></textarea>
-            </div>
-          </div>
-
-          <!-- Row 3: Phone Number & Email -->
-          <div class="form-row-2col">
-            <div class="form-group">
-              <label for="phone_number">Phone Number</label>
-              <input type="tel" id="phone_number" name="phone_number" class="form-control" placeholder="+254 700 000 000">
-            </div>
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" class="form-control" placeholder="info@eaglesmission.org">
-            </div>
-          </div>
-
-          <!-- Row 4: Hospital Logo & Hospital Logo (Small) -->
-          <div class="form-row-2col">
-            <div class="form-group">
-              <label for="hospital_logo">Hospital Logo</label>
-              <input type="file" id="hospital_logo" name="hospital_logo" accept="image/*" class="form-control">
-            </div>
-            <div class="form-group">
-              <label for="hospital_logo_small">Hospital Logo (Small)</label>
-              <input type="file" id="hospital_logo_small" name="hospital_logo_small" accept="image/*" class="form-control">
-            </div>
-          </div>
-
-          <!-- Row 5: Language Input -->
-          <div class="form-row-single">
-            <div class="form-group">
-              <label for="language">Language<span class="required-asterisk">*</span></label>
-              <select id="language" name="language" class="form-control" required>
-                <option value="en" selected>English</option>
-                <option value="sw">Swahili</option>
-                <option value="fr">French</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Row 6: Date Format -->
-          <div class="form-row-single">
-            <div class="form-group">
-              <label for="date_format">Date Format<span class="required-asterisk">*</span></label>
-              <select id="date_format" name="date_format" class="form-control" required>
-                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Row 7: Currency (2 Rows x 2 Columns Nested) -->
-          <div class="form-row-single">
-            <div class="form-group">
-              <label>Currency &amp; Financial Settings</label>
-              <div class="nested-grid-box">
-                <!-- Left Column -->
-                <div class="nested-column">
-                  <div class="form-group">
-                    <label for="currency" style="font-size:12px;">Currency</label>
-                    <input type="text" id="currency" name="currency" class="form-control" placeholder="KES">
-                  </div>
-                  <div class="form-group">
-                    <label for="credit_limit" style="font-size:12px;">Credit Limit</label>
-                    <input type="number" step="0.01" id="credit_limit" name="credit_limit" class="form-control" placeholder="0.00">
-                  </div>
-                </div>
-                <!-- Right Column -->
-                <div class="nested-column">
-                  <div class="form-group">
-                    <label for="currency_symbol" style="font-size:12px;">Currency Symbol</label>
-                    <input type="text" id="currency_symbol" name="currency_symbol" class="form-control" placeholder="KSh">
-                  </div>
-                  <div class="form-group">
-                    <label for="time_format" style="font-size:12px;">Time Format</label>
-                    <select id="time_format" name="time_format" class="form-control">
-                      <option value="12">12-Hour (1:30 PM)</option>
-                      <option value="24">24-Hour (13:30)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row 8: Register Mobile App Button -->
-          <div class="form-row-single">
-            <button type="button" class="btn-secondary">
-              <i class="fa fa-mobile-phone" style="font-size:16px;"></i> Register Your Mobile App
-            </button>
-          </div>
-
-          <!-- Row 9: Mobile App API URL -->
-          <div class="form-row-single">
-            <div class="form-group">
-              <label for="mobile_api_url">Mobile App API URL</label>
-              <input type="url" id="mobile_api_url" name="mobile_api_url" class="form-control" placeholder="https://api.eaglesmission.org/mobile/v1/">
-            </div>
-          </div>
-
-          <!-- Row 10: Primary & Secondary Color Codes -->
-          <div class="form-row-2col">
-            <div class="form-group">
-              <label for="mobile_primary_color">Mobile App Primary Color Code</label>
-              <div class="color-picker-group">
-                <input type="color" id="primary_color_picker" value="#990000" onchange="document.getElementById('mobile_primary_color').value = this.value">
-                <input type="text" id="mobile_primary_color" name="mobile_primary_color" class="form-control" value="#990000" onchange="document.getElementById('primary_color_picker').value = this.value">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="mobile_secondary_color">Mobile App Secondary Color Code</label>
-              <div class="color-picker-group">
-                <input type="color" id="secondary_color_picker" value="#1e293b" onchange="document.getElementById('mobile_secondary_color').value = this.value">
-                <input type="text" id="mobile_secondary_color" name="mobile_secondary_color" class="form-control" value="#1e293b" onchange="document.getElementById('secondary_color_picker').value = this.value">
-              </div>
-            </div>
-          </div>
-
-          <!-- Row 11: Edit App Logo -->
-          <div class="form-row-single">
-            <div class="form-group">
-              <label for="mobile_app_logo">Mobile App Logo</label>
-              <div class="file-inline-wrapper">
-                <input type="file" id="mobile_app_logo" name="mobile_app_logo" accept="image/*" class="form-control" style="max-width: 320px;">
-                <button type="button" class="btn-link-action" onclick="document.getElementById('mobile_app_logo').click()">
-                  <i class="fa fa-edit"></i> Edit App Logo
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Miscellaneous Section -->
-          <div class="form-row-single" style="margin-top: 24px;">
-            <label style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 10px; display: block;">
-              Miscellaneous Settings
-            </label>
-
-            <!-- Sub-row 1: Doctor Restriction Mode & Superadmin Visibility -->
-            <div class="miscellaneous-subrow">
-              <div class="form-group">
-                <label>Doctor Restriction Mode</label>
-                <div class="radio-inline-group">
-                  <label class="radio-label">
-                    <input type="radio" name="doctor_restriction_mode" value="disabled" checked> Disabled
-                  </label>
-                  <label class="radio-label">
-                    <input type="radio" name="doctor_restriction_mode" value="enabled"> Enable
-                  </label>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Superadmin Visibility</label>
-                <div class="radio-inline-group">
-                  <label class="radio-label">
-                    <input type="radio" name="superadmin_visibility" value="disabled"> Disabled
-                  </label>
-                  <label class="radio-label">
-                    <input type="radio" name="superadmin_visibility" value="enabled" checked> Enabled
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <!-- Sub-row 2: Patient Panel & Scan Type -->
-            <div class="miscellaneous-subrow">
-              <div class="form-group">
-                <label>Patient Panel</label>
-                <div class="radio-inline-group">
-                  <label class="radio-label">
-                    <input type="radio" name="patient_panel" value="disabled"> Disabled
-                  </label>
-                  <label class="radio-label">
-                    <input type="radio" name="patient_panel" value="enabled" checked> Enabled
-                  </label>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="scan_type">Scan Type</label>
-                <select id="scan_type" name="scan_type" class="form-control">
-                  <option value="barcode">Barcode</option>
-                  <option value="qr">QR Code</option>
-                  <option value="nfc">NFC Tag</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Current Theme Section -->
-          <div class="form-row-single" style="margin-top: 20px;">
-            <div class="form-group">
-              <label>Current Theme</label>
-              <div class="theme-pills-wrapper">
-                <label class="theme-pill-label">
-                  <input type="radio" name="current_theme" value="default" checked>
-                  <span>Default</span>
-                </label>
-                <label class="theme-pill-label" style="border-color: #fca5a5;">
-                  <input type="radio" name="current_theme" value="red">
-                  <span style="color: #990000; font-weight: 600;">Red</span>
-                </label>
-                <label class="theme-pill-label" style="border-color: #93c5fd;">
-                  <input type="radio" name="current_theme" value="blue">
-                  <span style="color: #1d4ed8; font-weight: 600;">Blue</span>
-                </label>
-                <label class="theme-pill-label" style="border-color: #cbd5e1;">
-                  <input type="radio" name="current_theme" value="gray">
-                  <span style="color: #475569; font-weight: 600;">Gray</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- Save Button Row -->
-          <div class="form-actions-row">
-            <button type="submit" class="btn-submit-primary">
-              <i class="fa fa-save" style="margin-right: 6px;"></i> Save Settings
-            </button>
-          </div>
-
-        </form>
+      <div class="pane-header">
+        <h2>{% block pane_title %}Settings{% endblock %}</h2>
+        <p>{% block pane_desc %}{% endblock %}</p>
       </div>
 
-      <!-- 2. Attendance Setting -->
-      <div id="attendance-setting" class="setting-pane">
-        <div class="pane-header">
-          <h2>Attendance Setting</h2>
-          <p>Configure staff shift rules, grace periods, and biometrics integration options.</p>
-        </div>
-      </div>
-
-      <!-- 3. Notification Setting -->
-      <div id="notification-setting" class="setting-pane">
-        <div class="pane-header">
-          <h2>Notification Setting</h2>
-          <p>Define global automated notification dispatch policies across modules.</p>
-        </div>
-      </div>
-
-      <!-- 4. System Notification Setting -->
-      <div id="system-notification" class="setting-pane">
-        <div class="pane-header">
-          <h2>System Notification Setting</h2>
-          <p>Configure in-app popups, sound alerts, and web push parameters.</p>
-        </div>
-      </div>
-
-      <!-- 5. SMS Setting -->
-      <div id="sms-setting" class="setting-pane">
-        <div class="pane-header">
-          <h2>SMS Setting</h2>
-          <p>Set up SMS gateways (Twilio, Africa's Talking) and text template triggers.</p>
-        </div>
-      </div>
-
-      <!-- 6. Email Setting -->
-      <div id="email-setting" class="setting-pane">
-        <div class="pane-header">
-          <h2>Email Setting</h2>
-          <p>Configure SMTP host settings, port, encryption, and sender authentication.</p>
-        </div>
-      </div>
-
-      <!-- 7. Payment Methods -->
-      <div id="payment-methods" class="setting-pane">
-        <div class="pane-header">
-          <h2>Payment Methods</h2>
-          <p>Enable and configure payment processors (M-Pesa, Credit Card, Bank Transfer).</p>
-        </div>
-      </div>
-
-      <!-- 8. Front CMS Setting -->
-      <div id="front-cms" class="setting-pane">
-        <div class="pane-header">
-          <h2>Front CMS Setting</h2>
-          <p>Manage public portal features, landing page sections, and contact channels.</p>
-        </div>
-      </div>
-
-      <!-- 9. Prefix Setting -->
-      <div id="prefix-setting" class="setting-pane">
-        <div class="pane-header">
-          <h2>Prefix Setting</h2>
-          <p>Define custom ID prefixes (e.g., PAT-, INV-, OP-) for autogenerated records.</p>
-        </div>
-      </div>
-
-      <!-- 10. Roles & Permissions -->
-      <div id="roles-permissions" class="setting-pane">
-        <div class="pane-header">
-          <h2>Roles &amp; Permissions</h2>
-          <p>Define staff user roles and granular access permissions per section.</p>
-        </div>
-      </div>
-
-      <!-- 11. Backup / Restore -->
-      <div id="backup-restore" class="setting-pane">
-        <div class="pane-header">
-          <h2>Backup / Restore</h2>
-          <p>Manage database snapshot backups, scheduled exports, and point-in-time restores.</p>
-        </div>
-      </div>
-
-      <!-- 12. Languages -->
-      <div id="languages" class="setting-pane">
-        <div class="pane-header">
-          <h2>Languages</h2>
-          <p>Manage system localization options and default interface translations.</p>
-        </div>
-      </div>
-
-      <!-- 13. Users -->
-      <div id="users" class="setting-pane">
-        <div class="pane-header">
-          <h2>Users</h2>
-          <p>Manage active portal user profiles, reset credentials, and audit access status.</p>
-        </div>
-      </div>
-
-      <!-- 14. Captcha Settings -->
-      <div id="captcha-settings" class="setting-pane">
-        <div class="pane-header">
-          <h2>Captcha Settings</h2>
-          <p>Configure reCAPTCHA keys to protect public forms against automated bot submissions.</p>
-        </div>
-      </div>
-
-      <!-- 15. Modules -->
-      <div id="modules" class="setting-pane">
-        <div class="pane-header">
-          <h2>Modules</h2>
-          <p>Enable or disable core system features (Pharmacy, IPD, OPD, Billing, Labs).</p>
-        </div>
-      </div>
-
-      <!-- 16. System Update -->
-      <div id="system-update" class="setting-pane">
-        <div class="pane-header">
-          <h2>System Update</h2>
-          <p>Check installed core versions, pending application updates, and patch history.</p>
-        </div>
-      </div>
-
+      {% block settings_content %}{% endblock %}
     </main>
 
   </div>
-
 </div>
 
 <script>
-  function switchSetting(event, settingId) {
-    event.preventDefault();
-
-    // Deactivate active links
-    document.querySelectorAll('.setup-nav-link').forEach(link => {
-      link.classList.remove('active');
-    });
-
-    // Hide active content panes
-    document.querySelectorAll('.setting-pane').forEach(pane => {
-      pane.classList.remove('active');
-    });
-
-    // Activate targeted link & pane
-    event.currentTarget.classList.add('active');
-    const targetPane = document.getElementById(settingId);
-    if (targetPane) {
-      targetPane.classList.add('active');
+  // Highlights the link that matches the current page
+  document.querySelectorAll('#setupNav .setup-nav-link').forEach(function (link) {
+    if (link.getAttribute('href') === window.location.pathname) {
+      link.classList.add('active');
     }
-  }
+  });
 </script>
 
 {% endblock %}

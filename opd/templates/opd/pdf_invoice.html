@@ -6,7 +6,7 @@
     <style>
         @page {
             size: a4 portrait;
-            margin: 1.2cm 1.4cm;
+            margin: 1.2cm 1.4cm 0.8cm 1.4cm; 
         }
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -15,9 +15,10 @@
             color: #333333;
             margin: 0;
             padding: 0;
+            position: relative;
         }
         
-        /* Master Header Layout Layout */
+        /* Master Header Layout */
         .invoice-master-table {
             width: 100%;
             border-collapse: collapse;
@@ -141,7 +142,7 @@
         .summary-wrapper {
             width: 100%;
             border-collapse: collapse;
-            margin-top: -1px; /* Blends cleanly with the table above */
+            margin-top: -1px;
         }
         .summary-wrapper td {
             padding: 5px 10px;
@@ -188,11 +189,12 @@
         .signature-container {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 40px;
+            margin-top: 35px;
         }
         .sig-cell {
             width: 50%;
             vertical-align: top;
+            padding-top: 40px; /* 40px top padding applied here */
         }
         .sig-line {
             width: 180px;
@@ -201,26 +203,31 @@
             font-size: 10px;
             color: #555555;
             padding-top: 4px;
-            margin-top: 30px;
         }
 
-        /* Professional Thank you Anchor */
+        /* ── Ultra-Low Absolute Page Footer ── */
         .thankyou-message {
+            position: fixed;
+            bottom: -1.2cm;
+            left: 0;
+            right: 0;
             text-align: center;
-            margin-top: 35px;
-            padding: 10px 0;
-            border-top: 1px dashed #dddddd;
+            padding-top: 4px;
+            border-top: 1px dashed #cccccc;
+            background-color: #ffffff;
         }
         .thankyou-text {
             font-family: 'Georgia', serif;
             font-style: italic;
-            font-size: 13px;
+            font-size: 10.5px;
             color: #990000;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
         .system-footer {
-            font-size: 9px;
-            color: #888888;
+            font-size: 7.5px;
+            line-height: 1.2;
+            color: #777777;
+            letter-spacing: 0.2px;
         }
     </style>
 </head>
@@ -261,7 +268,7 @@
 
     <div class="crimson-bar"></div>
 
-    <!-- Client / Patient Info Address block Context layout -->
+    <!-- Client / Patient Info Address block -->
     <table class="address-matrix">
         <tr>
             <td>
@@ -285,7 +292,7 @@
         </tr>
     </table>
 
-    <!-- Real-Life Billing Breakdown Ledger Table Module -->
+    <!-- Billing Breakdown Ledger Table -->
     <table class="invoice-ledger">
         <thead>
             <tr>
@@ -307,7 +314,6 @@
                 <td class="text-right">{{ visit.applied_charge|floatformat:2 }}</td>
                 <td class="text-right">{{ visit.applied_charge|floatformat:2 }}</td>
             </tr>
-            <!-- Dynamically adds an entry line if a tax margin calculation is present -->
             {% if visit.tax_total and visit.tax_total != "0.00" and visit.tax_total != 0 %}
             <tr>
                 <td class="text-center">2</td>
@@ -377,7 +383,7 @@
         {% endif %}
     {% endif %}
 
-    <!-- Signature Workflow Layout Elements block Wrapper -->
+    <!-- Signature Workflow Layout Elements -->
     <table class="signature-container">
         <tr>
             <td class="sig-cell">
@@ -389,12 +395,9 @@
         </tr>
     </table>
 
-    <!-- Elegant Bottom Thank You Bracket Block and Validation Anchor -->
+    <!-- Low Page Edge Footer Anchor -->
     <div class="thankyou-message">
         <div class="thankyou-text">Thank you for choosing Eagles Mission Hospital.</div>
-
-
-        
         <div class="system-footer">
             This document is a validated financial ledger transaction summary generated directly within the cloud HMS core system infrastructure framework.<br>
             No manual execution signature is required to assert operational validity.

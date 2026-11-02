@@ -1,0 +1,874 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Live Consultation | Eagles Mission Hospital{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<style>
+  /* ── Square Edges Reset ── */
+  *,
+  *::before,
+  *::after,
+  .consultation-panel-header,
+  .btn-add-consultation,
+  .search-input-field,
+  .btn-export-icon,
+  .table-fixed-container,
+  .hms-table,
+  .badge-status,
+  .btn-table-action,
+  .modal-content,
+  .form-control,
+  .btn-modal {
+    border-radius: 0 !important;
+  }
+
+  /* ── Main Page Outer Container ── */
+  .consultation-page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  .consultation-page-container {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  /* ── Header & Action Bar ── */
+  .consultation-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 10px 14px;
+    border-bottom: 2px solid #990000;
+    margin-bottom: 10px;
+  }
+
+  .panel-title-group h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-subtitle {
+    font-size: 11px;
+    color: #64748b;
+    margin: 2px 0 0 0;
+  }
+
+  .btn-add-consultation {
+    background: #990000;
+    color: #ffffff;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .btn-add-consultation:hover {
+    background: #7a0000;
+    color: #ffffff;
+  }
+
+  /* ── Utility Toolbar ── */
+  .ledger-utility-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .search-wrapper-block {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .search-wrapper-block label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a5568;
+  }
+
+  .search-input-field {
+    padding: 2px 6px;
+    font-size: 12px;
+    border: 1px solid #cbd5e1;
+    outline: none;
+    width: 250px;
+    height: 26px;
+    box-sizing: border-box;
+  }
+
+  .search-input-field:focus {
+    border-color: #990000;
+  }
+
+  .export-pagination-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .export-icon-buttons-container {
+    display: flex;
+    gap: 3px;
+  }
+
+  .btn-export-icon {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 3px 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-export-icon:hover {
+    background: #990000;
+    color: #ffffff;
+    border-color: #990000;
+  }
+
+  /* ── Table Styling ── */
+  .table-fixed-container {
+    width: 100%;
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+  }
+
+  .hms-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .hms-table thead th {
+    background: #990000;
+    color: #ffffff;
+    padding: 6px 8px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .hms-table tbody td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+  }
+
+  .hms-table tbody tr:hover {
+    background: #f8fafc;
+  }
+
+  /* ── Badges ── */
+  .badge-status {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  .badge-status.completed {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .badge-status.pending, .badge-status.scheduled {
+    background: #fef9c3;
+    color: #a16207;
+  }
+
+  .badge-status.cancelled {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  /* ── Action Buttons ── */
+  .action-btn-group {
+    display: flex;
+    gap: 4px;
+  }
+
+  .btn-table-action {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 2px 5px;
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-table-action:hover {
+    background: #990000;
+    color: #ffffff;
+    border-color: #990000;
+  }
+
+  /* ── Modal Overlay & Dialog ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.65);
+    z-index: 1050;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .modal-dialog {
+    max-width: 950px;
+    margin: 10px auto;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  /* ── Crimson Header Row (Half-width input) ── */
+  .modal-header-row-crimson {
+    background: #990000;
+    padding: 6px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .patient-search-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 50%; /* Reduced input row width to half */
+    width: 100%;
+  }
+
+  .patient-search-input {
+    width: 100%;
+    height: 26px;
+    padding: 2px 8px;
+    font-size: 12px;
+    border: 1px solid #ffffff;
+    outline: none;
+    background: #ffffff;
+    color: #1e293b;
+    box-sizing: border-box;
+  }
+
+  .patient-search-input:focus {
+    border-color: #fca5a5;
+  }
+
+  /* Dropdown Results */
+  .patient-dropdown-list {
+    display: none;
+    position: absolute;
+    top: 28px;
+    left: 0;
+    width: 100%;
+    max-height: 180px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1100;
+  }
+
+  .patient-dropdown-item {
+    padding: 5px 10px;
+    font-size: 11px;
+    color: #334155;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .patient-dropdown-item:hover {
+    background: #f8fafc;
+    color: #990000;
+    font-weight: 600;
+  }
+
+  .btn-new-patient {
+    background: #ffffff;
+    color: #990000;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    height: 26px;
+    transition: background 0.2s;
+  }
+
+  .btn-new-patient:hover {
+    background: #fecdd3;
+  }
+
+  .modal-close-btn-white {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+  }
+
+  .modal-close-btn-white:hover {
+    color: #fca5a5;
+  }
+
+  /* ── Modal Body Layout (Ultra-Compact Margins) ── */
+  .modal-body-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  @media (max-width: 850px) {
+    .modal-body-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Left Column Profile Grid (2 Sub-Columns Inside) ── */
+  .patient-profile-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 8px 10px;
+  }
+
+  .patient-profile-card h3 {
+    font-size: 11px;
+    margin: 0 0 6px 0;
+    color: #990000;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Split Left Column into Details (Left) + Photo (Right) */
+  .patient-subgrid {
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .patient-photo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .patient-photo {
+    width: 75px;
+    height: 75px;
+    object-fit: cover;
+    border: 1px solid #cbd5e1;
+    background-color: #e2e8f0;
+  }
+
+  .patient-data-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* Compact row spacing */
+    font-size: 11px;
+  }
+
+  .patient-data-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px dashed #e2e8f0;
+    padding-bottom: 1px;
+    min-height: 18px;
+  }
+
+  .patient-data-item span.label {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .patient-data-item span.value {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .patient-data-item.value-only span.value {
+    color: #0f172a;
+  }
+
+  /* ── Right Column Form Controls ── */
+  .form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Reduced vertical spacing */
+  }
+
+  .form-row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .form-group label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #334155;
+    margin: 0;
+  }
+
+  .form-control {
+    padding: 2px 6px;
+    font-size: 11px;
+    height: 25px;
+    border: 1px solid #cbd5e1;
+    outline: none;
+    background: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  textarea.form-control {
+    height: 38px;
+    resize: none;
+  }
+
+  .form-control:focus {
+    border-color: #990000;
+  }
+
+  .radio-toggle-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .radio-toggle-group label {
+    font-weight: normal;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  /* Modal Footer */
+  .modal-footer-row {
+    padding: 6px 10px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-save-consultation {
+    background: #990000;
+    color: #ffffff;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-save-consultation:hover {
+    background: #7a0000;
+  }
+</style>
+
+<div class="consultation-page-wrapper">
+
+  <!-- Main Page Header -->
+  <div class="consultation-panel-header">
+    <div class="panel-title-group">
+      <h1><i class="fa fa-video-camera"></i> Live Consultation</h1>
+      <p class="panel-subtitle">Manage teleconsultation sessions, API integrations, and patient virtual visits</p>
+    </div>
+    <div>
+      <button type="button" class="btn-add-consultation" onclick="openAddConsultationModal()">
+        <i class="fa fa-plus"></i> Add
+      </button>
+    </div>
+  </div>
+
+  <div class="consultation-page-container">
+    
+    <!-- Utility & Filtering Toolbar -->
+    <div class="ledger-utility-row">
+      <div class="search-wrapper-block">
+        <label for="consultationSearch">Search:</label>
+        <input type="text" id="consultationSearch" class="search-input-field" placeholder="Search consultations...">
+      </div>
+
+      <div class="export-pagination-group">
+        <div class="export-icon-buttons-container">
+          <button type="button" class="btn-export-icon" title="Copy Table Data" onclick="copyTableData()"><i class="fa fa-copy"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to Excel" onclick="exportExcel()"><i class="fa fa-file-excel-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to CSV" onclick="exportCSV()"><i class="fa fa-file-text-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to PDF" onclick="exportPDF()"><i class="fa fa-file-pdf-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Print Table" onclick="window.print()"><i class="fa fa-print"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consultations Data Table -->
+    <div class="table-fixed-container">
+      <table class="hms-table" id="consultationTable">
+        <thead>
+          <tr>
+            <th>Consultation Title</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Api Used</th>
+            <th>Created By</th>
+            <th>Created For Patient</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for session in consultations %}
+          <tr>
+            <td><strong>{{ session.title }}</strong></td>
+            <td>{{ session.description|truncatewords:8|default:"—" }}</td>
+            <td>{{ session.created_at|date:"d/m/Y H:i" }}</td>
+            <td>{{ session.api_used|default:"Zoom" }}</td>
+            <td>{{ session.created_by|default:"System" }}</td>
+            <td>{{ session.patient_name|default:"Unknown Patient" }}</td>
+            <td>
+              <span class="badge-status {{ session.status|lower }}">
+                {{ session.status|default:"Pending" }}
+              </span>
+            </td>
+            <td>
+              <div class="action-btn-group">
+                <a href="#" class="btn-table-action" title="Join / View Session">
+                  <i class="fa fa-eye"></i>
+                </a>
+                <button type="button" class="btn-table-action" title="Edit Session">
+                  <i class="fa fa-pencil"></i>
+                </button>
+                <button type="button" class="btn-table-action" title="Delete Session">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" style="text-align:center; padding: 15px; color: #64748b;">
+              No consultation records found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ── LIVE CONSULTATION MODAL ── -->
+<div class="modal-overlay" id="addConsultationModal">
+  <div class="modal-dialog">
+    <form method="POST" action="">
+      {% csrf_token %}
+      <input type="hidden" id="selected_patient_id" name="patient_id" value="">
+      
+      <!-- Modal Top Row (Crimson Bar with Half-width Search Input) -->
+      <div class="modal-header-row-crimson">
+        <div class="patient-search-group">
+          <input type="text" id="patientSearchInput" class="patient-search-input" placeholder="Select Patient..." autocomplete="off" onfocus="showPatientDropdown()" oninput="filterPatients(this.value)">
+          <div id="patientDropdownList" class="patient-dropdown-list">
+            <!-- Dynamically populated options -->
+          </div>
+          <button type="button" class="btn-new-patient" onclick="openNewPatientModal()">+ New Patient</button>
+        </div>
+        <button type="button" class="modal-close-btn-white" onclick="closeAddConsultationModal()">&times;</button>
+      </div>
+
+      <!-- Modal Body (2 Columns) -->
+      <div class="modal-body-grid">
+        
+        <!-- Left Column: Patient Profile Split (Details on Left, Photo on Right) -->
+        <div class="patient-profile-card">
+          <h3>Patient Profile</h3>
+          
+          <div class="patient-subgrid">
+            <!-- Details List -->
+            <div class="patient-data-list">
+              <!-- Label-less UI inputs (values only) -->
+              <div class="patient-data-item value-only"><span class="value" id="disp_name">Select Patient</span></div>
+              <div class="patient-data-item value-only"><span class="value" id="disp_guardian">—</span></div>
+              <div class="patient-data-item value-only"><span class="value" id="disp_gender_age_blood">—</span></div>
+              <div class="patient-data-item value-only"><span class="value" id="disp_marital">—</span></div>
+              <div class="patient-data-item value-only"><span class="value" id="disp_mobile">—</span></div>
+              <div class="patient-data-item value-only"><span class="value" id="disp_email">—</span></div>
+              <div class="patient-data-item value-only"><span class="value" id="disp_address">—</span></div>
+
+              <!-- Inputs WITH explicit labels -->
+              <div class="patient-data-item"><span class="label">Any Known Allergies:</span> <span class="value" id="disp_allergies">—</span></div>
+              <div class="patient-data-item"><span class="label">Remarks:</span> <span class="value" id="disp_remarks">—</span></div>
+              <div class="patient-data-item"><span class="label">Insurance ID:</span> <span class="value" id="disp_insurance_id">—</span></div>
+              <div class="patient-data-item"><span class="label">Insurance Validity:</span> <span class="value" id="disp_insurance_validity">—</span></div>
+              <div class="patient-data-item"><span class="label">National Identification Number:</span> <span class="value" id="disp_national_id">—</span></div>
+            </div>
+
+            <!-- Photo Container on the Right -->
+            <div class="patient-photo-container">
+              <img id="disp_photo" class="patient-photo" src="{% static 'images/default-avatar.png' %}" alt="Patient Photo" onerror="this.src='https://via.placeholder.com/75?text=No+Photo';">
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Form Controls -->
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label for="title">Consultation Title</label>
+            <input type="text" id="title" name="title" class="form-control" placeholder="Enter title" required>
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label for="consultation_date">Consultation Date *</label>
+              <input type="datetime-local" id="consultation_date" name="consultation_date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="duration">Consultation Duration Minutes *</label>
+              <input type="number" id="duration" name="duration" class="form-control" value="30" min="5" required>
+            </div>
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label for="opd_ipd_type">OPD / IPD</label>
+              <select id="opd_ipd_type" name="opd_ipd_type" class="form-control">
+                <option value="OPD">OPD</option>
+                <option value="IPD">IPD</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="opd_ipd_no">OPD / IPD No</label>
+              <input type="text" id="opd_ipd_no" name="opd_ipd_no" class="form-control" placeholder="e.g. OPD-10023">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="doctor">Consultant Doctor *</label>
+            <select id="doctor" name="doctor_id" class="form-control" required>
+              <option value="">-- Select Doctor --</option>
+              {% for doctor in doctors %}
+                <option value="{{ doctor.id }}">{{ doctor.get_full_name|default:doctor.username }}</option>
+              {% empty %}
+                <option value="1">Dr. Smith (General Medicine)</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label>Host Video *</label>
+              <div class="radio-toggle-group">
+                <label><input type="radio" name="host_video" value="enable" checked> Enable</label>
+                <label><input type="radio" name="host_video" value="disable"> Disable</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Client Video *</label>
+              <div class="radio-toggle-group">
+                <label><input type="radio" name="client_video" value="enable" checked> Enable</label>
+                <label><input type="radio" name="client_video" value="disable"> Disable</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" class="form-control" placeholder="Additional details or instructions..."></textarea>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer-row">
+        <button type="submit" class="btn-save-consultation">
+          <i class="fa fa-check"></i> Save
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  // Sample patient dataset passed from Django or fetched via API
+  const patientDataset = [
+    {% for patient in patients %}
+      { id: "{{ patient.id }}", name: "{{ patient.name }}", mobile: "{{ patient.mobile }}" },
+    {% empty %}
+      { id: "1", name: "John Doe", guardian: "Robert Doe", gender: "Male", blood: "O+", marital: "Single", age: "32 Yrs", mobile: "+254 712 345 678", email: "johndoe@example.com", address: "Nairobi, Kenya", allergies: "Allergic to aspirin", remarks: "Regular Followup", insurance_id: "INS-99201", insurance_validity: "31/12/2026", national_id: "33445566", photo: "https://via.placeholder.com/75?text=John" },
+      { id: "2", name: "Jane Smith", guardian: "Michael Smith", gender: "Female", blood: "A+", marital: "Married", age: "28 Yrs", mobile: "+254 722 987 654", email: "janesmith@example.com", address: "Mombasa, Kenya", allergies: "None", remarks: "New Patient", insurance_id: "INS-88102", insurance_validity: "15/08/2026", national_id: "44556677", photo: "https://via.placeholder.com/75?text=Jane" },
+      { id: "3", name: "Ben Matiko", guardian: "Maroa Matiko", gender: "Male", blood: "B+", marital: "Single", age: "36 Yrs", mobile: "+254 700 112 233", email: "ben@example.com", address: "Nairobi, Kenya", allergies: "Dust", remarks: "Routine Checkup", insurance_id: "INS-10293", insurance_validity: "30/11/2026", national_id: "28990122", photo: "https://via.placeholder.com/75?text=Ben" }
+    {% endfor %}
+  ];
+
+  document.addEventListener('DOMContentLoaded', function() {
+    renderPatientDropdown(patientDataset);
+
+    // Hide dropdown on click outside
+    document.addEventListener('click', function(e) {
+      const searchGroup = document.querySelector('.patient-search-group');
+      if (searchGroup && !searchGroup.contains(e.target)) {
+        document.getElementById('patientDropdownList').style.display = 'none';
+      }
+    });
+
+    // Search filter for consultations table
+    const searchInput = document.getElementById('consultationSearch');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#consultationTable tbody tr');
+        
+        tableRows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+      });
+    }
+  });
+
+  /* Patient Dropdown Search Handlers */
+  function showPatientDropdown() {
+    document.getElementById('patientDropdownList').style.display = 'block';
+  }
+
+  function renderPatientDropdown(items) {
+    const dropdown = document.getElementById('patientDropdownList');
+    dropdown.innerHTML = '';
+
+    if (items.length === 0) {
+      dropdown.innerHTML = '<div class="patient-dropdown-item" style="color:#64748b;">No matching patients found</div>';
+      return;
+    }
+
+    items.forEach(patient => {
+      const item = document.createElement('div');
+      item.className = 'patient-dropdown-item';
+      item.innerHTML = `<strong>${patient.name}</strong> (ID: ${patient.id}) - ${patient.mobile || ''}`;
+      item.onclick = function() {
+        selectPatient(patient);
+      };
+      dropdown.appendChild(item);
+    });
+  }
+
+  function filterPatients(query) {
+    showPatientDropdown();
+    const filtered = patientDataset.filter(p => 
+      p.name.toLowerCase().includes(query.toLowerCase()) || 
+      p.id.toString().includes(query) ||
+      (p.mobile && p.mobile.includes(query))
+    );
+    renderPatientDropdown(filtered);
+  }
+
+  function selectPatient(patient) {
+    document.getElementById('patientSearchInput').value = `${patient.name} (ID: ${patient.id})`;
+    document.getElementById('selected_patient_id').value = patient.id;
+    document.getElementById('patientDropdownList').style.display = 'none';
+
+    // Update Left Profile Subgrid
+    document.getElementById('disp_photo').src = patient.photo || "{% static 'images/default-avatar.png' %}";
+    document.getElementById('disp_name').innerText = patient.name || 'Select Patient';
+    document.getElementById('disp_guardian').innerText = patient.guardian || '—';
+    
+    // Combined gender / age / blood inline for compactness
+    const metaDetails = [patient.gender, patient.age, patient.blood].filter(Boolean).join(' | ');
+    document.getElementById('disp_gender_age_blood').innerText = metaDetails || '—';
+    
+    document.getElementById('disp_marital').innerText = patient.marital || '—';
+    document.getElementById('disp_mobile').innerText = patient.mobile || '—';
+    document.getElementById('disp_email').innerText = patient.email || '—';
+    document.getElementById('disp_address').innerText = patient.address || '—';
+    
+    // Explicitly Labeled Fields
+    document.getElementById('disp_allergies').innerText = patient.allergies || '—';
+    document.getElementById('disp_remarks').innerText = patient.remarks || '—';
+    document.getElementById('disp_insurance_id').innerText = patient.insurance_id || '—';
+    document.getElementById('disp_insurance_validity').innerText = patient.insurance_validity || '—';
+    document.getElementById('disp_national_id').innerText = patient.national_id || '—';
+  }
+
+  /* Modal Controls */
+  function openAddConsultationModal() {
+    document.getElementById('addConsultationModal').style.display = 'block';
+  }
+
+  function closeAddConsultationModal() {
+    document.getElementById('addConsultationModal').style.display = 'none';
+  }
+
+  function openNewPatientModal() {
+    alert('Redirecting to New Patient Registration...');
+  }
+
+  // Export placeholders
+  function copyTableData() { alert('Table data copied to clipboard.'); }
+  function exportExcel() { alert('Exporting to Excel...'); }
+  function exportCSV() { alert('Exporting to CSV...'); }
+  function exportPDF() { alert('Generating PDF...'); }
+</script>
+
+{% endblock %}

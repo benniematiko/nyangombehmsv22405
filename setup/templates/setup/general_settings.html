@@ -1,0 +1,374 @@
+{% extends 'setup/setup_home.html' %}
+
+{% block pane_title %}General Setting{% endblock %}
+{% block pane_desc %}Manage hospital details, language, date/time, currency, mobile app and theme.{% endblock %}
+
+{% block settings_content %}
+
+<style>
+    /* ---------- Layout ---------- */
+    .gs-section { border-top: 1px solid #e5eaf0; padding: 18px 0; }
+    .gs-section.first { border-top: none; padding-top: 0; }
+    .gs-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .gs-title { font-size: 17px; font-weight: 400; color: #1e293b; margin: 0; }
+
+    .gs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 40px; }
+    .gs-full { grid-column: 1 / -1; }
+
+    /* label on the left, control on the right (as in the screenshots) */
+    .gs-field { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 10px; }
+    .gs-full.gs-field { grid-template-columns: 150px 1fr; }
+    .gs-field > label { font-size: 12.5px; font-weight: 600; color: #334155; }
+    .gs-field > label .req { color: #dc2626; margin-left: 2px; }
+
+    .gs-field input[type="text"],
+    .gs-field input[type="email"],
+    .gs-field input[type="url"],
+    .gs-field input[type="number"],
+    .gs-field select {
+        width: 100%; padding: 9px 12px; font-size: 13px; color: #334155;
+        border: 1px solid #cbd5e1; background: #fff; border-radius: 0; outline: none;
+    }
+    .gs-field input:focus, .gs-field select:focus { border-color: #810810; }
+
+    /* ---------- Buttons ---------- */
+    .btn-dark {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #22232b; color: #fff; border: none; border-radius: 0;
+        padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .btn-dark:hover { background: #3a3b45; }
+
+    .btn-save {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #810810; color: #fff; border: none; border-radius: 0;
+        padding: 10px 24px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .btn-save:hover { background: #650509; }
+
+    /* ---------- Logo pickers ---------- */
+    .logo-box { display: flex; align-items: center; gap: 14px; }
+    .logo-box img {
+        width: 34px; height: 34px; object-fit: contain;
+        border: 1px solid #e2e8f0; background: #f8fafc;
+    }
+    .logo-box input[type="file"] { display: none; }
+
+    /* ---------- Color code ---------- */
+    .color-box { display: flex; align-items: center; gap: 8px; }
+    .color-box .swatch { width: 38px; height: 38px; border: 1px solid #cbd5e1; flex-shrink: 0; }
+
+    /* ---------- Radios ---------- */
+    .radio-group { display: flex; align-items: center; gap: 22px; }
+    .radio-group label {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 500; color: #334155; cursor: pointer; margin: 0;
+    }
+    .radio-group input[type="radio"] { accent-color: #810810; width: 15px; height: 15px; }
+
+    /* ---------- Theme cards ---------- */
+    .theme-list { display: flex; flex-wrap: wrap; gap: 18px; }
+    .theme-card { width: 172px; cursor: pointer; border: 2px solid transparent; position: relative; }
+    .theme-card input { position: absolute; opacity: 0; pointer-events: none; }
+    .theme-card:has(input:checked) { border-color: #810810; }
+
+    .theme-thumb { position: relative; height: 104px; background: #fff; border: 1px solid #d9e2ec; overflow: hidden; }
+    .theme-thumb .tt-head { position: absolute; top: 0; left: 0; right: 0; height: 9px; background: var(--head); }
+    .theme-thumb .tt-side { position: absolute; top: 9px; left: 0; bottom: 0; width: 26px; background: var(--side); border-right: 1px solid #e2e8f0; }
+    .theme-thumb .tt-tiles { position: absolute; top: 16px; left: 32px; right: 6px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    .theme-thumb .tt-tiles i { height: 12px; background: #e2e8f0; border-left: 5px solid #84cc16; }
+    .theme-thumb .tt-tiles i:nth-child(2) { border-left-color: #f59e0b; }
+    .theme-thumb .tt-tiles i:nth-child(3) { border-left-color: #ec4899; }
+    .theme-thumb .tt-tiles i:nth-child(4) { border-left-color: #3b82f6; }
+    .theme-thumb .tt-chart { position: absolute; left: 32px; right: 6px; bottom: 6px; height: 46px; border: 1px solid #e2e8f0; background:
+        linear-gradient(135deg, transparent 45%, #fbbf24 46%, #fbbf24 54%, transparent 55%); }
+
+    .theme-name { background: #808080; color: #fff; text-align: center; font-size: 13px; font-weight: 700; padding: 7px 0; }
+    .theme-card.dark .theme-name { background: #22232b; }
+
+    .t-default { --head: #3b82f6; --side: #f1f5f9; }
+    .t-red     { --head: #b91c1c; --side: #f1f5f9; }
+    .t-blue    { --head: #22232b; --side: #22232b; }
+    .t-gray    { --head: #475569; --side: #e2e8f0; }
+
+    /* ---------- Footer ---------- */
+    .gs-footer { border-top: 1px solid #e5eaf0; text-align: right; padding-top: 16px; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 992px) {
+        .gs-grid { grid-template-columns: 1fr; }
+        .gs-field, .gs-full.gs-field { grid-template-columns: 1fr; gap: 5px; }
+    }
+</style>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- ===================== GENERAL ===================== -->
+    <div class="gs-section first">
+        <div class="gs-grid">
+            <div class="gs-field">
+                <label for="hospital_name">Hospital Name<span class="req">*</span></label>
+                <input type="text" id="hospital_name" name="hospital_name" placeholder="Hospital name" required>
+            </div>
+            <div class="gs-field">
+                <label for="hospital_code">Hospital Code</label>
+                <input type="text" id="hospital_code" name="hospital_code" placeholder="Your Hospital Code">
+            </div>
+
+            <div class="gs-field gs-full">
+                <label for="address">Address<span class="req">*</span></label>
+                <input type="text" id="address" name="address" required>
+            </div>
+
+            <div class="gs-field">
+                <label for="phone">Phone<span class="req">*</span></label>
+                <input type="text" id="phone" name="phone" placeholder="+254..." required>
+            </div>
+            <div class="gs-field">
+                <label for="email">Email<span class="req">*</span></label>
+                <input type="email" id="email" name="email" required>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== LOGOS ===================== -->
+    <div class="gs-section">
+        <div class="gs-grid">
+            <div class="gs-field">
+                <label>Hospital Logo<span class="req">*</span></label>
+                <div class="logo-box">
+                    <img id="prev_logo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="">
+                    <input type="file" id="hospital_logo" name="hospital_logo" accept="image/*" data-preview="prev_logo">
+                    <button type="button" class="btn-dark" data-pick="hospital_logo"><i class="fa fa-picture-o"></i> Edit Logo</button>
+                </div>
+            </div>
+            <div class="gs-field">
+                <label>Hospital Small Logo<span class="req">*</span></label>
+                <div class="logo-box">
+                    <img id="prev_small" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="">
+                    <input type="file" id="hospital_small_logo" name="hospital_small_logo" accept="image/*" data-preview="prev_small">
+                    <button type="button" class="btn-dark" data-pick="hospital_small_logo"><i class="fa fa-picture-o"></i> Edit Small Logo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== LANGUAGE ===================== -->
+    <div class="gs-section">
+        <h3 class="gs-title" style="margin-bottom:14px;">Language</h3>
+        <div class="gs-grid">
+            <div class="gs-field">
+                <label for="language">Language<span class="req">*</span></label>
+                <select id="language" name="language">
+                    <option value="en" selected>English</option>
+                    <option value="sw">Kiswahili</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== DATE TIME ===================== -->
+    <div class="gs-section">
+        <h3 class="gs-title" style="margin-bottom:14px;">Date Time</h3>
+        <div class="gs-grid">
+            <div class="gs-field">
+                <label for="date_format">Date Format<span class="req">*</span></label>
+                <select id="date_format" name="date_format">
+                    <option value="m/d/Y" selected>mm/dd/yyyy</option>
+                    <option value="d/m/Y">dd/mm/yyyy</option>
+                    <option value="Y-m-d">yyyy-mm-dd</option>
+                </select>
+            </div>
+            <div class="gs-field">
+                <label for="timezone">Time Zone<span class="req">*</span></label>
+                <select id="timezone" name="timezone">
+                    <option value="UTC" selected>(GMT) UTC</option>
+                    <option value="Africa/Nairobi">(GMT+3) Africa/Nairobi</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== CURRENCY ===================== -->
+    <div class="gs-section">
+        <h3 class="gs-title" style="margin-bottom:14px;">Currency</h3>
+        <div class="gs-grid">
+            <div class="gs-field">
+                <label for="currency">Currency<span class="req">*</span></label>
+                <select id="currency" name="currency">
+                    <option value="KES" selected>KES</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+            </div>
+            <div class="gs-field">
+                <label for="currency_symbol">Currency Symbol<span class="req">*</span></label>
+                <input type="text" id="currency_symbol" name="currency_symbol" value="sh">
+            </div>
+            <div class="gs-field">
+                <label for="credit_limit">Credit Limit<span class="req">*</span></label>
+                <input type="number" id="credit_limit" name="credit_limit" value="1000">
+            </div>
+            <div class="gs-field">
+                <label for="time_format">Time Format<span class="req">*</span></label>
+                <select id="time_format" name="time_format">
+                    <option value="12" selected>12 Hour</option>
+                    <option value="24">24 Hour</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MOBILE APP ===================== -->
+    <div class="gs-section">
+        <div class="gs-title-row">
+            <h3 class="gs-title">Mobile App</h3>
+            <button type="button" class="btn-dark">Register Your Android App</button>
+        </div>
+        <div class="gs-grid">
+            <div class="gs-field gs-full">
+                <label for="mobile_api_url">Mobile App Api URL</label>
+                <input type="url" id="mobile_api_url" name="mobile_api_url">
+            </div>
+
+            <div class="gs-field">
+                <label for="mobile_primary_color">Mobile App Primary Color Code</label>
+                <div class="color-box">
+                    <span class="swatch" id="sw_primary" style="background:#424242;"></span>
+                    <input type="text" id="mobile_primary_color" name="mobile_primary_color" value="#424242" data-swatch="sw_primary">
+                </div>
+            </div>
+            <div class="gs-field">
+                <label for="mobile_secondary_color">Mobile App Secondary Color Code</label>
+                <div class="color-box">
+                    <span class="swatch" id="sw_secondary" style="background:#eeeeee;"></span>
+                    <input type="text" id="mobile_secondary_color" name="mobile_secondary_color" value="#eeeeee" data-swatch="sw_secondary">
+                </div>
+            </div>
+
+            <div class="gs-field">
+                <label>Mobile App Logo</label>
+                <div class="logo-box">
+                    <img id="prev_app" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="">
+                    <input type="file" id="mobile_app_logo" name="mobile_app_logo" accept="image/*" data-preview="prev_app">
+                    <button type="button" class="btn-dark" data-pick="mobile_app_logo"><i class="fa fa-picture-o"></i> Edit App Logo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MISCELLANEOUS ===================== -->
+    <div class="gs-section">
+        <h3 class="gs-title" style="margin-bottom:14px;">Miscellaneous</h3>
+        <div class="gs-grid">
+            <div class="gs-field">
+                <label>Doctor Restriction Mode</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="doctor_restriction_mode" value="disabled"> Disabled</label>
+                    <label><input type="radio" name="doctor_restriction_mode" value="enabled" checked> Enabled</label>
+                </div>
+            </div>
+            <div class="gs-field">
+                <label>Superadmin Visibility</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="superadmin_visibility" value="disabled"> Disabled</label>
+                    <label><input type="radio" name="superadmin_visibility" value="enabled" checked> Enabled</label>
+                </div>
+            </div>
+            <div class="gs-field">
+                <label>Patient Panel</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="patient_panel" value="disabled"> Disabled</label>
+                    <label><input type="radio" name="patient_panel" value="enabled" checked> Enabled</label>
+                </div>
+            </div>
+            <div class="gs-field">
+                <label>Scan Type</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="scan_type" value="barcode"> Barcode</label>
+                    <label><input type="radio" name="scan_type" value="qr" checked> QR Code</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== CURRENT THEME ===================== -->
+    <div class="gs-section">
+        <h3 class="gs-title" style="margin-bottom:14px;">Current Theme</h3>
+        <div class="theme-list">
+
+            <label class="theme-card">
+                <input type="radio" name="current_theme" value="default" checked>
+                <div class="theme-thumb t-default">
+                    <span class="tt-head"></span><span class="tt-side"></span>
+                    <span class="tt-tiles"><i></i><i></i><i></i><i></i></span>
+                    <span class="tt-chart"></span>
+                </div>
+                <div class="theme-name">default</div>
+            </label>
+
+            <label class="theme-card">
+                <input type="radio" name="current_theme" value="red">
+                <div class="theme-thumb t-red">
+                    <span class="tt-head"></span><span class="tt-side"></span>
+                    <span class="tt-tiles"><i></i><i></i><i></i><i></i></span>
+                    <span class="tt-chart"></span>
+                </div>
+                <div class="theme-name">red</div>
+            </label>
+
+            <label class="theme-card dark">
+                <input type="radio" name="current_theme" value="blue">
+                <div class="theme-thumb t-blue">
+                    <span class="tt-head"></span><span class="tt-side"></span>
+                    <span class="tt-tiles"><i></i><i></i><i></i><i></i></span>
+                    <span class="tt-chart"></span>
+                </div>
+                <div class="theme-name">blue</div>
+            </label>
+
+            <label class="theme-card">
+                <input type="radio" name="current_theme" value="gray">
+                <div class="theme-thumb t-gray">
+                    <span class="tt-head"></span><span class="tt-side"></span>
+                    <span class="tt-tiles"><i></i><i></i><i></i><i></i></span>
+                    <span class="tt-chart"></span>
+                </div>
+                <div class="theme-name">gray</div>
+            </label>
+
+        </div>
+    </div>
+
+    <!-- ===================== SAVE ===================== -->
+    <div class="gs-footer">
+        <button type="submit" class="btn-save"><i class="fa fa-check-circle"></i> Save</button>
+    </div>
+</form>
+
+<script>
+    // "Edit Logo" buttons open the hidden file input
+    document.querySelectorAll('[data-pick]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.getElementById(btn.dataset.pick).click();
+        });
+    });
+
+    // Show a small preview after choosing an image
+    document.querySelectorAll('input[type="file"][data-preview]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            var file = input.files[0];
+            if (file) { document.getElementById(input.dataset.preview).src = URL.createObjectURL(file); }
+        });
+    });
+
+    // Colour swatch follows the typed colour code
+    document.querySelectorAll('input[data-swatch]').forEach(function (input) {
+        input.addEventListener('input', function () {
+            document.getElementById(input.dataset.swatch).style.background = input.value;
+        });
+    });
+</script>
+
+{% endblock %}

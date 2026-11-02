@@ -6,6 +6,16 @@ app_name = 'setup'
 urlpatterns = [
     # Dashboard
     path('', views.setup_home, name='setup_home'),
+
+    # General settings page
+    
+    path('schsettings/', views.general_settings, name='general_settings'),
+    path('schsettings/attendance/', views.attendance_settings, name='attendance_settings'),
+
+    path('notification/setting/', views.notification_settings, name='notification_settings'),
+
+
+
     path('patientsetup/', views.patient_setup, name='patient_setup'),
     
     # ============================================================

@@ -1,0 +1,752 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Ambulance Services | Eagles Mission Hospital{% endblock %}
+{% block content %}
+
+<!-- Global CSRF Token for Modal AJAX Actions -->
+{% csrf_token %}
+
+<style>
+  /* ── Ambulance Modal & Table Specific Styles ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: #ffffff;
+    width: 85%;
+    max-width: 950px;
+    max-height: 95vh;
+    overflow-y: auto;
+    border-radius: 0px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    border-bottom: 1px solid #b35900;
+    background: #d96b00; /* Emergency Ambulance Amber/Orange Theme */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .modal-header h5 {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .modal-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .modal-action-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 4px 8px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  .modal-action-btn:hover {
+    opacity: 1;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 28px;
+    cursor: pointer;
+    opacity: 0.9;
+    padding: 0 4px;
+    line-height: 1;
+  }
+
+  .modal-body {
+    padding: 20px;
+    font-size: 13px;
+    background: #ffffff;
+  }
+
+  .modal-footer {
+    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+
+  /* ── Order/Invoice Layout ── */
+  .ambulance-logo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 12px 0;
+    border-bottom: 2px solid #d96b00;
+    margin-bottom: 12px;
+  }
+
+  .ambulance-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #d96b00;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ambulance-address {
+    text-align: right;
+    font-size: 11px;
+    color: #4a5568;
+    line-height: 1.5;
+  }
+
+  .ambulance-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    padding: 6px 0 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+  }
+
+  .ambulance-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 24px;
+    padding: 6px 0 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+  }
+
+  .ambulance-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+  }
+
+  .ambulance-info-item label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+  }
+
+  .ambulance-info-item .value {
+    font-size: 12px;
+    color: #1e293b;
+    font-weight: 500;
+  }
+
+  .ambulance-info-full {
+    padding: 4px 0 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+  }
+
+  .ambulance-info-full label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .ambulance-info-full .value {
+    font-size: 12px;
+    color: #1e293b;
+    padding: 6px 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    min-height: 35px;
+  }
+
+  /* ── Ambulance Trip Services Table ── */
+  .ambulance-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 10px 0;
+    font-size: 12px;
+  }
+
+  .ambulance-items-table thead th {
+    background: #d96b00;
+    color: #fff;
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .ambulance-items-table tbody td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    color: #2d3748;
+  }
+
+  .ambulance-items-table .text-right {
+    text-align: right;
+  }
+
+  .ambulance-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 24px;
+    padding: 10px 0;
+    border-top: 2px solid #e2e8f0;
+    margin-top: 6px;
+  }
+
+  .ambulance-summary-left {
+    padding-right: 16px;
+    border-right: 1px solid #e2e8f0;
+  }
+
+  .ambulance-summary-left label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .ambulance-summary-left .value {
+    font-size: 12px;
+    color: #1e293b;
+    padding: 4px 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    min-height: 30px;
+  }
+
+  .ambulance-summary-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ambulance-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ambulance-summary-row .label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 12px;
+  }
+
+  .ambulance-summary-row .value {
+    font-weight: 500;
+    font-size: 12px;
+    color: #1e293b;
+  }
+
+  .ambulance-summary-row .value.discount { color: #c62828; }
+  .ambulance-summary-row .value.net { color: #d96b00; font-weight: 700; font-size: 14px; }
+  .ambulance-summary-row .value.paid { color: #2e7d32; }
+  .ambulance-summary-row .value.due { color: #c62828; font-weight: 700; }
+
+  .btn-modal-action {
+    padding: 8px 20px;
+    border: none;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-modal-action.pay { background: #d96b00; color: #fff; }
+  .btn-modal-action.pay:hover { background: #b35900; }
+  .btn-modal-action.close-modal { background: #6c757d; color: #fff; }
+
+  .loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: #718096;
+  }
+
+  @media (max-width: 768px) {
+    .ambulance-info-grid, .ambulance-summary-grid { grid-template-columns: 1fr; }
+    .ambulance-summary-left { border-right: none; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+    .modal-content { width: 95%; }
+  }
+</style>
+
+<div class="ambulance-container-layout template-fullwidth-override">
+  
+  <div class="ambulance-panel-header">
+    <div class="panel-title-group">
+      <h1><i class="fa fa-ambulance"></i> Ambulance & Emergency Transport Services</h1>
+      <p class="panel-subtitle">Emergency dispatch logs, patient transfers, mileage billing, and trip invoices tracker</p>
+    </div>
+  </div>
+
+  <div class="ambulance-billing-section">
+
+    <div class="ledger-action-row">
+      <h2>Ambulance Dispatch Ledger</h2>
+      <div class="ledger-btn-group">
+        <a href="{% url 'ambulance:ambulancegeneratebill' %}" class="btn-hms-primary" style="background:#d96b00; border-color:#b35900;">
+          <i class="fa fa-plus-circle"></i> Generate Ambulance Bill
+        </a>
+        <a href="{% url 'ambulance:ambulancelist' %}" class="btn-hms-secondary">        
+          <i class="fa fa-truck"></i> Vehicle Fleet & Drivers      
+        </a>
+      </div>
+    </div>
+
+    <div class="ledger-utility-row">
+      <div class="search-wrapper-block">
+        <label for="ledgerSearch">Search Ledger</label>
+        <input type="text" id="ledgerSearch" class="search-input-field" placeholder="Filter by bill, patient, vehicle no, driver, or destination...">
+      </div>
+
+      <div class="export-pagination-group">
+        <select id="entriesPerPage" class="entries-dropdown-select" aria-label="Records display pagination configuration">
+          <option value="10">Display 10 records</option>
+          <option value="20" {% if request.GET.per_page == '20' or not request.GET.per_page %}selected{% endif %}>Display 20 records</option>
+          <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>Display 50 records</option>
+          <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>Display 100 records</option>
+        </select>
+        
+        <div class="export-icon-buttons-container">
+          <button type="button" class="btn-export-icon" title="Copy Table Data"><i class="fa fa-copy"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to Excel"><i class="fa fa-file-excel-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to CSV"><i class="fa fa-file-text-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Export to PDF"><i class="fa fa-file-pdf-o"></i></button>
+          <button type="button" class="btn-export-icon" title="Print Table"><i class="fa fa-print"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-fixed-container containment-fullwidth">
+      <table class="hms-table hms-billing-log-table table-element-fullwidth" id="billingTable">
+        <thead>
+          <tr>
+            <th>Bill No</th>
+            <th>Patient ID</th>
+            <th>Date</th>
+            <th>Patient Name</th>
+            <th>Vehicle No</th>
+            <th>Driver / Escort</th>
+            <th class="text-right">Distance (KM)</th>
+            <th class="text-right">Net Amount (Kshs)</th>
+            <th class="text-right">Paid Amount (Kshs)</th>
+            <th class="text-right">Balance Due</th>
+            <th class="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for invoice in invoices %}
+          <tr>
+            <td><span class="badge-bill">{{ invoice.invoice_number }}</span></td>
+            <td class="case-id-cell">{{ invoice.patient_number|default:"—" }}</td>
+            <td>{{ invoice.created_at|date:"d/m/Y" }}</td>
+            <td title="{{ invoice.patient_name }}">
+              <strong class="patient-name-text">{{ invoice.patient_name|default:"Unknown Patient" }}</strong>
+            </td>
+            <td><strong>{{ invoice.vehicle_number|default:"—" }}</strong></td>
+            <td>{{ invoice.driver_name|default:"—" }}</td>
+            <td class="text-right">{{ invoice.distance_km|default:"0" }} KM</td>
+            <td class="text-right financial-digits-bold">{{ invoice.net_amount|floatformat:2 }}</td>
+            <td class="text-right financial-digits-paid">{{ invoice.amount_paid|floatformat:2 }}</td>
+            <td class="text-right balance-cell {% if invoice.balance_due <= 0 %}balance-clear{% else %}balance-due{% endif %}">
+              {{ invoice.balance_due|floatformat:2 }}
+            </td>
+            <td class="text-center">
+              <div class="row-hover-popover">
+                <a href="{% url 'ambulance:invoice_detail' invoice.id %}" class="popover-btn popover-btn-view" title="View Trip Details">
+                  <i class="fa fa-eye"></i>
+                </a>
+                <button type="button" class="popover-btn popover-btn-show" 
+                        title="Show Details" 
+                        onclick="openAmbulanceModal('{{ invoice.id }}'); event.stopPropagation();">
+                  <i class="fa fa-folder-open"></i>
+                </button>
+                <button type="button" class="popover-btn popover-btn-print" title="Print Receipt" onclick="printAmbulanceBill('{{ invoice.id }}'); event.stopPropagation();">
+                  <i class="fa fa-print"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="11" class="empty-table-placeholder">
+              No ambulance service billing records found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ledger-pagination-row">
+      <div class="pagination-counter-info">
+        Records: <strong>{{ invoices.start_index }}</strong> to <strong>{{ invoices.end_index }}</strong> of <strong>{{ total_records }}</strong>
+      </div>
+      <div class="pagination-nav-controls">
+        {% if invoices.has_previous %}
+          <a href="?page=1&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-double-left"></i></a>
+          <a href="?page={{ invoices.previous_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-left"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-left"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-left"></i></button>
+        {% endif %}
+        
+        <div class="page-numeric-links">
+          {% for num in invoices.paginator.page_range %}
+            {% if num == invoices.number %}
+              <button type="button" class="btn-page-num active-page">{{ num }}</button>
+            {% elif num > invoices.number|add:'-3' and num < invoices.number|add:'3' %}
+              <a href="?page={{ num }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-num">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
+        </div>
+        
+        {% if invoices.has_next %}
+          <a href="?page={{ invoices.next_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-right"></i></a>
+          <a href="?page={{ invoices.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-double-right"></i></a>
+        {% else %}
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-right"></i></button>
+          <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-right"></i></button>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── AMBULANCE TRIP DETAIL MODAL ── -->
+<div id="ambulanceModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5><i class="fa fa-ambulance" style="margin-right:8px;"></i> Ambulance Trip & Dispatch Details</h5>
+      <div class="modal-header-actions">
+        <button type="button" class="modal-action-btn" onclick="printModalAmbulance()" title="Print">
+          <i class="fa fa-print"></i> <span>Print</span>
+        </button>
+        <button type="button" class="modal-action-btn" onclick="deleteModalAmbulance()" title="Delete">
+          <i class="fa fa-trash"></i> <span>Delete</span>
+        </button>
+        <button type="button" class="modal-close" onclick="closeAmbulanceModal()">&times;</button>
+      </div>
+    </div>
+    
+    <div class="modal-body" id="ambulanceModalBody">
+      <div class="loading-spinner">
+        <div><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+        <div style="margin-top:10px;">Loading dispatch details...</div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn-modal-action close-modal" onclick="closeAmbulanceModal()">
+        <i class="fa fa-times"></i> Close
+      </button>
+      <a href="#" class="btn-modal-action pay" id="modalPayBtn">
+        <i class="fa fa-credit-card"></i> Process Payment
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Search Filter
+    const searchInput = document.getElementById('ledgerSearch');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#billingTable tbody tr');
+        
+        tableRows.forEach(row => {
+          if (row.querySelector('.empty-table-placeholder')) return;
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+      });
+    }
+
+    // Pagination Dropdown
+    const entriesPerPage = document.getElementById('entriesPerPage');
+    if (entriesPerPage) {
+      entriesPerPage.addEventListener('change', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('per_page', this.value);
+        urlParams.set('page', '1');
+        window.location.href = `?${urlParams.toString()}`;
+      });
+    }
+
+    window.printAmbulanceBill = function(invoiceId) {
+      window.open(`/ambulance/invoice/${invoiceId}/print/`, '_blank');
+    }
+
+    let currentInvoiceId = null;
+
+    window.openAmbulanceModal = function(invoiceId) {
+      const modal = document.getElementById('ambulanceModal');
+      const body = document.getElementById('ambulanceModalBody');
+      const payBtn = document.getElementById('modalPayBtn');
+      
+      currentInvoiceId = invoiceId;
+      
+      body.innerHTML = `
+        <div class="loading-spinner">
+          <div><i class="fa fa-spinner fa-spin fa-2x"></i></div>
+          <div style="margin-top:10px;">Loading transport details...</div>
+        </div>
+      `;
+      
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      
+      fetch(`/ambulance/invoice/${invoiceId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            body.innerHTML = `
+              <div style="text-align:center; padding:40px; color:#c62828;">
+                <i class="fa fa-exclamation-circle" style="font-size:32px; margin-bottom:12px;"></i>
+                <div>${escapeHtml(data.error) || 'Failed to load transport record'}</div>
+              </div>
+            `;
+            return;
+          }
+          
+          const inv = data.invoice;
+          
+          if (inv.balance_due > 0) {
+            payBtn.href = `/ambulance/payment/?order_id=${inv.id}`;
+            payBtn.style.display = 'inline-flex';
+          } else {
+            payBtn.style.display = 'none';
+          }
+          
+          let itemsHtml = '';
+          if (inv.items && inv.items.length > 0) {
+            itemsHtml = `
+              <table class="ambulance-items-table">
+                <thead>
+                  <tr>
+                    <th>Service / Item</th>
+                    <th>Rate / Charge Type</th>
+                    <th>Distance (KM) / Qty</th>
+                    <th>Tax (%)</th>
+                    <th class="text-right">Amount (Kshs)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${inv.items.map((item) => `
+                    <tr>
+                      <td><strong>${escapeHtml(item.name)}</strong></td>
+                      <td>${escapeHtml(item.charge_type) || 'Base Rate'}</td>
+                      <td>${item.quantity || '1'}</td>
+                      <td>${escapeHtml(item.tax_percent) || '0'}</td>
+                      <td class="text-right">${item.row_total ? item.row_total.toFixed(2) : '0.00'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `;
+          } else {
+            itemsHtml = `<p style="color:#718096; font-style:italic; padding:12px;">No breakdown charges attached to this transport bill.</p>`;
+          }
+          
+          body.innerHTML = `
+            <div class="ambulance-logo-row">
+              <div class="ambulance-logo">
+                <i class="fa fa-hospital-o"></i> Eagles Mission Hospital
+              </div>
+              <div class="ambulance-address">
+                <strong>Emergency & Ambulance Department</strong><br>
+                P.O. Box 12345-00100, Nairobi<br>
+                24/7 Hotline: +254 700 123456 | Email: ems@eagleshospital.co.ke
+              </div>
+            </div>
+            
+            <div class="ambulance-title">AMBULANCE TRANSPORT INVOICE</div>
+            
+            <div class="ambulance-info-grid">
+              <div class="ambulance-info-item">
+                <label>Bill / Voucher No:</label>
+                <span class="value"><strong>${escapeHtml(inv.bill_no)}</strong></span>
+              </div>
+              <div class="ambulance-info-item">
+                <label>Dispatch Date & Time:</label>
+                <span class="value">${escapeHtml(inv.date)}</span>
+              </div>
+              <div class="ambulance-info-item">
+                <label>Patient Name:</label>
+                <span class="value">${escapeHtml(inv.patient_name)}</span>
+              </div>
+              <div class="ambulance-info-item">
+                <label>Contact Phone:</label>
+                <span class="value">${escapeHtml(inv.phone || inv.patient_phone) || 'N/A'}</span>
+              </div>
+              <div class="ambulance-info-item">
+                <label>Vehicle Number:</label>
+                <span class="value"><strong>${escapeHtml(inv.vehicle_number) || 'N/A'}</strong></span>
+              </div>
+              <div class="ambulance-info-item">
+                <label>Driver / Paramedic:</label>
+                <span class="value">${escapeHtml(inv.driver_name) || 'N/A'}</span>
+              </div>
+              <div class="ambulance-info-item">
+                <label>Pickup Location:</label>
+                <span class="value">${escapeHtml(inv.pickup_location) || 'Hospital Grounds'}</span>
+              </div>
+              <div class="ambulance-info-item">
+                <label>Destination Location:</label>
+                <span class="value">${escapeHtml(inv.destination) || 'N/A'}</span>
+              </div>
+            </div>
+            
+            <div class="ambulance-info-full">
+              <label>Trip Remarks / Paramedic Notes:</label>
+              <div class="value">${escapeHtml(inv.trip_notes) || 'Standard patient transfer completed without incidents.'}</div>
+            </div>
+            
+            ${itemsHtml}
+            
+            <div class="ambulance-summary-grid">
+              <div class="ambulance-summary-left">
+                <label>Dispatch Officer:</label>
+                <div class="value">${escapeHtml(inv.created_by) || 'EMS Desk'}</div>
+              </div>
+              <div class="ambulance-summary-right">
+                <div class="ambulance-summary-row">
+                  <span class="label">Total Charges:</span>
+                  <span class="value">Kshs ${inv.total_amount.toFixed(2)}</span>
+                </div>
+                <div class="ambulance-summary-row">
+                  <span class="label">Discount:</span>
+                  <span class="value discount">- Kshs ${inv.discount_amount.toFixed(2)}</span>
+                </div>
+                <div class="ambulance-summary-row" style="border-top: 1px solid #d96b00; padding-top: 4px; margin-top: 2px;">
+                  <span class="label" style="font-weight:700; color:#d96b00;">Net Payable:</span>
+                  <span class="value net">Kshs ${inv.net_amount.toFixed(2)}</span>
+                </div>
+                <div class="ambulance-summary-row">
+                  <span class="label">Amount Paid:</span>
+                  <span class="value paid">Kshs ${inv.amount_paid.toFixed(2)}</span>
+                </div>
+                <div class="ambulance-summary-row" style="border-top: 2px solid #e2e8f0; padding-top: 4px; margin-top: 2px;">
+                  <span class="label" style="font-weight:700; color:#c62828;">Balance Due:</span>
+                  <span class="value due">Kshs ${inv.balance_due.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .catch(error => {
+          body.innerHTML = `
+            <div style="text-align:center; padding:40px; color:#c62828;">
+              <i class="fa fa-exclamation-triangle" style="font-size:32px; margin-bottom:12px;"></i>
+              <div>Error fetching records: ${escapeHtml(error.message)}</div>
+            </div>
+          `;
+        });
+    }
+
+    window.closeAmbulanceModal = function() {
+      const modal = document.getElementById('ambulanceModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      currentInvoiceId = null;
+    }
+
+    window.printModalAmbulance = function() {
+      if (currentInvoiceId) {
+        window.open(`/ambulance/invoice/${currentInvoiceId}/print/`, '_blank');
+      }
+    }
+
+    window.deleteModalAmbulance = function() {
+      if (currentInvoiceId) {
+        if (confirm('Are you sure you want to delete this ambulance transport record?')) {
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+          if (!csrfToken) {
+            alert('CSRF security token missing. Refresh page.');
+            return;
+          }
+          
+          fetch(`/ambulance/invoice/${currentInvoiceId}/delete/`, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': csrfToken.value,
+              'Content-Type': 'application/json',
+            },
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              closeAmbulanceModal();
+              location.reload();
+            } else {
+              alert('Error removing record: ' + (data.error || 'Unknown error'));
+            }
+          })
+          .catch(error => alert('Error removing record: ' + error.message));
+        }
+      }
+    }
+
+    document.getElementById('ambulanceModal').addEventListener('click', function(e) {
+      if (e.target === this) closeAmbulanceModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeAmbulanceModal();
+    });
+  });
+</script>
+
+{% endblock %}

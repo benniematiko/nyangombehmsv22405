@@ -1,0 +1,130 @@
+{% extends 'setup/setup_home.html' %}
+
+{% block pane_title %}Notification Setting{% endblock %}
+{% block pane_desc %}Choose how each event notifies users and edit the message sent.{% endblock %}
+
+{% block settings_content %}
+
+<style>
+    .nt-table { width: 100%; border-collapse: collapse; }
+    .nt-table th {
+        text-align: left; font-size: 12.5px; font-weight: 700; color: #1e293b;
+        padding: 10px 12px; border-bottom: 1px solid #e2e8f0;
+    }
+    .nt-table td { padding: 10px 12px; border-bottom: 1px solid #eef2f7; vertical-align: top; font-size: 13px; color: #334155; }
+    .nt-table tr:hover td { background: #fafbfc; }
+
+    .nt-options { display: flex; flex-wrap: wrap; gap: 14px; }
+    .nt-options label { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; cursor: pointer; margin: 0; }
+    .nt-options input { accent-color: #810810; width: 15px; height: 15px; }
+
+    .nt-tid { width: 100%; padding: 7px 10px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 0; outline: none; display: none; }
+    .nt-tid.show { display: block; }
+    .nt-tid:focus { border-color: #810810; }
+
+    .nt-msg { white-space: pre-line; line-height: 1.5; }
+    .nt-edit {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 28px; height: 22px; margin-top: 6px;
+        background: #22232b; color: #fff; border: none; border-radius: 0; cursor: pointer; font-size: 12px;
+    }
+    .nt-edit:hover { background: #3a3b45; }
+    .nt-textarea {
+        display: none; width: 100%; min-height: 90px; padding: 8px 10px; font-size: 13px;
+        border: 1px solid #cbd5e1; border-radius: 0; outline: none; resize: vertical; font-family: inherit;
+    }
+    .nt-textarea:focus { border-color: #810810; }
+
+    .nt-footer { border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 16px; text-align: right; }
+    .btn-dark {
+        background: #22232b; color: #fff; border: none; border-radius: 0;
+        padding: 9px 22px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .btn-dark:hover { background: #3a3b45; }
+
+    @media (max-width: 992px) { .nt-table { display: block; overflow-x: auto; } }
+</style>
+
+<form method="post">
+    {% csrf_token %}
+
+    <table class="nt-table">
+        <thead>
+            <tr>
+                <th style="width:20%;">Event</th>
+                <th style="width:24%;">Option</th>
+                <th style="width:16%;">Template Id</th>
+                <th>Sample Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in events %}
+            <tr>
+                <td>{{ e.label }}</td>
+
+                <td>
+                    <div class="nt-options">
+                        {% if e.email is not None %}
+                        <label><input type="checkbox" name="{{ e.key }}_email" {% if e.email %}checked{% endif %}> Email</label>
+                        {% endif %}
+                        {% if e.sms is not None %}
+                        <label><input type="checkbox" class="sms-box" name="{{ e.key }}_sms" {% if e.sms %}checked{% endif %}> SMS</label>
+                        {% endif %}
+                        {% if e.app is not None %}
+                        <label><input type="checkbox" name="{{ e.key }}_app" {% if e.app %}checked{% endif %}> Mobile App</label>
+                        {% endif %}
+                    </div>
+                </td>
+
+                <td>
+                    {% if e.sms is not None %}
+                    <input type="text" class="nt-tid {% if e.sms %}show{% endif %}" name="{{ e.key }}_template_id" placeholder="Template Id">
+                    {% endif %}
+                </td>
+
+                <td>
+                    <div class="nt-msg">{{ e.message }}</div>
+                    <textarea class="nt-textarea" name="{{ e.key }}_message">{{ e.message }}</textarea>
+                    <button type="button" class="nt-edit" title="Edit message"><i class="fa fa-pencil-square-o"></i></button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="nt-footer">
+        <button type="submit" class="btn-dark">Save</button>
+    </div>
+</form>
+
+<script>
+    // Edit button: swap the text for a textarea, and back again
+    document.querySelectorAll('.nt-edit').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var cell = btn.closest('td');
+            var text = cell.querySelector('.nt-msg');
+            var area = cell.querySelector('.nt-textarea');
+            var editing = area.style.display === 'block';
+
+            if (editing) {
+                text.textContent = area.value;
+                area.style.display = 'none';
+                text.style.display = 'block';
+            } else {
+                area.style.display = 'block';
+                text.style.display = 'none';
+                area.focus();
+            }
+        });
+    });
+
+    // Template Id box shows only when SMS is ticked
+    document.querySelectorAll('.sms-box').forEach(function (box) {
+        box.addEventListener('change', function () {
+            var tid = box.closest('tr').querySelector('.nt-tid');
+            tid.classList.toggle('show', box.checked);
+        });
+    });
+</script>
+
+{% endblock %}

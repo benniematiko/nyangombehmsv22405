@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
 from pharmacy.models import MedicineCategory, MedicineGroup, MedicineComposition, Supplier
+from django.utils.text import slugify
+
 
 
 @login_required
@@ -19,6 +21,53 @@ def setup_home(request):
         'supplier_count': Supplier.objects.count(),
     }
     return render(request, 'setup/setup_home.html', context)
+
+@login_required
+def general_settings(request):
+    return render(request, 'setup/general_settings.html')
+
+
+
+
+@login_required
+def attendance_settings(request):
+    role_names = ['Admin', 'Accountant', 'Doctor', 'Pharmacist', 'Pathologist',
+                  'Radiologist', 'Super Admin', 'Receptionist', 'Nurse']
+    roles = [{'name': r, 'slug': slugify(r)} for r in role_names]
+    types = [
+        {'label': 'Present', 'code': 'P'},
+        {'label': 'Late', 'code': 'L'},
+        {'label': 'Half Day', 'code': 'F'},
+        {'label': 'Half Day Second Shift', 'code': 'SH'},
+    ]
+    return render(request, 'setup/attendance_settings.html', {'roles': roles, 'types': types})
+
+
+@login_required
+def notification_settings(request):
+    # email / sms / app: None = option not available, True/False = checked by default
+    events = [
+        {'key': 'opd_registration', 'label': 'OPD Patient Registration', 'email': True, 'sms': False, 'app': True,
+         'message': 'Dear {{patient_name}} your OPD Registration at Eagles Mission Hospital is successful on date {{appointment_date}} with Patient Id {{patient_id}} and OPD No {{opdno}}'},
+        {'key': 'ipd_registration', 'label': 'IPD Patient Registration', 'email': True, 'sms': False, 'app': False,
+         'message': 'Dear {{patient_name}} your IPD Registration at Eagles Mission Hospital is successful with Patient Id {{patient_id}} and IPD No {{ipd_no}}'},
+        {'key': 'ipd_discharge', 'label': 'IPD Patient Discharge', 'email': True, 'sms': False, 'app': False,
+         'message': 'IPD Patient {{patient_name}} is now discharged from Eagles Mission Hospital. Total bill amount is {{currency_symbol}}{{total_amount}} Total paid amount is {{currency_symbol}}{{paid_amount}} Total balance bill amount is {{currency_symbol}}{{balance_amount}}'},
+        {'key': 'login_credential', 'label': 'Login Credential', 'email': True, 'sms': False, 'app': None,
+         'message': 'Hello {{display_name}} your Eagles Mission Hospital login details are Url: {{url}} Username: {{username}} Password: {{password}}'},
+        {'key': 'appointment_approved', 'label': 'Appointment Approved', 'email': True, 'sms': False, 'app': False,
+         'message': 'Dear {{patient_name}} your appointment with {{staff_name}} {{staff_surname}} is confirmed on {{date}} with appointment no: {{appointment_no}}'},
+        {'key': 'live_meeting', 'label': 'Live Meeting', 'email': True, 'sms': False, 'app': None,
+         'message': 'Dear staff, your live meeting {{title}} has been scheduled on {{date}} for the duration of {{duration}} minute.'},
+        {'key': 'live_consult', 'label': 'Live Consult', 'email': True, 'sms': False, 'app': False,
+         'message': 'Dear patient, your live consultation {{title}} has been scheduled on {{date}} for the duration of {{duration}} minute.'},
+        {'key': 'opd_discharged', 'label': 'OPD Patient Discharged', 'email': True, 'sms': False, 'app': False,
+         'message': 'OPD No {{opd_no}} {{patient_name}} is now discharged from Eagles Mission Hospital. Total bill amount was {{currency_symbol}}{{total_amount}} Total paid amount was {{currency_symbol}}{{paid_amount}} Total balance amount is {{currency_symbol}}{{balance_amount}}'},
+        {'key': 'forgot_password', 'label': 'Forgot Password', 'email': True, 'sms': None, 'app': None,
+         'message': "Dear {{display_name}}, recently a request was submitted to reset password for your account with email: {{email}}. If you didn't make the request, just ignore this email, otherwise you can reset your password using this link\nclick here to reset your password\n, if you're having trouble clicking the password reset link, copy and paste below URL into your web browser. {{resetpasslink}}\nRegards,\nEagles Mission Hospital"},
+    ]
+    return render(request, 'setup/notification_settings.html', {'events': events})
+
 
 @login_required
 def patient_setup(request):

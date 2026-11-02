@@ -102,7 +102,7 @@
   .btn-row-remove:hover { color: #b71c1c; transform: scale(1.15); }
 
   /* ── Patient Search ── */
-  .patient-search-wrapper {
+  /* .patient-search-wrapper {
     position: relative;
     width: 60%;
     display: inline-block;
@@ -121,7 +121,34 @@
     z-index: 1050;
     display: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  }
+  } */
+
+
+
+.patient-search-wrapper { position: relative; width: 60%; display: inline-block; }
+
+.patient-trigger {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 32px; padding: 0 10px; background: #fff; color: #2d3748;
+  border: 1px solid #b33333; font-size: 13px; cursor: pointer; box-sizing: border-box;
+}
+.patient-trigger .placeholder { color: #a0aec0; }
+.patient-trigger .caret { font-size: 12px; color: #718096; }
+
+.patient-panel {
+  display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1050;
+  background: #fff; border: 1px solid #cbd5e0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.patient-panel.open { display: block; }
+.patient-panel .panel-search { padding: 6px; }
+.patient-panel .panel-search input {
+  width: 100%; height: 30px; padding: 0 8px; font-size: 13px;
+  border: 1px solid #2d3748; border-radius: 0; outline: none; box-sizing: border-box;
+}
+#patient_results { max-height: 220px; overflow-y: auto; }
+
+
+
 
   .patient-result-item {
     padding: 8px 12px;
@@ -372,6 +399,52 @@
 .modal-body {
     padding: 12px 20px;
 }
+
+
+
+
+
+
+
+
+/* ── M-Pesa STK modal ── */
+.mpesa-box { width: 420px; max-width: 92%; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+.mpesa-head { background: #2e7d32; color: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+.mpesa-head h5 { margin: 0; font-size: 16px; font-weight: 600; }
+.mpesa-body { padding: 20px; font-size: 13px; }
+.mpesa-amount { text-align: center; background: #f1f8f2; border: 1px solid #c8e6c9; padding: 12px; margin-bottom: 16px; }
+.mpesa-amount small { display: block; color: #4a5568; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.mpesa-amount strong { font-size: 24px; color: #1b5e20; }
+.mpesa-body label { display: block; font-size: 12px; font-weight: 600; color: #4a5568; margin-bottom: 4px; }
+.mpesa-body input { width: 100%; height: 36px; padding: 0 10px; font-size: 14px; border: 1px solid #cbd5e0; border-radius: 0; box-sizing: border-box; }
+.mpesa-body input:focus { outline: none; border-color: #2e7d32; }
+.mpesa-status { margin-top: 14px; padding: 10px 12px; font-size: 13px; display: none; }
+.mpesa-status.show { display: block; }
+.mpesa-status.info    { background: #e3f2fd; color: #0d47a1; }
+.mpesa-status.success { background: #d4edda; color: #155724; }
+.mpesa-status.error   { background: #fdecea; color: #b71c1c; }
+.mpesa-foot { padding: 12px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
+.btn-stk { height: 36px; padding: 0 20px; background: #2e7d32; color: #fff; border: none; font-weight: 700; font-size: 13px; cursor: pointer; border-radius: 0; }
+.btn-stk:hover { background: #1b5e20; }
+.btn-stk:disabled { background: #9ca3af; cursor: not-allowed; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
 
 <div class="billing-canvas-container">
@@ -382,7 +455,8 @@
     <div class="billing-top-action-bar" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 12px; background:#990000; border-bottom:2px solid #800000;">
 
       <!-- Patient search (60%) -->
-      <div class="patient-search-wrapper">
+
+      <!-- <div class="patient-search-wrapper">
         <input type="text" id="patient_search" class="billing-header-input"
                placeholder="Type patient name or ID (min 2 letters)..."
                autocomplete="off"
@@ -391,7 +465,28 @@
                       font-size:13px; box-sizing:border-box;">
         <input type="hidden" id="patient_select" name="patient" required>
         <div id="patient_results"></div>
+      </div> -->
+
+
+    <div class="patient-search-wrapper">
+      <div class="patient-trigger" id="patient_trigger">
+        <span id="patient_label" class="placeholder">Select patient...</span>
+        <i class="fa fa-caret-down caret"></i>
       </div>
+      <input type="hidden" id="patient_select" name="patient" required>
+
+      <div class="patient-panel" id="patient_panel">
+        <div class="panel-search">
+          <input type="text" id="patient_search" autocomplete="off">
+        </div>
+        <div id="patient_results">
+          <div class="patient-result-status">Enter Patient Name or Id...</div>
+        </div>
+      </div>
+    </div>
+
+
+
 
       <!-- +New Patient -->
       <button type="button" class="btn-quick-add-patient" id="openPatientModalBtn">
@@ -768,6 +863,37 @@
 </div>
 
 
+
+<!-- ── M-PESA STK MODAL ── -->
+<div id="mpesaModal" class="modal-overlay">
+  <div class="mpesa-box">
+    <div class="mpesa-head">
+      <h5><i class="fa fa-mobile" style="margin-right:8px;"></i> M-Pesa Payment</h5>
+      <button type="button" class="modal-close" id="closeMpesaModal">&times;</button>
+    </div>
+
+    <div class="mpesa-body">
+      <div class="mpesa-amount">
+        <small>Amount to pay</small>
+        <strong>KES <span id="mpesaAmountText">0.00</span></strong>
+      </div>
+
+      <label for="mpesa_phone">Patient M-Pesa Number</label>
+      <input type="text" id="mpesa_phone" placeholder="e.g. 0712345678" maxlength="13" inputmode="tel">
+
+      <div id="mpesaStatus" class="mpesa-status"></div>
+    </div>
+
+    <div class="mpesa-foot">
+      <button type="button" class="btn-cancel" id="cancelMpesaModal">Cancel</button>
+      <button type="button" class="btn-stk" id="sendStkBtn"><i class="fa fa-paper-plane"></i> Send STK Push</button>
+    </div>
+  </div>
+</div>
+
+<input type="hidden" id="mpesa_receipt" name="mpesa_receipt" form="pharmacyBillForm">
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -778,553 +904,758 @@ document.addEventListener('DOMContentLoaded', function () {
   // ════════════════════════════════════════════════════════════════
   // 1. PATIENT LIVE SEARCH (AJAX — calls /pharmacy/search-patients/)
   // ════════════════════════════════════════════════════════════════
+  // const patientSearchInput = document.getElementById('patient_search');
+  // const patientHiddenInput = document.getElementById('patient_select');
+  // const patientResultsBox  = document.getElementById('patient_results');
+  // const caseIdInput        = document.getElementById('case_id');
+
+  // let searchTimer = null;
+
+  // Generate a local case ID placeholder when patient is selected
+  // function generateCaseId() {
+  //   const now   = new Date();
+  //   const yy    = now.getFullYear().toString().slice(-2);
+  //   const mm    = String(now.getMonth() + 1).padStart(2, '0');
+  //   const dd    = String(now.getDate()).padStart(2, '0');
+  //   const rand  = String(Math.floor(Math.random() * 9000) + 1000);
+  //   return `CASE-${yy}${mm}${dd}-${rand}`;
+  // }
+
+  // function showStatus(msg) {
+  //   if (patientResultsBox) {
+  //     patientResultsBox.innerHTML = `<div class="patient-result-status">${msg}</div>`;
+  //     patientResultsBox.style.display = 'block';
+  //   }
+  // }
+
+  // function renderPatients(data) {
+  //   if (!patientResultsBox) return;
+  //   patientResultsBox.innerHTML = '';
+
+  //   if (!data.length) {
+  //     showStatus('No patients found.');
+  //     return;
+  //   }
+
+  //   data.forEach(p => {
+  //     const item = document.createElement('div');
+  //     item.className = 'patient-result-item';
+  //     item.innerHTML = `<span><strong>${p.name}</strong><span class="pid">${p.opd_number || ''}</span></span>
+  //                       <span style="font-size:11px;color:#a0aec0;">${p.gender || ''} ${p.age ? p.age + 'y' : ''}</span>`;
+  //     item.addEventListener('click', () => {
+  //       patientSearchInput.value   = `${p.name} (${p.opd_number || ''})`;
+  //       patientHiddenInput.value   = p.id;
+  //       patientResultsBox.style.display = 'none';
+  //       if (caseIdInput) caseIdInput.value = generateCaseId();
+  //       patientSearchInput.style.borderColor = '#38a169';
+  //     });
+  //     patientResultsBox.appendChild(item);
+  //   });
+
+  //   patientResultsBox.style.display = 'block';
+  // }
+
+  // if (patientSearchInput) {
+  //   patientSearchInput.addEventListener('input', function () {
+  //     const q = this.value.trim();
+
+  //     // Reset if user clears field
+  //     if (!q) {
+  //       patientHiddenInput.value = '';
+  //       if (patientResultsBox) patientResultsBox.style.display = 'none';
+  //       this.style.borderColor = '#b33333';
+  //       return;
+  //     }
+
+  //     if (q.length < 2) {
+  //       showStatus('Type at least 2 characters…');
+  //       return;
+  //     }
+
+  //     clearTimeout(searchTimer);
+  //     showStatus('<i class="fa fa-spinner fa-spin"></i> Searching…');
+
+  //     searchTimer = setTimeout(() => {
+  //       fetch(`/pharmacy/search-patients/?q=${encodeURIComponent(q)}`, {
+  //         headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  //       })
+  //       .then(r => r.json())
+  //       .then(renderPatients)
+  //       .catch(() => showStatus('Search error — please try again.'));
+  //     }, 300);
+  //   });
+  // }
+
+  // // Close results on outside click
+  // document.addEventListener('click', e => {
+  //   if (patientSearchInput && patientResultsBox) {
+  //     if (!patientSearchInput.contains(e.target) && !patientResultsBox.contains(e.target)) {
+  //       patientResultsBox.style.display = 'none';
+  //     }
+  //   }
+  // });
+
+
+
+  // ════════ 1. PATIENT DROPDOWN SEARCH ════════
+  const patientTrigger     = document.getElementById('patient_trigger');
+  const patientLabel       = document.getElementById('patient_label');
+  const patientPanel       = document.getElementById('patient_panel');
   const patientSearchInput = document.getElementById('patient_search');
   const patientHiddenInput = document.getElementById('patient_select');
   const patientResultsBox  = document.getElementById('patient_results');
   const caseIdInput        = document.getElementById('case_id');
-
+  const HINT = 'Enter Patient Name or Id...';
   let searchTimer = null;
 
-  // Generate a local case ID placeholder when patient is selected
   function generateCaseId() {
-    const now   = new Date();
-    const yy    = now.getFullYear().toString().slice(-2);
-    const mm    = String(now.getMonth() + 1).padStart(2, '0');
-    const dd    = String(now.getDate()).padStart(2, '0');
-    const rand  = String(Math.floor(Math.random() * 9000) + 1000);
+    const now = new Date();
+    const yy = now.getFullYear().toString().slice(-2);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const rand = String(Math.floor(Math.random() * 9000) + 1000);
     return `CASE-${yy}${mm}${dd}-${rand}`;
   }
 
   function showStatus(msg) {
-    if (patientResultsBox) {
-      patientResultsBox.innerHTML = `<div class="patient-result-status">${msg}</div>`;
-      patientResultsBox.style.display = 'block';
-    }
+    patientResultsBox.innerHTML = `<div class="patient-result-status">${msg}</div>`;
+  }
+
+  function openPanel() {
+    patientPanel.classList.add('open');
+    patientSearchInput.value = '';
+    showStatus(HINT);
+    patientSearchInput.focus();
+  }
+
+  function closePanel() { patientPanel.classList.remove('open'); }
+
+  // One place that picks a patient (used by the list AND the New Patient modal)
+  function setPatient(id, label) {
+    patientHiddenInput.value = id;
+    patientLabel.textContent = label;
+    patientLabel.classList.remove('placeholder');
+    if (caseIdInput) caseIdInput.value = generateCaseId();
+    closePanel();
   }
 
   function renderPatients(data) {
-    if (!patientResultsBox) return;
     patientResultsBox.innerHTML = '';
-
-    if (!data.length) {
-      showStatus('No patients found.');
-      return;
-    }
+    if (!data.length) { showStatus('No patients found.'); return; }
 
     data.forEach(p => {
       const item = document.createElement('div');
       item.className = 'patient-result-item';
       item.innerHTML = `<span><strong>${p.name}</strong><span class="pid">${p.opd_number || ''}</span></span>
                         <span style="font-size:11px;color:#a0aec0;">${p.gender || ''} ${p.age ? p.age + 'y' : ''}</span>`;
-      item.addEventListener('click', () => {
-        patientSearchInput.value   = `${p.name} (${p.opd_number || ''})`;
-        patientHiddenInput.value   = p.id;
-        patientResultsBox.style.display = 'none';
-        if (caseIdInput) caseIdInput.value = generateCaseId();
-        patientSearchInput.style.borderColor = '#38a169';
-      });
+      item.addEventListener('click', () => setPatient(p.id, `${p.name} (${p.opd_number || ''})`));
       patientResultsBox.appendChild(item);
     });
-
-    patientResultsBox.style.display = 'block';
   }
 
-  if (patientSearchInput) {
-    patientSearchInput.addEventListener('input', function () {
-      const q = this.value.trim();
-
-      // Reset if user clears field
-      if (!q) {
-        patientHiddenInput.value = '';
-        if (patientResultsBox) patientResultsBox.style.display = 'none';
-        this.style.borderColor = '#b33333';
-        return;
-      }
-
-      if (q.length < 2) {
-        showStatus('Type at least 2 characters…');
-        return;
-      }
-
-      clearTimeout(searchTimer);
-      showStatus('<i class="fa fa-spinner fa-spin"></i> Searching…');
-
-      searchTimer = setTimeout(() => {
-        fetch(`/pharmacy/search-patients/?q=${encodeURIComponent(q)}`, {
-          headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(r => r.json())
-        .then(renderPatients)
-        .catch(() => showStatus('Search error — please try again.'));
-      }, 300);
-    });
-  }
-
-  // Close results on outside click
-  document.addEventListener('click', e => {
-    if (patientSearchInput && patientResultsBox) {
-      if (!patientSearchInput.contains(e.target) && !patientResultsBox.contains(e.target)) {
-        patientResultsBox.style.display = 'none';
-      }
-    }
+  patientTrigger.addEventListener('click', () => {
+    patientPanel.classList.contains('open') ? closePanel() : openPanel();
   });
+
+  patientSearchInput.addEventListener('input', function () {
+    const q = this.value.trim();
+    clearTimeout(searchTimer);
+
+    if (q.length < 2) { showStatus(HINT); return; }
+
+    showStatus('<i class="fa fa-spinner fa-spin"></i> Searching…');
+    searchTimer = setTimeout(() => {
+      fetch(`/pharmacy/search-patients/?q=${encodeURIComponent(q)}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(r => r.json())
+      .then(renderPatients)
+      .catch(() => showStatus('Search error — please try again.'));
+    }, 300);
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.patient-search-wrapper')) closePanel();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
 
   // ════════════════════════════════════════════════════════════════
   // 2. MEDICINE LEDGER ROWS — add / remove
   // ════════════════════════════════════════════════════════════════
   const rowsContainer = document.getElementById('medicine-ledger-rows');
-  if (rowsContainer) {
-    const firstRow      = rowsContainer.querySelector('.purchase-single-ledger-row');
-    if (firstRow) {
-      const rowTemplate = firstRow.cloneNode(true);
+    if (rowsContainer) {
+      const firstRow      = rowsContainer.querySelector('.purchase-single-ledger-row');
+      if (firstRow) {
+        const rowTemplate = firstRow.cloneNode(true);
 
-      // Clean the cloned template
-      rowTemplate.querySelectorAll('input').forEach(inp => {
-        if (inp.name !== 'tax_percent[]') inp.value = '';
-        else inp.value = '0.00';
-      });
-      const nameSelect = rowTemplate.querySelector('.med-name-select');
-      if (nameSelect) {
-        nameSelect.innerHTML = '<option value="" disabled selected>Select category first...</option>';
-      }
-
-      const tplBtn = rowTemplate.querySelector('.btn-row-add');
-      if (tplBtn) {
-        tplBtn.className   = 'btn-row-remove';
-        tplBtn.title       = 'Remove Row';
-        tplBtn.innerHTML   = '<i class="fa fa-times"></i>';
-      }
-
-      rowsContainer.addEventListener('click', function(e) {
-        if (e.target.closest('.btn-row-add')) {
-          rowsContainer.appendChild(rowTemplate.cloneNode(true));
+        // Clean the cloned template
+        rowTemplate.querySelectorAll('input').forEach(inp => {
+          if (inp.name !== 'tax_percent[]') inp.value = '';
+          else inp.value = '0.00';
+        });
+        const nameSelect = rowTemplate.querySelector('.med-name-select');
+        if (nameSelect) {
+          nameSelect.innerHTML = '<option value="" disabled selected>Select category first...</option>';
         }
-        if (e.target.closest('.btn-row-remove')) {
-          const row = e.target.closest('.purchase-single-ledger-row');
-          if (rowsContainer.children.length > 1) {
-            row.remove();
-            recalculateTotals();
-          }
+
+        const tplBtn = rowTemplate.querySelector('.btn-row-add');
+        if (tplBtn) {
+          tplBtn.className   = 'btn-row-remove';
+          tplBtn.title       = 'Remove Row';
+          tplBtn.innerHTML   = '<i class="fa fa-times"></i>';
         }
-      });
-    }
-  }
 
-  // ════════════════════════════════════════════════════════════════
-  // 3. CASCADING CATEGORY → MEDICINE + AUTO-FILL
-  // ════════════════════════════════════════════════════════════════
-  const medicineCache = {};
-
-  function clearRowAutofill(row) {
-    if (!row) return;
-    ['input[name="batch_no[]"]','input[name="expiry_date[]"]',
-     'input[name="qty_in_stock[]"]','input[name="quantity[]"]',
-     'input[name="row_amount[]"]'].forEach(function(sel) {
-      const el = row.querySelector(sel);
-      if (el) {
-        el.value = '';
-        el.classList.remove('out-of-stock-input', 'qty-disabled');
-        el.disabled = false;
-      }
-    });
-    const priceEl = row.querySelector('input[name="sale_price[]"]');
-    if (priceEl) priceEl.value = '0.00';
-    const taxEl = row.querySelector('input[name="tax_percent[]"]');
-    if (taxEl) taxEl.value = '0.00';
-    
-    // Remove warnings
-    const warning = row.querySelector('.stock-warning');
-    if (warning) warning.remove();
-  }
-
-  // Use event delegation on the DOCUMENT so it works for both
-  // the original first row AND any dynamically added rows
-  document.addEventListener('change', function(e) {
-
-    // ── Category changed ──
-    if (e.target.classList.contains('med-category-select')) {
-      const categoryId = e.target.value;
-      const row        = e.target.closest('.purchase-single-ledger-row');
-      if (!row) return;
-
-      const medSelect = row.querySelector('.med-name-select');
-      clearRowAutofill(row);
-      if (medSelect) {
-        medSelect.innerHTML = '<option value="" disabled selected>Loading…</option>';
-      }
-
-      fetch('/pharmacy/get-medicines-by-category/?category_id=' + categoryId)
-        .then(r => r.json())
-        .then(function(data) {
-          if (!medSelect) return;
-          if (data.error || !data.length) {
-            medSelect.innerHTML = '<option value="" disabled selected>' +
-              (data.error ? '⚠ Error loading' : 'No medicines found') + '</option>';
-            return;
+        rowsContainer.addEventListener('click', function(e) {
+          if (e.target.closest('.btn-row-add')) {
+            rowsContainer.appendChild(rowTemplate.cloneNode(true));
           }
-          medSelect.innerHTML = '<option value="" disabled selected>Select medicine…</option>';
-          data.forEach(function(med) {
-            medicineCache[String(med.id)] = med;
-            const opt = document.createElement('option');
-            opt.value       = med.id;
-            opt.textContent = med.name;
-            
-            // Check if out of stock
-            const inStock = med.quantity_in_stock || 0;
-            if (inStock === 0) {
-              opt.textContent += ' ❌ (Out of stock)';
-              opt.style.color = '#c62828';
-              opt.dataset.outOfStock = 'true';
-            } else if (inStock <= 5) {
-              opt.textContent += ` ⚠️ (${inStock} left)`;
-              opt.style.color = '#e67e22';
+          if (e.target.closest('.btn-row-remove')) {
+            const row = e.target.closest('.purchase-single-ledger-row');
+            if (rowsContainer.children.length > 1) {
+              row.remove();
+              recalculateTotals();
             }
-            
-            medSelect.appendChild(opt);
-          });
-        })
-        .catch(function() {
-          if (medSelect) {
-            medSelect.innerHTML = '<option value="" disabled selected>❌ Error — retry</option>';
           }
         });
+      }
     }
 
-    // ── Medicine selected → auto-fill all row fields ──
-    if (e.target.classList.contains('med-name-select')) {
-      const medId = String(e.target.value);
-      const row   = e.target.closest('.purchase-single-ledger-row');
-      if (!row || !medId) return;
+    // ════════════════════════════════════════════════════════════════
+    // 3. CASCADING CATEGORY → MEDICINE + AUTO-FILL
+    // ════════════════════════════════════════════════════════════════
+    const medicineCache = {};
 
-      const m = medicineCache[medId];
-      if (!m) {
-        console.warn('Medicine not in cache for id:', medId);
-        return;
+    function clearRowAutofill(row) {
+      if (!row) return;
+      ['input[name="batch_no[]"]','input[name="expiry_date[]"]',
+      'input[name="qty_in_stock[]"]','input[name="quantity[]"]',
+      'input[name="row_amount[]"]'].forEach(function(sel) {
+        const el = row.querySelector(sel);
+        if (el) {
+          el.value = '';
+          el.classList.remove('out-of-stock-input', 'qty-disabled');
+          el.disabled = false;
+        }
+      });
+      const priceEl = row.querySelector('input[name="sale_price[]"]');
+      if (priceEl) priceEl.value = '0.00';
+      const taxEl = row.querySelector('input[name="tax_percent[]"]');
+      if (taxEl) taxEl.value = '0.00';
+      
+      // Remove warnings
+      const warning = row.querySelector('.stock-warning');
+      if (warning) warning.remove();
+    }
+
+    // Use event delegation on the DOCUMENT so it works for both
+    // the original first row AND any dynamically added rows
+    document.addEventListener('change', function(e) {
+
+      // ── Category changed ──
+      if (e.target.classList.contains('med-category-select')) {
+        const categoryId = e.target.value;
+        const row        = e.target.closest('.purchase-single-ledger-row');
+        if (!row) return;
+
+        const medSelect = row.querySelector('.med-name-select');
+        clearRowAutofill(row);
+        if (medSelect) {
+          medSelect.innerHTML = '<option value="" disabled selected>Loading…</option>';
+        }
+
+        fetch('/pharmacy/get-medicines-by-category/?category_id=' + categoryId)
+          .then(r => r.json())
+          .then(function(data) {
+            if (!medSelect) return;
+            if (data.error || !data.length) {
+              medSelect.innerHTML = '<option value="" disabled selected>' +
+                (data.error ? '⚠ Error loading' : 'No medicines found') + '</option>';
+              return;
+            }
+            medSelect.innerHTML = '<option value="" disabled selected>Select medicine…</option>';
+            data.forEach(function(med) {
+              medicineCache[String(med.id)] = med;
+              const opt = document.createElement('option');
+              opt.value       = med.id;
+              opt.textContent = med.name;
+              
+              // Check if out of stock
+              const inStock = med.quantity_in_stock || 0;
+              if (inStock === 0) {
+                opt.textContent += ' ❌ (Out of stock)';
+                opt.style.color = '#c62828';
+                opt.dataset.outOfStock = 'true';
+              } else if (inStock <= 5) {
+                opt.textContent += ` ⚠️ (${inStock} left)`;
+                opt.style.color = '#e67e22';
+              }
+              
+              medSelect.appendChild(opt);
+            });
+          })
+          .catch(function() {
+            if (medSelect) {
+              medSelect.innerHTML = '<option value="" disabled selected>❌ Error — retry</option>';
+            }
+          });
       }
 
-      // Fill all autofill fields
-      const f = function(selector, val) {
-        const el = row.querySelector(selector);
-        if (el) el.value = val !== undefined && val !== null ? val : '';
-      };
+      // ── Medicine selected → auto-fill all row fields ──
+      if (e.target.classList.contains('med-name-select')) {
+        const medId = String(e.target.value);
+        const row   = e.target.closest('.purchase-single-ledger-row');
+        if (!row || !medId) return;
 
-      f('input[name="batch_no[]"]',     m.batch_no || '');
-      f('input[name="expiry_date[]"]',  m.expiry_date || '');
-      f('input[name="qty_in_stock[]"]', m.quantity_in_stock != null ? m.quantity_in_stock : 0);
-      f('input[name="sale_price[]"]',   m.sale_price != null ? parseFloat(m.sale_price).toFixed(2) : '0.00');
-      f('input[name="tax_percent[]"]',  m.tax_percent != null ? parseFloat(m.tax_percent).toFixed(2) : '0.00');
-
-      // Stock checking and quantity control
-      const stockEl = row.querySelector('input[name="qty_in_stock[]"]');
-      const qtyEl = row.querySelector('input[name="quantity[]"]');
-      const inStock = parseInt(stockEl ? stockEl.value : 0) || 0;
-
-      // Remove existing warnings
-      const existingWarning = row.querySelector('.stock-warning');
-      if (existingWarning) existingWarning.remove();
-
-      if (inStock === 0) {
-        // Out of stock - disable quantity input
-        if (qtyEl) {
-          qtyEl.value = 0;
-          qtyEl.disabled = true;
-          qtyEl.classList.add('qty-disabled');
-          qtyEl.title = 'Out of stock - cannot add';
+        const m = medicineCache[medId];
+        if (!m) {
+          console.warn('Medicine not in cache for id:', medId);
+          return;
         }
-        if (stockEl) {
-          stockEl.classList.add('out-of-stock-input');
-        }
-        // Show warning message
-        const warning = document.createElement('div');
-        warning.className = 'stock-warning';
-        warning.textContent = '⚠️ OUT OF STOCK';
-        const wrapper = row.querySelector('.field-input-wrapper:has(input[name="qty_in_stock[]"])');
-        if (wrapper) wrapper.appendChild(warning);
-      } else {
-        // Enable quantity input
-        if (qtyEl) {
-          qtyEl.disabled = false;
-          qtyEl.classList.remove('qty-disabled');
-          qtyEl.title = '';
-          qtyEl.max = inStock;
-          if (!qtyEl.value || parseFloat(qtyEl.value) <= 0) {
-            qtyEl.value = 1;
+
+        // Fill all autofill fields
+        const f = function(selector, val) {
+          const el = row.querySelector(selector);
+          if (el) el.value = val !== undefined && val !== null ? val : '';
+        };
+
+        f('input[name="batch_no[]"]',     m.batch_no || '');
+        f('input[name="expiry_date[]"]',  m.expiry_date || '');
+        f('input[name="qty_in_stock[]"]', m.quantity_in_stock != null ? m.quantity_in_stock : 0);
+        f('input[name="sale_price[]"]',   m.sale_price != null ? parseFloat(m.sale_price).toFixed(2) : '0.00');
+        f('input[name="tax_percent[]"]',  m.tax_percent != null ? parseFloat(m.tax_percent).toFixed(2) : '0.00');
+
+        // Stock checking and quantity control
+        const stockEl = row.querySelector('input[name="qty_in_stock[]"]');
+        const qtyEl = row.querySelector('input[name="quantity[]"]');
+        const inStock = parseInt(stockEl ? stockEl.value : 0) || 0;
+
+        // Remove existing warnings
+        const existingWarning = row.querySelector('.stock-warning');
+        if (existingWarning) existingWarning.remove();
+
+        if (inStock === 0) {
+          // Out of stock - disable quantity input
+          if (qtyEl) {
+            qtyEl.value = 0;
+            qtyEl.disabled = true;
+            qtyEl.classList.add('qty-disabled');
+            qtyEl.title = 'Out of stock - cannot add';
           }
-        }
-        if (stockEl) {
-          stockEl.classList.remove('out-of-stock-input');
-        }
-        
-        // Show low stock warning if stock <= 5
-        if (inStock <= 5) {
+          if (stockEl) {
+            stockEl.classList.add('out-of-stock-input');
+          }
+          // Show warning message
           const warning = document.createElement('div');
-          warning.className = 'stock-warning low';
-          warning.textContent = `⚠️ LOW STOCK: Only ${inStock} left`;
+          warning.className = 'stock-warning';
+          warning.textContent = '⚠️ OUT OF STOCK';
           const wrapper = row.querySelector('.field-input-wrapper:has(input[name="qty_in_stock[]"])');
           if (wrapper) wrapper.appendChild(warning);
+        } else {
+          // Enable quantity input
+          if (qtyEl) {
+            qtyEl.disabled = false;
+            qtyEl.classList.remove('qty-disabled');
+            qtyEl.title = '';
+            qtyEl.max = inStock;
+            if (!qtyEl.value || parseFloat(qtyEl.value) <= 0) {
+              qtyEl.value = 1;
+            }
+          }
+          if (stockEl) {
+            stockEl.classList.remove('out-of-stock-input');
+          }
+          
+          // Show low stock warning if stock <= 5
+          if (inStock <= 5) {
+            const warning = document.createElement('div');
+            warning.className = 'stock-warning low';
+            warning.textContent = `⚠️ LOW STOCK: Only ${inStock} left`;
+            const wrapper = row.querySelector('.field-input-wrapper:has(input[name="qty_in_stock[]"])');
+            if (wrapper) wrapper.appendChild(warning);
+          }
         }
+
+        // Fire row calculation
+        recalculateRow(row);
       }
+    });
 
-      // Fire row calculation
-      recalculateRow(row);
-    }
-  });
-
-  // Override quantity input to respect max stock
-  document.addEventListener('input', function(e) {
-    if (e.target.classList.contains('row-qty')) {
-      const row = e.target.closest('.purchase-single-ledger-row');
-      if (!row) return;
-      
-      const stockEl = row.querySelector('input[name="qty_in_stock[]"]');
-      const maxStock = parseInt(stockEl ? stockEl.value : 0) || 0;
-      const qty = parseInt(e.target.value) || 0;
-      
-      if (maxStock > 0 && qty > maxStock) {
-        e.target.value = maxStock;
-        alert(`Only ${maxStock} units available in stock.`);
+    // Override quantity input to respect max stock
+    document.addEventListener('input', function(e) {
+      if (e.target.classList.contains('row-qty')) {
+        const row = e.target.closest('.purchase-single-ledger-row');
+        if (!row) return;
+        
+        const stockEl = row.querySelector('input[name="qty_in_stock[]"]');
+        const maxStock = parseInt(stockEl ? stockEl.value : 0) || 0;
+        const qty = parseInt(e.target.value) || 0;
+        
+        if (maxStock > 0 && qty > maxStock) {
+          e.target.value = maxStock;
+          alert(`Only ${maxStock} units available in stock.`);
+        }
+        recalculateRow(row);
       }
-      recalculateRow(row);
-    }
-  });
+    });
 
-  // ════════════════════════════════════════════════════════════════
-  // 4. ROW TOTAL & GRAND TOTALS CALCULATION ENGINE
-  // ════════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════
+    // 4. ROW TOTAL & GRAND TOTALS CALCULATION ENGINE
+    // ════════════════════════════════════════════════════════════════
 
-  // Also use document-level delegation so added rows are included
-  document.addEventListener('input', function(e) {
-    if (!e.target.closest('#medicine-ledger-rows')) return;
-    const classes = ['row-qty', 'row-sale-price', 'row-tax'];
-    if (classes.some(function(c) { return e.target.classList.contains(c); })) {
-      recalculateRow(e.target.closest('.purchase-single-ledger-row'));
-    }
-  });
-
-  const discountEl = document.getElementById('discount_amount');
-  if (discountEl) discountEl.addEventListener('input', recalculateTotals);
-
-  function recalculateRow(row) {
-    if (!row) return;
-    const qtyEl   = row.querySelector('input[name="quantity[]"]');
-    const priceEl = row.querySelector('input[name="sale_price[]"]');
-    const taxEl   = row.querySelector('input[name="tax_percent[]"]');
-    const totalEl = row.querySelector('input[name="row_amount[]"]');
-
-    const qty   = parseFloat(qtyEl   && qtyEl.value   ? qtyEl.value   : 0) || 0;
-    const price = parseFloat(priceEl && priceEl.value ? priceEl.value : 0) || 0;
-    const tax   = parseFloat(taxEl   && taxEl.value   ? taxEl.value   : 0) || 0;
-
-    const base     = qty * price;
-    const taxAmt   = base * (tax / 100);
-    const rowTotal = base + taxAmt;
-
-    if (totalEl) totalEl.value = rowTotal.toFixed(2);
-    recalculateTotals();
-  }
-
-  function recalculateTotals() {
-    let subtotal = 0;
-    let taxTotal = 0;
-
-    document.querySelectorAll('#medicine-ledger-rows .purchase-single-ledger-row').forEach(function(row) {
-      const qtyEl   = row.querySelector('input[name="quantity[]"]');
-      const priceEl = row.querySelector('input[name="sale_price[]"]');
-      const taxEl   = row.querySelector('input[name="tax_percent[]"]');
-
-      const qty   = parseFloat(qtyEl   && qtyEl.value   ? qtyEl.value   : 0) || 0;
-      const price = parseFloat(priceEl && priceEl.value ? priceEl.value : 0) || 0;
-      const taxPct= parseFloat(taxEl   && taxEl.value   ? taxEl.value   : 0) || 0;
-
-      const base = qty * price;
-      subtotal += base;
-      taxTotal += base * (taxPct / 100);
+    // Also use document-level delegation so added rows are included
+    document.addEventListener('input', function(e) {
+      if (!e.target.closest('#medicine-ledger-rows')) return;
+      const classes = ['row-qty', 'row-sale-price', 'row-tax'];
+      if (classes.some(function(c) { return e.target.classList.contains(c); })) {
+        recalculateRow(e.target.closest('.purchase-single-ledger-row'));
+      }
     });
 
     const discountEl = document.getElementById('discount_amount');
-    const discount = parseFloat(discountEl ? discountEl.value : 0) || 0;
-    const net      = Math.max(0, subtotal + taxTotal - discount);
+    if (discountEl) discountEl.addEventListener('input', recalculateTotals);
 
-    const totalEl = document.getElementById('total_amount');
-    const taxEl = document.getElementById('tax_summary');
-    const netEl = document.getElementById('net_amount');
+    function recalculateRow(row) {
+      if (!row) return;
+      const qtyEl   = row.querySelector('input[name="quantity[]"]');
+      const priceEl = row.querySelector('input[name="sale_price[]"]');
+      const taxEl   = row.querySelector('input[name="tax_percent[]"]');
+      const totalEl = row.querySelector('input[name="row_amount[]"]');
+
+      const qty   = parseFloat(qtyEl   && qtyEl.value   ? qtyEl.value   : 0) || 0;
+      const price = parseFloat(priceEl && priceEl.value ? priceEl.value : 0) || 0;
+      const tax   = parseFloat(taxEl   && taxEl.value   ? taxEl.value   : 0) || 0;
+
+      const base     = qty * price;
+      const taxAmt   = base * (tax / 100);
+      const rowTotal = base + taxAmt;
+
+      if (totalEl) totalEl.value = rowTotal.toFixed(2);
+      recalculateTotals();
+    }
+
+    function recalculateTotals() {
+      let subtotal = 0;
+      let taxTotal = 0;
+
+      document.querySelectorAll('#medicine-ledger-rows .purchase-single-ledger-row').forEach(function(row) {
+        const qtyEl   = row.querySelector('input[name="quantity[]"]');
+        const priceEl = row.querySelector('input[name="sale_price[]"]');
+        const taxEl   = row.querySelector('input[name="tax_percent[]"]');
+
+        const qty   = parseFloat(qtyEl   && qtyEl.value   ? qtyEl.value   : 0) || 0;
+        const price = parseFloat(priceEl && priceEl.value ? priceEl.value : 0) || 0;
+        const taxPct= parseFloat(taxEl   && taxEl.value   ? taxEl.value   : 0) || 0;
+
+        const base = qty * price;
+        subtotal += base;
+        taxTotal += base * (taxPct / 100);
+      });
+
+      const discountEl = document.getElementById('discount_amount');
+      const discount = parseFloat(discountEl ? discountEl.value : 0) || 0;
+      const net      = Math.max(0, subtotal + taxTotal - discount);
+
+      const totalEl = document.getElementById('total_amount');
+      const taxEl = document.getElementById('tax_summary');
+      const netEl = document.getElementById('net_amount');
+      
+      if (totalEl) totalEl.value = subtotal.toFixed(2);
+      if (taxEl) taxEl.value = taxTotal.toFixed(2);
+      if (netEl) netEl.value = net.toFixed(2);
+    }
+
     
-    if (totalEl) totalEl.value = subtotal.toFixed(2);
-    if (taxEl) taxEl.value = taxTotal.toFixed(2);
-    if (netEl) netEl.value = net.toFixed(2);
-  }
+    // ════════════════════════════════════════════════════════════════
+    // 5. MODAL — Open / Close with AJAX Submit
+    // ════════════════════════════════════════════════════════════════
+    const modal         = document.getElementById('patientModal');
+    const openModalBtn  = document.getElementById('openPatientModalBtn');
+    const closeModalBtn = document.getElementById('closePatientModal');
+    const cancelBtn     = document.getElementById('cancelPatientModal');
+    const modalForm     = document.getElementById('addPatientForm');
+    const successMsg    = document.getElementById('modalSuccessMessage');
+    const saveBtn       = document.getElementById('modalSavePatientBtn');
 
-  
-  // ════════════════════════════════════════════════════════════════
-  // 5. MODAL — Open / Close with AJAX Submit
-  // ════════════════════════════════════════════════════════════════
-  const modal         = document.getElementById('patientModal');
-  const openModalBtn  = document.getElementById('openPatientModalBtn');
-  const closeModalBtn = document.getElementById('closePatientModal');
-  const cancelBtn     = document.getElementById('cancelPatientModal');
-  const modalForm     = document.getElementById('addPatientForm');
-  const successMsg    = document.getElementById('modalSuccessMessage');
-  const saveBtn       = document.getElementById('modalSavePatientBtn');
-
-  function openModal() {
-    if (modal) {
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      // Reset form and hide success message
-      if (modalForm) modalForm.reset();
-      if (successMsg) successMsg.classList.remove('show');
-      if (saveBtn) {
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
-      }
-    }
-  }
-
-  function closeModal() {
-    if (modal) {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  }
-
-  if (openModalBtn) openModalBtn.addEventListener('click', openModal);
-  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-  if (modal) {
-    modal.addEventListener('click', function(e) {
-      if (e.target === modal) closeModal();
-    });
-  }
-
-  // ── AJAX Form Submit for Modal ──
-  if (modalForm) {
-    modalForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      
-      // Show loading state
-      if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
-      }
-      
-      // FIXED: Changed from /opd/add-patient-modal/ to /pharmacy/add-patient-modal/
-      fetch('/pharmacy/add-patient-modal/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // ✅ data.patient is the nested object from the view
-          const patient    = data.patient || {};
-          const patientId  = patient.id;
-          const patientName = patient.name || document.getElementById('modal_patient_name').value;
-          const patientNum  = patient.patient_number || 'New';
-
-          if (successMsg) {
-            successMsg.textContent = data.message || 'Patient registered successfully!';
-            successMsg.classList.add('show');
-          }
-
-          if (patientSearchInput && patientHiddenInput) {
-            patientSearchInput.value = `${patientName} (${patientNum})`;
-            patientHiddenInput.value = patientId;
-            patientSearchInput.style.borderColor = '#38a169';
-          }
-
-          if (caseIdInput) {
-            caseIdInput.value = generateCaseId();
-          }
-
-          setTimeout(() => {
-            closeModal();
-            if (saveBtn) {
-              saveBtn.disabled = false;
-              saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
-            }
-            const firstCategory = document.querySelector('.med-category-select');
-            if (firstCategory) firstCategory.focus();
-          }, 1500);
-
-        } else {
-          alert(data.message || data.error || 'Error saving patient. Please try again.');
-          if (saveBtn) {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
-          }
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred. Please try again.');
+    function openModal() {
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        // Reset form and hide success message
+        if (modalForm) modalForm.reset();
+        if (successMsg) successMsg.classList.remove('show');
         if (saveBtn) {
           saveBtn.disabled = false;
           saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
         }
+      }
+    }
+
+    function closeModal() {
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    if (openModalBtn) openModalBtn.addEventListener('click', openModal);
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    if (modal) {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
       });
-    });
+    }
+
+    // ── AJAX Form Submit for Modal ──
+    if (modalForm) {
+      modalForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        // Show loading state
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+        }
+        
+        // FIXED: Changed from /opd/add-patient-modal/ to /pharmacy/add-patient-modal/
+        fetch('/pharmacy/add-patient-modal/', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // ✅ data.patient is the nested object from the view
+            const patient    = data.patient || {};
+            const patientId  = patient.id;
+            const patientName = patient.name || document.getElementById('modal_patient_name').value;
+            const patientNum  = patient.patient_number || 'New';
+
+            if (successMsg) {
+              successMsg.textContent = data.message || 'Patient registered successfully!';
+              successMsg.classList.add('show');
+            }
+
+            // if (patientSearchInput && patientHiddenInput) {
+            //   patientSearchInput.value = `${patientName} (${patientNum})`;
+            //   patientHiddenInput.value = patientId;
+            //   patientSearchInput.style.borderColor = '#38a169';
+            // }
+
+            // if (caseIdInput) {
+            //   caseIdInput.value = generateCaseId();
+            // }
+
+            setPatient(patientId, `${patientName} (${patientNum})`);
+
+            setTimeout(() => {
+              closeModal();
+              if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
+              }
+              const firstCategory = document.querySelector('.med-category-select');
+              if (firstCategory) firstCategory.focus();
+            }, 1500);
+
+          } else {
+            alert(data.message || data.error || 'Error saving patient. Please try again.');
+            if (saveBtn) {
+              saveBtn.disabled = false;
+              saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred. Please try again.');
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fa fa-save"></i> Save Patient';
+          }
+        });
+      });
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // 6. DOB → AGE AUTO-CALCULATION (inside modal)
+    // ════════════════════════════════════════════════════════════════
+    const dobInput      = document.getElementById('dob_input');
+    const ageYearsInput = document.getElementById('age_years');
+    const ageMonthsInput= document.getElementById('age_months');
+    const ageDaysInput  = document.getElementById('age_days');
+
+    if (dobInput) {
+      dobInput.addEventListener('change', function () {
+        const birth = new Date(this.value);
+        const today = new Date();
+        if (birth > today) {
+          this.value = '';
+          return;
+        }
+
+        let y = today.getFullYear() - birth.getFullYear();
+        let m = today.getMonth()    - birth.getMonth();
+        let d = today.getDate()     - birth.getDate();
+
+        if (d < 0) {
+          m--;
+          d += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+        }
+        if (m < 0) {
+          y--;
+          m += 12;
+        }
+
+        if (ageYearsInput)  ageYearsInput.value  = y;
+        if (ageMonthsInput) ageMonthsInput.value = m;
+        if (ageDaysInput)   ageDaysInput.value   = d;
+      });
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // 7. DOCTOR SELECTION WITH AUTO-FILL
+    // ════════════════════════════════════════════════════════════════
+    const doctorSelect = document.getElementById('hospital_doctor');
+    const doctorNameInput = document.getElementById('doctor_name');
+
+    if (doctorSelect && doctorNameInput) {
+      doctorSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+          const doctorName = selectedOption.getAttribute('data-doctor-name') || selectedOption.text;
+          doctorNameInput.value = doctorName.trim();
+        } else {
+          doctorNameInput.value = '';
+        }
+      });
+    }
+
+
+  // ════════════════════════════════════════════════════════════════
+// 8. M-PESA STK PUSH MODAL
+// ════════════════════════════════════════════════════════════════
+const payModeSelect  = document.getElementById('payment_mode');
+const mpesaModal     = document.getElementById('mpesaModal');
+const mpesaPhone     = document.getElementById('mpesa_phone');
+const mpesaStatus    = document.getElementById('mpesaStatus');
+const sendStkBtn     = document.getElementById('sendStkBtn');
+const mpesaAmountTxt = document.getElementById('mpesaAmountText');
+const payAmountInput = document.getElementById('payment_amount');
+const payNoteInput   = document.getElementById('payment_note');
+const mpesaReceipt   = document.getElementById('mpesa_receipt');
+const csrfToken      = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+let pollTimer = null;
+
+function setMpesaStatus(type, html) {
+  mpesaStatus.className = 'mpesa-status show ' + type;
+  mpesaStatus.innerHTML = html;
+}
+
+// 0712345678 / +254712345678 -> 254712345678
+function normalizePhone(raw) {
+  let p = raw.replace(/[\s+\-]/g, '');
+  if (p.startsWith('0')) p = '254' + p.slice(1);
+  return /^254(7|1)\d{8}$/.test(p) ? p : null;
+}
+
+function openMpesaModal() {
+  const net = parseFloat(document.getElementById('net_amount').value) || 0;
+  if (net <= 0) {
+    alert('Add medicines to the bill first.');
+    payModeSelect.value = 'Cash';
+    return;
+  }
+  mpesaAmountTxt.textContent = net.toFixed(2);
+  mpesaStatus.className = 'mpesa-status';
+  sendStkBtn.disabled = false;
+  mpesaModal.classList.add('active');
+  mpesaPhone.focus();
+}
+
+function closeMpesaModal() {
+  clearInterval(pollTimer);
+  mpesaModal.classList.remove('active');
+}
+
+payModeSelect.addEventListener('change', function () {
+  if (this.value === 'M-Pesa') openMpesaModal();
+});
+document.getElementById('closeMpesaModal').addEventListener('click', closeMpesaModal);
+document.getElementById('cancelMpesaModal').addEventListener('click', closeMpesaModal);
+
+sendStkBtn.addEventListener('click', function () {
+  const phone  = normalizePhone(mpesaPhone.value);
+  const amount = parseFloat(document.getElementById('net_amount').value) || 0;
+
+  if (!phone) { setMpesaStatus('error', 'Enter a valid number, e.g. 0712345678.'); return; }
+
+  sendStkBtn.disabled = true;
+  setMpesaStatus('info', '<i class="fa fa-spinner fa-spin"></i> Sending request to the patient\'s phone…');
+
+  fetch('/pharmacy/mpesa/stk-push/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+    body: JSON.stringify({ phone: phone, amount: amount })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.success) {
+      setMpesaStatus('error', data.message || 'Could not send the request.');
+      sendStkBtn.disabled = false;
+      return;
+    }
+    setMpesaStatus('info', '<i class="fa fa-spinner fa-spin"></i> Waiting for the patient to enter their M-Pesa PIN…');
+    pollPayment(data.checkout_id);
+  })
+  .catch(() => {
+    setMpesaStatus('error', 'Network error. Try again.');
+    sendStkBtn.disabled = false;
+  });
+});
+
+// Ask the server every 3 seconds if the payment is done (stops after ~90s)
+  function pollPayment(checkoutId) {
+    let tries = 0;
+    clearInterval(pollTimer);
+
+    pollTimer = setInterval(function () {
+      tries++;
+      fetch('/pharmacy/mpesa/status/?checkout_id=' + encodeURIComponent(checkoutId))
+        .then(r => r.json())
+        .then(data => {
+          if (data.status === 'success') {
+            clearInterval(pollTimer);
+            mpesaReceipt.value   = data.receipt;
+            payAmountInput.value = document.getElementById('net_amount').value;
+            payNoteInput.value   = 'M-Pesa ' + data.receipt;
+            setMpesaStatus('success', '<i class="fa fa-check-circle"></i> Payment received. Receipt: <strong>' + data.receipt + '</strong>');
+            setTimeout(closeMpesaModal, 2000);
+          } else if (data.status === 'failed') {
+            clearInterval(pollTimer);
+            setMpesaStatus('error', data.message || 'Payment was cancelled or failed.');
+            sendStkBtn.disabled = false;
+          } else if (tries >= 30) {
+            clearInterval(pollTimer);
+            setMpesaStatus('error', 'Timed out. If the patient paid, check M-Pesa records.');
+            sendStkBtn.disabled = false;
+          }
+        })
+        .catch(() => {});
+    }, 3000);
   }
 
-  // ════════════════════════════════════════════════════════════════
-  // 6. DOB → AGE AUTO-CALCULATION (inside modal)
-  // ════════════════════════════════════════════════════════════════
-  const dobInput      = document.getElementById('dob_input');
-  const ageYearsInput = document.getElementById('age_years');
-  const ageMonthsInput= document.getElementById('age_months');
-  const ageDaysInput  = document.getElementById('age_days');
 
-  if (dobInput) {
-    dobInput.addEventListener('change', function () {
-      const birth = new Date(this.value);
-      const today = new Date();
-      if (birth > today) {
-        this.value = '';
-        return;
-      }
-
-      let y = today.getFullYear() - birth.getFullYear();
-      let m = today.getMonth()    - birth.getMonth();
-      let d = today.getDate()     - birth.getDate();
-
-      if (d < 0) {
-        m--;
-        d += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-      }
-      if (m < 0) {
-        y--;
-        m += 12;
-      }
-
-      if (ageYearsInput)  ageYearsInput.value  = y;
-      if (ageMonthsInput) ageMonthsInput.value = m;
-      if (ageDaysInput)   ageDaysInput.value   = d;
-    });
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  // 7. DOCTOR SELECTION WITH AUTO-FILL
-  // ════════════════════════════════════════════════════════════════
-  const doctorSelect = document.getElementById('hospital_doctor');
-  const doctorNameInput = document.getElementById('doctor_name');
-
-  if (doctorSelect && doctorNameInput) {
-    doctorSelect.addEventListener('change', function() {
-      const selectedOption = this.options[this.selectedIndex];
-      if (selectedOption && selectedOption.value) {
-        const doctorName = selectedOption.getAttribute('data-doctor-name') || selectedOption.text;
-        doctorNameInput.value = doctorName.trim();
-      } else {
-        doctorNameInput.value = '';
-      }
-    });
-  }
 
 });
+
 </script>
 
 {% endblock %}

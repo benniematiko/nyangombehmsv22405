@@ -56,7 +56,7 @@
         </li>
 
         <li>
-            <a href="{% url 'ambulance:ambulance_home' %}">
+            <a href="{% url 'ambulance:ambulance' %}">
                 <i class="fa fa-ambulance"></i> <span>Ambulance</span>
             </a>
         </li>
@@ -147,16 +147,38 @@
             </a>
         </li>
 
-        <li>
+        <!-- <li>
             <a href="{% url 'liveconsultation:liveconsultation_home' %}">
                 <i class="fa fa-video-camera"></i> <span>Live Consultation</span>
             </a>
         </li>
 
         <li>
-            <a href="{% url 'livemeeting:livemeeting_home' %}">
+            <a href="{% url 'liveconsultation:livemeeting_home' %}">
                 <i class="fa fa-users"></i> <span>Live Meeting</span>
             </a>
+        </li> -->
+
+        <!-- LIVE CONSULTATION -->
+      
+        <li class="has-submenu">
+            <button type="button" class="submenu-trigger">
+                <i class="fa fa-video-camera"></i>
+                <span>Live Consultation</span>
+                <i class="fa fa-chevron-down submenu-arrow"></i>
+            </button>
+            <ul class="sidebar-submenu">
+                <li>
+                    <a href="{% url 'liveconsultation:liveconsultation_home' %}">
+                        <i class="fa fa-user-md"></i> Live Consultation
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'liveconsultation:livemeeting_home' %}">
+                        <i class="fa fa-users"></i> Live Meeting
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <!-- REPORTS SUBMENU -->

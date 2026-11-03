@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Donor Details{% endblock %}
+
+{% block content %}
+<style>
+  .dl-card{background:#fff;border:1px solid #dde1e7;border-radius:3px;margin:6px;padding:0 10px 10px}
+  .dl-head{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #e3e6ec}
+  .dl-head h2{font-size:17px;font-weight:400;margin:0;color:#444}
+  .dl-btn{background:#1f2433;color:#fff;font-size:11px;font-weight:700;padding:8px 10px;border-radius:2px;text-decoration:none}
+  .dl-btn:hover{color:#fff;background:#000}
+  .dl-tools{display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px}
+  .dl-search{border:0;border-bottom:1px solid #ccd;padding:5px 2px;width:160px;font-size:13px;outline:none}
+  .dl-right{display:flex;align-items:center;gap:10px}
+  .dl-right select{border:0;border-bottom:1px solid #ccd;background:none;font-size:13px}
+  .dl-ico{background:none;border:0;font-size:11px;font-weight:700;color:#1f2433;cursor:pointer;padding:2px 4px}
+  .dl-table{width:100%;border-collapse:collapse;font-size:13px}
+  .dl-table th{text-align:left;font-weight:600;padding:9px 6px;border-bottom:1px solid #e3e6ec;color:#222}
+  .dl-table th::after{content:" \25BE";color:#bbb;font-size:10px}
+  .dl-table td{padding:9px 6px;border-bottom:1px solid #f0f1f5}
+  .dl-table tbody tr:hover{background:#f7f8fc}
+  .dl-table a{color:#1f2433;text-decoration:none}
+  .dl-empty{text-align:center;padding:14px 0}
+  .dl-empty .no{color:#f4a6a6;font-size:13px}
+  .dl-empty .add{color:#2e6b2e;font-weight:700;font-size:13px;margin-top:12px}
+  .dl-foot{display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid #eef0f4;padding-top:10px;margin-top:10px}
+  .dl-foot a{color:#555;text-decoration:none;margin-left:12px;font-size:14px}
+  @media print{.dl-tools,.dl-foot,.dl-btn{display:none}}
+</style>
+
+<div class="dl-card">
+  <div class="dl-head">
+    <h2>Donor Details</h2>
+    <a href="{% url 'bloodbank:donor_create' %}" class="dl-btn">+ Add Blood Donor</a>
+  </div>
+
+  <form method="get" id="dl-form" class="dl-tools">
+    <input type="text" name="search" value="{{ search_query }}" placeholder="Search..." class="dl-search">
+    <div class="dl-right">
+      <select name="per_page" onchange="document.getElementById('dl-form').submit()">
+        {% for n in per_page_options %}
+        <option value="{{ n }}" {% if n == per_page %}selected{% endif %}>{{ n }}</option>
+        {% endfor %}
+      </select>
+      <button type="button" class="dl-ico" title="Print" onclick="window.print()">PRINT</button>
+    </div>
+  </form>
+
+  <table class="dl-table">
+    <thead>
+      <tr><th>Donor Name</th><th>Date Of Birth</th><th>Blood Group</th><th>Gender</th><th>Contact No</th><th>Father Name</th><th>Address</th></tr>
+    </thead>
+    <tbody>
+      {% for d in page_obj %}
+      <tr>
+        <td><a href="{% url 'bloodbank:donor_detail' d.id %}">{{ d.get_full_name }}</a></td>
+        <td>{{ d.date_of_birth|date:"d M Y" }}</td>
+        <td>{{ d.blood_type }}</td>
+        <td>{{ d.get_gender_display }}</td>
+        <td>{{ d.phone }}</td>
+        <td>-</td>
+        <td>{{ d.address }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if not page_obj %}
+  <div class="dl-empty">
+    <div class="no">No data available in table</div>
+    <svg width="130" height="130" viewBox="0 0 130 130" fill="none" stroke="#9aa3b2" stroke-width="1.2">
+      <rect x="35" y="15" width="30" height="40"/><rect x="70" y="35" width="30" height="40"/>
+      <path d="M25 65h80l-6 40H31z" fill="#eef1f6"/><path d="M25 65l6 40"/>
+    </svg>
+    <div class="add">&larr; Add new record or search with different criteria.</div>
+  </div>
+  {% endif %}
+
+  <div class="dl-foot">
+    <span>Records: {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
+    <span>
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&per_page={{ per_page }}">&lsaquo;</a>{% endif %}
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&per_page={{ per_page }}">&rsaquo;</a>{% endif %}
+    </span>
+  </div>
+</div>
+{% endblock %}

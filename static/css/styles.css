@@ -85,9 +85,10 @@ body {
 .portal-card {
     background: #ffffff;
     padding: 3rem 2.5rem;
-    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     text-align: center;
+    /* border-radius: 12px; */
+    border-radius: 0; 
     max-width: 440px;
     width: 100%;
     border-top: 4px solid #810810;
@@ -120,7 +121,8 @@ body {
     text-decoration: none;
     background-color: #810810;
     color: #ffffff;
-    border-radius: 6px;
+    /* border-radius: 6px; */
+    border-radius: 0;
     padding: 0.85rem 2.5rem;
     font-size: 1rem;
     font-weight: 600;
@@ -160,7 +162,8 @@ body {
     width: 100%;
     padding: 0.75rem 1rem;
     border: 1px solid #cbd5e1;
-    border-radius: 6px;
+    /* border-radius: 6px; */
+    border-radius: 0;
     font-size: 0.95rem;
     color: #334155;
     background-color: #f8fafc;
@@ -180,7 +183,8 @@ body {
     background-color: #810810;
     color: #ffffff;
     border: none;
-    border-radius: 6px;
+    /* border-radius: 6px; */
+    border-radius: 0;
     padding: 0.85rem;
     font-size: 1rem;
     font-weight: 600;
@@ -235,7 +239,8 @@ body {
     background: #ffffff;
     border: 1px solid #cbd5e1;
     padding: 6px 14px;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     color: #334155;
@@ -261,7 +266,8 @@ body {
 .mini-tile {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    /* border-radius: 8px; */
+    border-radius: 0;
     padding: 20px;
     display: flex;
     align-items: center;
@@ -274,7 +280,8 @@ body {
 .tile-icon-box {
     width: 48px;
     height: 48px;
-    border-radius: 8px;
+    /* border-radius: 8px; */
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -403,7 +410,7 @@ body {
 
 .sidebar::-webkit-scrollbar       { width: 5px; }
 .sidebar::-webkit-scrollbar-track { background: #f1f5f9; }
-.sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 0; }
 
 /* ==========================================================================
    PHARMACY APPLICATION COMPONENT STYLES
@@ -455,7 +462,8 @@ body {
 .pharmacy-billing-section {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    /* border-radius: 8px; */
+    border-radius: 0;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
     padding: 16px;
     width: 100%;
@@ -500,7 +508,8 @@ body {
     padding: 6px 14px;
     font-size: 12px;
     font-weight: 600;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
@@ -522,7 +531,8 @@ body {
     padding: 6px 12px;
     font-size: 12px;
     font-weight: 600;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
@@ -559,7 +569,8 @@ body {
     padding: 6px 10px;
     font-size: 12px;
     border: 1px solid #cbd5e1;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     outline: none;
     color: #334155;
     transition: all 0.2s ease;
@@ -576,7 +587,8 @@ body {
     padding: 5px 8px;
     font-size: 12px;
     border: 1px solid #cbd5e1;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     color: #334155;
     background-color: #ffffff;
     outline: none;
@@ -587,7 +599,8 @@ body {
 .export-icon-buttons-container {
     display: flex;
     border: 1px solid #cbd5e1;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     overflow: hidden;
 }
 
@@ -816,7 +829,8 @@ body {
     background-color: #e0f2fe;
     color: #0369a1;
     padding: 3px 8px;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     font-weight: 700;
     font-family: monospace;
     font-size: 11px;
@@ -864,7 +878,8 @@ body {
     font-size: 12px;
     font-weight: 500;
     padding: 5px 10px;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -951,7 +966,8 @@ body {
 .hms-alert-banner {
     padding: 12px;
     margin-bottom: 8px;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     font-weight: 500;
 }
 
@@ -967,7 +983,8 @@ body {
     transform: translateY(-50%);
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 6px;
+    /* border-radius: 6px; */
+    border-radius: 0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     z-index: 100;
     padding: 4px;
@@ -984,7 +1001,8 @@ body {
     padding: 6px 12px;
     font-size: 0.8rem;
     font-weight: 500;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -1088,7 +1106,8 @@ body {
     width: 100%;
     background-color: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     padding: 6px 10px;
     font-size: 12px;
     color: #ffffff;
@@ -1109,7 +1128,8 @@ body {
     color: #810810;
     border: none;
     padding: 6px 12px;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius:0;
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
@@ -1197,7 +1217,8 @@ body {
     padding: 6px 8px;
     font-size: 12px;
     border: 1px solid #cbd5e1;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     outline: none;
     color: #334155;
     background-color: #ffffff;
@@ -1220,7 +1241,8 @@ body {
     color: #ef4444;
     font-size: 12px;
     cursor: pointer;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     width: 100%;
     height: 29px;
     display: flex;
@@ -1251,7 +1273,8 @@ body {
     padding: 6px 14px;
     font-size: 12px;
     font-weight: 600;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1282,7 +1305,8 @@ body {
 .summary-left-card-block {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 6px;
+    /* border-radius: 6px; */
+    border-radius:0;
     padding: 16px;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
 }
@@ -1299,7 +1323,8 @@ body {
 .summary-right-ledger-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 6px;
+    /* border-radius: 6px; */
+    border-radius: 0;
     padding: 16px;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
 }
@@ -1337,7 +1362,8 @@ body {
     padding: 8px 16px;
     font-size: 12px;
     font-weight: 600;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1354,7 +1380,8 @@ body {
     padding: 8px 16px;
     font-size: 12px;
     font-weight: 600;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1379,7 +1406,8 @@ body {
 .badge-status-alert {
     display: inline-block;
     padding: 2px 6px;
-    border-radius: 4px;
+    /* border-radius: 4px; */
+    border-radius: 0;
     font-size: 10px;
     font-weight: 700;
     white-space: nowrap;

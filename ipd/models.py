@@ -19,7 +19,19 @@ class IPDPatient(models.Model):
     bed_number = models.CharField(max_length=20, blank=True, null=True)
     diagnosis = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+
     admission_reason = models.TextField(blank=True, null=True)
+
+    symptoms_type = models.CharField(max_length=100, blank=True, null=True)
+    symptoms_title = models.CharField(max_length=200, blank=True, null=True)
+    symptoms_description = models.TextField(blank=True, null=True)
+    case_id = models.CharField(max_length=50, blank=True, null=True)
+    casualty = models.BooleanField(default=False)
+    old_patient = models.BooleanField(default=False)
+    credit_limit = models.DecimalField(max_digits=12, decimal_places=2, default=1000)
+    reference = models.CharField(max_length=100, blank=True, null=True)
+    live_consultation = models.BooleanField(default=False)
+
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='ipd_admissions_created')
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -28,3 +40,20 @@ class IPDPatient(models.Model):
     
     class Meta:
         ordering = ['-admission_date']
+
+
+
+class BedGroup(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Bed(models.Model):
+    group = models.ForeignKey(BedGroup, on_delete=models.CASCADE, related_name='beds')
+    name = models.CharField(max_length=20)
+    is_occupied = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.group.name} - {self.name}"

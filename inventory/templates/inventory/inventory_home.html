@@ -1,407 +1,272 @@
 {% extends "base.html" %}
-{% block title %} Inventory Management | Eagles Mission Hospital{% endblock %}
+{% block title %} Item Stock List | Eagles Mission Hospital {% endblock %}
 
 {% block content %}
 <style>
-  .inv-container {
-    padding: 20px;
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
+  .stock-page { font-size: 13px; color: #333; }
+  .stock-page .card { background: #fff; border: 1px solid #dde1e6; border-radius: 0; }
+  .stock-page .card-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 8px; border-bottom: 1px solid #e3e6ea; }
+  .stock-page .card-header h1 { margin: 0; font-size: 18px; font-weight: 400; color: #444; }
+  .stock-page .btn { background: #212a37; color: #fff; border: 0; border-radius: 0; padding: 7px 10px; font-size: 12px; font-weight: 600; text-decoration: none; margin-left: 4px; display: inline-block; }
+  .stock-page .btn:hover { background: #000; }
+  .stock-page .card-body { padding: 8px 8px 12px; }
+  .stock-page .toolbar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; }
+  .stock-page .search { border: 0; border-bottom: 1px solid #ccc; padding: 6px 0; width: 158px; font-size: 13px; outline: none; }
+  .stock-page .tools { display: flex; align-items: center; gap: 12px; }
+  .stock-page .tools select { border: 0; background: transparent; font-size: 13px; }
+  .stock-page .icon { font-size: 15px; cursor: pointer; }
+  .stock-page table { width: 100%; border-collapse: collapse; }
+  .stock-page thead th { text-align: left; font-weight: 700; padding: 8px 6px; border-bottom: 1px solid #ddd; white-space: nowrap; }
+  .stock-page thead th.right { text-align: right; }
+  .stock-page .arrow { color: #bbb; font-size: 9px; margin-left: 3px; }
+  .stock-page .footer { display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; }
+  .stock-page .pager span { display: inline-block; padding: 2px 6px; color: #999; }
+  .stock-page .pager .active { background: #e9ecef; color: #333; }
 
-  /* Header Controls */
-  .inv-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #990000;
-    padding-bottom: 12px;
-  }
 
-  .inv-header h1 {
-    color: #990000;
-    margin: 0;
-    font-size: 24px;
-  }
+  .stock-page .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 2000; align-items: flex-start; justify-content: center; padding-top: 12px; overflow-y: auto; }
+  .stock-page .modal-overlay.show { display: flex; }
+  .stock-page .modal-box { background: #fff; width: 520px; max-width: 95%; border-radius: 0; overflow: hidden; }
+  .stock-page .modal-head { background: #212a37; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 14px 14px; }
+  .stock-page .modal-head h2 { margin: 0; font-size: 16px; }
+  .stock-page .modal-close { cursor: pointer; font-size: 20px; line-height: 1; background: none; border: 0; color: #fff; }
+  .stock-page .modal-body { padding: 14px; }
+  .stock-page .row { display: flex; gap: 18px; margin-bottom: 14px; }
+  .stock-page .col { flex: 1; }
+  .stock-page .col-sm { flex: 0 0 110px; }
+  .stock-page label { display: block; font-weight: 700; font-size: 12px; margin-bottom: 4px; }
+  .stock-page label .req { color: #e0245e; }
+  .stock-page .form-control { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 0; font-size: 13px; background: #fff; }
+  .stock-page .form-control[readonly] { background: #e9ecef; }
+  .stock-page .qty-group { display: flex; }
+  .stock-page .qty-group select { width: 54px; border-right: 0; border-radius: 3px 0 0 3px; }
+  .stock-page .qty-group input { border-radius: 0 3px 3px 0; }
+  .stock-page textarea.form-control { height: 52px; resize: vertical; }
+  .stock-page .dropzone { border: 1px solid #ccc; border-radius: 3px; padding: 11px; text-align: center; color: #666; cursor: pointer; }
+  .stock-page .modal-foot { border-top: 1px solid #e3e6ea; padding: 12px 14px; text-align: right; }
 
-  .inv-header h1 i {
-    margin-right: 10px;
-  }
 
-  .header-actions {
-    display: flex;
-    gap: 10px;
-  }
 
-  .btn-action-primary {
-    background: #990000;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-weight: 600;
-    text-decoration: none;
-    font-size: 13px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .btn-action-primary:hover {
-    background: #800000;
-  }
-
-  .btn-action-secondary {
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-weight: 600;
-    text-decoration: none;
-    font-size: 13px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .btn-action-secondary:hover {
-    background: #1d4ed8;
-  }
-
-  /* KPI Grid Deck */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-
-  .kpi-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .kpi-icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: #fff;
-  }
-
-  .kpi-icon.total { background: #334155; }
-  .kpi-icon.low { background: #ea580c; }
-  .kpi-icon.expired { background: #dc2626; }
-  .kpi-icon.pending { background: #0d9488; }
-
-  .kpi-info h3 {
-    margin: 0;
-    font-size: 24px;
-    color: #1e293b;
-    font-weight: 700;
-  }
-
-  .kpi-info p {
-    margin: 4px 0 0 0;
-    font-size: 12px;
-    color: #64748b;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-
-  /* Two-Column Tracking Grid Layout */
-  .dashboard-split-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-
-  .alert-card-panel {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .panel-header {
-    padding: 14px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .panel-header h2 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 700;
-    color: #334155;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .table-responsive-wrapper {
-    width: 100%;
-    overflow-x: auto;
-  }
-
-  .inv-mini-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .inv-mini-table th {
-    background: #fff;
-    padding: 10px 16px;
-    text-align: left;
-    font-weight: 600;
-    color: #64748b;
-    font-size: 12px;
-    border-bottom: 2px solid #e2e8f0;
-  }
-
-  .inv-mini-table td {
-    padding: 10px 16px;
-    border-bottom: 1px solid #f1f5f9;
-    color: #334155;
-    font-size: 13px;
-  }
-
-  .status-tag {
-    padding: 2px 6px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-  .status-tag.critical { background: #fee2e2; color: #991b1b; }
-  .status-tag.warning { background: #ffedd5; color: #9a3412; }
-
-  /* Operational Navigation Blocks */
-  .quick-links-section h2 {
-    font-size: 14px;
-    text-transform: uppercase;
-    color: #64748b;
-    margin: 0 0 12px 0;
-    letter-spacing: 0.5px;
-  }
-
-  .links-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-
-  .nav-block-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    padding: 16px;
-    text-decoration: none;
-    color: #334155;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    transition: all 0.2s ease;
-  }
-
-  .nav-block-card:hover {
-    border-color: #990000;
-    transform: translateY(-1px);
-  }
-
-  .nav-block-card strong {
-    font-size: 14px;
-    color: #1e293b;
-  }
-
-  .nav-block-card p {
-    margin: 0;
-    font-size: 12px;
-    color: #64748b;
-    line-height: 1.4;
-  }
-
-  /* Responsive Rules Matrix */
-  @media (max-width: 1024px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .links-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  @media (max-width: 768px) {
-    .inv-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .header-actions { width: 100%; }
-    .header-actions a { flex: 1; justify-content: center; }
-    .kpi-grid, .dashboard-split-grid, .links-grid {
-      grid-template-columns: 1fr;
-    }
-  }
 </style>
 
-<div class="inv-container">
-  
-  <!-- Header Block Context -->
-  <div class="inv-header">
-    <h1><i class="fa fa-cubes"></i> Inventory & Stock Dashboard</h1>
-    <div class="header-actions">
-      <a href="#" class="btn-action-secondary"><i class="fa fa-download"></i> Receive Stock</a>
-      <a href="#" class="btn-action-primary"><i class="fa fa-plus"></i> Add New Item</a>
+<div class="stock-page">
+  <div class="card">
+    <div class="card-header">
+      <h1>Item Stock List</h1>
+      <div>
+
+        <!-- <a href="#" class="btn">＋ Add Item Stock</a> -->
+        <a href="#" class="btn" id="openAddStock">＋ Add Item Stock</a>
+
+        <a href="#" class="btn">☰ Issue Item</a>
+        <a href="#" class="btn">☰ Item</a>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="toolbar">
+        <input type="text" id="searchBox" class="search" placeholder="Search...">
+        <div class="tools">
+          <select id="pageSize">
+            <option>10</option>
+            <option>25</option>
+            <option>50</option>
+            <option selected>100</option>
+          </select>
+          <span class="icon" title="Copy">⎘</span>
+          <span class="icon" title="Excel">▤</span>
+          <span class="icon" title="CSV">▥</span>
+          <span class="icon" title="PDF">▧</span>
+          <span class="icon" title="Print" onclick="window.print()">⎙</span>
+        </div>
+      </div>
+
+      <table id="stockTable">
+        <thead>
+          <tr>
+            <th>Name <span class="arrow">▼</span></th>
+            <th>Category <span class="arrow">▼</span></th>
+            <th>Supplier <span class="arrow">▼</span></th>
+            <th>Store <span class="arrow">▼</span></th>
+            <th>Date <span class="arrow">▼</span></th>
+            <th>Description <span class="arrow">▼</span></th>
+            <th>Total Quantity <span class="arrow">▼</span></th>
+            <th class="right">Purchase Price (sh)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- No data rows for now -->
+        </tbody>
+      </table>
+
+      <div class="footer">
+        <div>Records: 0 to 0 of 0</div>
+        <div class="pager"><span>‹</span><span class="active">1</span><span>›</span></div>
+      </div>
     </div>
   </div>
-
-  <!-- Real-Time Metrics Summary Row -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-icon total"><i class="fa fa-list"></i></div>
-      <div class="kpi-info">
-        <h3>842</h3>
-        <p>Total Stock Items</p>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon low"><i class="fa fa-exclamation-triangle"></i></div>
-      <div class="kpi-info">
-        <h3>14</h3>
-        <p>Low Stock Alerts</p>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon expired"><i class="fa fa-calendar-times-o"></i></div>
-      <div class="kpi-info">
-        <h3>3</h3>
-        <p>Expired Batches</p>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon pending"><i class="fa fa-truck"></i></div>
-      <div class="kpi-info">
-        <h3>5</h3>
-        <p>Pending Orders</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Split Analytical Grid: Critical Operations Monitoring -->
-  <div class="dashboard-split-grid">
-    
-    <!-- Left Module: Stock Depletion Monitor -->
-    <div class="alert-card-panel">
-      <div class="panel-header">
-        <h2><i class="fa fa-level-down" style="color:#ea580c;"></i> Low Stock Warnings</h2>
-        <a href="#" style="font-size: 12px; text-decoration: none; color: #2563eb; font-weight: 600;">View All</a>
-      </div>
-      <div class="table-responsive-wrapper">
-        <table class="inv-mini-table">
-          <thead>
-            <tr>
-              <th>Item Description</th>
-              <th>Dept</th>
-              <th>Current Qty</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Amoxicillin 500mg Caps</strong></td>
-              <td>Pharmacy</td>
-              <td style="color:#dc2626; font-weight:700;">45 Pcs</td>
-              <td><span class="status-tag critical">Critical</span></td>
-            </tr>
-            <tr>
-              <td><strong>Surgical Gloves (Size 7)</strong></td>
-              <td>Main Store</td>
-              <td style="color:#ea580c; font-weight:600;">120 Pcs</td>
-              <td><span class="status-tag warning">Reorder</span></td>
-            </tr>
-            <tr>
-              <td><strong>Paracetamol Syrups</strong></td>
-              <td>Pharmacy</td>
-              <td style="color:#ea580c; font-weight:600;">18 Bottles</td>
-              <td><span class="status-tag warning">Reorder</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Right Module: Expiration Tracker -->
-    <div class="alert-card-panel">
-      <div class="panel-header">
-        <h2><i class="fa fa-hourglass-end" style="color:#dc2626;"></i> Expiry Risk Monitor</h2>
-        <a href="#" style="font-size: 12px; text-decoration: none; color: #2563eb; font-weight: 600;">View All</a>
-      </div>
-      <div class="table-responsive-wrapper">
-        <table class="inv-mini-table">
-          <thead>
-            <tr>
-              <th>Item / Batch Code</th>
-              <th>Location</th>
-              <th>Expiry Date</th>
-              <th>Condition</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>BCG Vaccine (Batch #B902)</strong></td>
-              <td>Laboratory</td>
-              <td style="font-weight:600; color:#334155;">12/08/2026</td>
-              <td><span class="status-tag warning">Next Month</span></td>
-            </tr>
-            <tr>
-              <td><strong>Metformin 850mg (Batch #M21)</strong></td>
-              <td>Pharmacy</td>
-              <td style="font-weight:700; color:#dc2626;">04/06/2026</td>
-              <td><span class="status-tag critical">Expired</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Operational Deep Links Section Layout -->
-  <div class="quick-links-section">
-    <h2>Sub-Modules & Operations</h2>
-    <div class="links-grid">
-      
-      <a href="#" class="nav-block-card">
-        <strong><i class="fa fa-search" style="color: #990000; margin-right:4px;"></i> Master Item Catalog</strong>
-        <p>View complete list of hospital items, pharmaceutical drug formulations, and fixed clinical assets.</p>
-      </a>
-
-      <a href="#" class="nav-block-card">
-        <strong><i class="fa fa-exchange" style="color: #990000; margin-right:4px;"></i> Internal Stock Requisitions</strong>
-        <p>Track stock distribution requests from wards, out-patient departments, and laboratory stations.</p>
-      </a>
-
-      <a href="#" class="nav-block-card">
-        <strong><i class="fa fa-users" style="color: #990000; margin-right:4px;"></i> Supplier Directory</strong>
-        <p>Manage medical pharmaceutical distribution companies, device vendors, and historical performance charts.</p>
-      </a>
-
-      <a href="#" class="nav-block-card">
-        <strong><i class="fa fa-calculator" style="color: #990000; margin-right:4px;"></i> Stock Take & Auditing</strong>
-        <p>Log physical inventory verification figures and map structural adjustments directly against systemic values.</p>
-      </a>
-
-    </div>
-  </div>
-
 </div>
+
+<div class="stock-page">
+
+
+  <div class="modal-overlay" id="addStockModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h2>Add Item Stock</h2>
+        <button type="button" class="modal-close" id="closeAddStock">×</button>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" id="addStockForm">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row">
+            <div class="col">
+              <label>Item Category <span class="req">*</span></label>
+
+
+              <select name="category" id="categorySelect" class="form-control" required>
+                <option value="">Select</option>
+                {% for c in categories %}
+                  <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+              </select>
+
+
+
+            </div>
+            <div class="col">
+              <label>Item <span class="req">*</span></label>
+              <select name="item" class="form-control" required>
+                <option value="">Select</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label>Supplier <span class="req">*</span></label>
+
+
+              <select name="supplier" class="form-control" required>
+                <option value="">Select</option>
+                {% for s in suppliers %}
+                  <option value="{{ s.id }}">{{ s.name }}</option>
+                {% endfor %}
+              </select>
+
+
+
+            </div>
+            <div class="col">
+              <label>Store</label>
+              <select name="store" class="form-control">
+                <option value="">Select</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label>Quantity <span class="req">*</span></label>
+              <div class="qty-group">
+                <select name="sign" class="form-control">
+                  <option value="+">+</option>
+                  <option value="-">-</option>
+                </select>
+                <input type="number" name="quantity" class="form-control" min="1" required>
+              </div>
+            </div>
+            <div class="col">
+              <label>Purchase Price <span class="req">*</span></label>
+              <input type="number" step="0.01" name="purchase_price" class="form-control" required>
+            </div>
+            <div class="col-sm">
+              <label>Date</label>
+              <input type="text" class="form-control" value="{% now 'm/d/Y' %}" readonly>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label>Description</label>
+              <textarea name="description" class="form-control"></textarea>
+            </div>
+          </div>
+
+          <div class="row" style="margin-bottom:0;">
+            <div class="col">
+              <label>Attach Document</label>
+              <div class="dropzone" id="dropzone">⬆ <span id="dropText">Drop a file here or click</span></div>
+              <input type="file" name="document" id="docInput" style="display:none;">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <button type="submit" class="btn">✔ Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  </div>
+
+
+
+
+<script>
+  document.getElementById('searchBox').addEventListener('input', function () {
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('#stockTable tbody tr').forEach(function (row) {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+
+
+
+
+    var modal = document.getElementById('addStockModal');
+  document.getElementById('openAddStock').addEventListener('click', function (e) {
+    e.preventDefault();
+    modal.classList.add('show');
+  });
+  document.getElementById('closeAddStock').addEventListener('click', function () {
+    modal.classList.remove('show');
+  });
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) modal.classList.remove('show');
+  });
+
+  var dropzone = document.getElementById('dropzone');
+  var docInput = document.getElementById('docInput');
+  dropzone.addEventListener('click', function () { docInput.click(); });
+  dropzone.addEventListener('dragover', function (e) { e.preventDefault(); });
+  dropzone.addEventListener('drop', function (e) {
+    e.preventDefault();
+    docInput.files = e.dataTransfer.files;
+    document.getElementById('dropText').textContent = docInput.files[0].name;
+  });
+  docInput.addEventListener('change', function () {
+    if (docInput.files.length) document.getElementById('dropText').textContent = docInput.files[0].name;
+  });
+
+
+
+    var categorySelect = document.getElementById('categorySelect');
+  var itemSelect = document.getElementById('itemSelect');
+
+  categorySelect.addEventListener('change', function () {
+    itemSelect.value = '';
+    Array.from(itemSelect.options).forEach(function (opt) {
+      if (!opt.value) return;
+      opt.hidden = categorySelect.value && opt.dataset.category !== categorySelect.value;
+    });
+  });
+
+
+
+</script>
 {% endblock %}

@@ -110,10 +110,21 @@
                 <span>Finance</span>
                 <i class="fa fa-chevron-down submenu-arrow"></i>
             </button>
-            <ul class="sidebar-submenu">
-                <li><a href="{% url 'finance:add_income' %}"><i class="fa fa-plus-circle"></i> Add Income</a></li>
-                <li><a href="{% url 'finance:addexpense' %}"><i class="fa fa-minus-circle"></i> Add Expense</a></li>
-            </ul>
+
+
+             <ul class="sidebar-submenu">
+                <li><a href="{% url 'finance:add_income' %}"><i class="fa fa-plus-circle"></i> Income</a></li>
+                <li><a href="{% url 'finance:addexpense' %}"><i class="fa fa-minus-circle"></i> Expense</a></li>
+            </ul> 
+
+            <!-- <ul class="sidebar-submenu">
+                <li><a href="{% url 'finance:add_income' %}"><i class="fa fa-plus-circle"></i> Income</a></li>
+                <li><a href="{% url 'finance:expenses' %}"><i class="fa fa-minus-circle"></i> Expenses</a></li>
+            </ul> -->
+
+
+
+
         </li>
 
         <!-- ADDED MISSING ITEMS -->

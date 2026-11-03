@@ -99,6 +99,29 @@ class Donation(models.Model):
     blood_type = models.CharField(max_length=3, choices=Donor.BLOOD_TYPES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     notes = models.TextField(blank=True, null=True)
+
+    PAYMENT_MODES = [
+        ('cash', 'Cash'),
+        ('mpesa', 'M-Pesa'),
+        ('cheque', 'Cheque'),
+        ('card', 'Card'),
+    ]
+
+    bag = models.CharField(max_length=50, blank=True, default='')
+    unit_type = models.CharField(max_length=20, blank=True, default='')
+    lot = models.CharField(max_length=50, blank=True, default='')
+    institution = models.CharField(max_length=150, blank=True, default='')
+    charge_category = models.CharField(max_length=100, blank=True, default='')
+    charge_name = models.CharField(max_length=100, blank=True, default='')
+    standard_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    tax_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    net_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    payment_mode = models.CharField(max_length=10, choices=PAYMENT_MODES, default='cash')
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -159,3 +182,27 @@ class BloodRequest(models.Model):
     
     def __str__(self):
         return f"{self.patient_name} - {self.blood_type} - {self.quantity_ml}ml"
+
+
+class Component(models.Model):
+    COMPONENT_TYPES = [
+        ('cryo', 'Cryo'),
+        ('rbc', 'Red Cells'),
+        ('wbc', 'White Cells & Granulocytes'),
+        ('plasma', 'Plasma'),
+        ('platelets', 'Platelets'),
+    ]
+    UNIT_CHOICES = [('ml', 'ml'), ('units', 'Units')]
+
+    blood_type = models.CharField(max_length=3, choices=Donor.BLOOD_TYPES)
+    bag_type = models.CharField(max_length=20, blank=True, default='')
+    component = models.CharField(max_length=20, choices=COMPONENT_TYPES)
+    bags = models.PositiveIntegerField(default=1)
+    volume = models.PositiveIntegerField(null=True, blank=True)
+    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, blank=True, default='ml')
+    lot = models.CharField(max_length=50)
+    institution = models.CharField(max_length=150, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.blood_type} - {self.get_component_display()} - Lot {self.lot}"

@@ -1,8 +1,367 @@
 {% extends "base.html" %}
-{% block title %} Add Income | Eagles Mission Hospital{% endblock %}
+{% load static %}
+{% block title %} Income | Eagles Mission Hospital{% endblock %}
 {% block content %}
-<div style="padding:20px;">
-  <h1 style="color:#990000;"><i class="fa fa-plus"></i> Add Income</h1>
-  <p>Add income form coming soon...</p>
+
+<style>
+  .modal-overlay {
+    display: none; position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+    z-index: 9999; justify-content: center; align-items: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    background: #fff; width: 85%; max-width: 700px; max-height: 95vh;
+    overflow-y: auto; border-radius: 0 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .modal-header {
+    border-bottom: 1px solid #1e293b; background: #334155; padding: 10px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .modal-header h5 { font-weight: 600; color: #fff; font-size: 16px; margin: 0; }
+  .modal-close {
+    background: none; border: none; color: #fff; font-size: 28px;
+    cursor: pointer; opacity: 0.9; padding: 0 4px; line-height: 1;
+  }
+  .modal-close:hover { opacity: 1; }
+  .modal-body { padding: 12px 20px; font-size: 13px; background: #fff; }
+  .modal-footer {
+    border-top: 1px solid #e2e8f0; background: #fff; padding: 10px 20px;
+    display: flex; justify-content: flex-end; gap: 10px;
+    position: sticky; bottom: 0; z-index: 10;
+  }
+  .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 8px; }
+  .form-group { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .form-group label { font-weight: 600; color: #4a5568; margin-bottom: 2px; font-size: 12px; }
+  .form-group .form-control {
+    height: 30px; padding: 2px 8px; font-size: 12px; border: 1px solid #cbd5e0;
+    border-radius: 0 !important; box-sizing: border-box; width: 100%;
+  }
+  .form-group textarea.form-control { height: auto; min-height: 50px; resize: vertical; }
+  .form-group .form-control:focus {
+    outline: none; border-color: #334155; box-shadow: 0 0 0 2px rgba(51,65,85,0.2);
+  }
+  .text-danger { color: #dc3545; }
+  .btn-modal-action {
+    padding: 8px 20px; border: none; font-weight: 600; font-size: 13px;
+    cursor: pointer; border-radius: 0 !important; display: inline-flex;
+    align-items: center; gap: 8px;
+  }
+  .btn-modal-action.save { background: #2e7d32; color: #fff; }
+  .btn-modal-action.save:hover { background: #1b5e20; }
+  .btn-modal-action.close-modal { background: #6c757d; color: #fff; }
+  .btn-modal-action.close-modal:hover { background: #5a6268; }
+
+  .hms-income-log-table tbody tr { transition: background-color 0.2s ease; cursor: pointer; }
+  .hms-income-log-table tbody tr:hover { background-color: #f8fafc; }
+
+  @media (max-width: 768px) {
+    .form-row { flex-direction: column; }
+    .modal-content { width: 95%; }
+  }
+</style>
+
+{% if messages %}
+<div style="padding:0 20px;margin-bottom:0;">
+    {% for message in messages %}
+    <div style="padding:10px 16px;margin-bottom:6px;font-size:13px;font-weight:500;
+                {% if message.tags == 'success' %}background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;
+                {% elif message.tags == 'error' %}background:#fee2e2;color:#dc2626;border:1px solid #fecaca;
+                {% else %}background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;{% endif %}">
+        <i class="fa fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+        {{ message }}
+    </div>
+    {% endfor %}
 </div>
+{% endif %}
+
+<div class="expenses-container-layout template-fullwidth-override">
+
+    <div class="expenses-panel-header">
+        <div class="panel-title-group">
+            <h1><i class="fa fa-money"></i> Finance & Income Department</h1>
+            <p class="panel-subtitle">Hospital income, donations, grants, and other receipts</p>
+        </div>
+    </div>
+
+    <div class="expenses-billing-section">
+
+        <div class="ledger-action-row">
+            <h2>Income Ledger</h2>
+            <div class="ledger-btn-group">
+                <button type="button" class="btn-hms-primary" onclick="openAddIncomeModal()">
+                    <i class="fa fa-plus"></i> Record Income
+                </button>
+            </div>
+        </div>
+
+        <div class="ledger-utility-row">
+            <div class="search-wrapper-block">
+                <label for="ledgerSearch">Search</label>
+                <input type="text" id="ledgerSearch" class="search-input-field"
+                       placeholder="Filter by reference, description, or category...">
+            </div>
+            <div class="export-pagination-group">
+                <select id="entriesPerPage" class="entries-dropdown-select">
+                    <option value="10" {% if request.GET.per_page == '10' %}selected{% endif %}>Display 10 records</option>
+                    <option value="20" {% if request.GET.per_page == '20' or not request.GET.per_page %}selected{% endif %}>Display 20 records</option>
+                    <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>Display 50 records</option>
+                    <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>Display 100 records</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-fixed-container containment-fullwidth">
+            <table class="hms-table hms-income-log-table table-element-fullwidth" id="incomeTable">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Income Head</th>
+                        <th>Status</th>
+                        <th class="text-right">Amount (sh)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inc in incomes %}
+                    <tr onclick="openIncomeModal(this)"
+                        data-reference="{{ inc.reference|default:'—' }}"
+                        data-date="{{ inc.payment_date|date:'d/m/Y' }}"
+                        data-description="{{ inc.description|default:'—' }}"
+                        data-category="{{ inc.category|default:'General' }}"
+                        data-status="{{ inc.status }}"
+                        data-amount="{{ inc.total_amount|floatformat:2 }}"
+                        data-user="{{ inc.created_by.get_full_name|default:inc.created_by.username|default:'System' }}">
+                        <td><span class="badge-bill">{{ inc.reference|default:"—" }}</span></td>
+                        <td>{{ inc.payment_date|date:"d/m/Y" }}</td>
+                        <td class="case-id-cell">{{ inc.description|default:"—" }}</td>
+                        <td>{{ inc.category|default:"General" }}</td>
+                        <td>{{ inc.status }}</td>
+                        <td class="text-right financial-digits-bold">{{ inc.total_amount|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-table-placeholder">
+                            No income records found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="ledger-pagination-row">
+            <div class="pagination-counter-info">
+                Records: <strong>{{ incomes.start_index }}</strong> to
+                <strong>{{ incomes.end_index }}</strong> of
+                <strong>{{ total_records }}</strong>
+            </div>
+            <div class="pagination-nav-controls">
+                {% if incomes.has_previous %}
+                    <a href="?page=1&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-double-left"></i></a>
+                    <a href="?page={{ incomes.previous_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-left"></i></a>
+                {% else %}
+                    <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-left"></i></button>
+                    <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-left"></i></button>
+                {% endif %}
+
+                <div class="page-numeric-links">
+                    {% for num in incomes.paginator.page_range %}
+                        {% if num == incomes.number %}
+                            <button type="button" class="btn-page-num active-page">{{ num }}</button>
+                        {% elif num > incomes.number|add:'-3' and num < incomes.number|add:'3' %}
+                            <a href="?page={{ num }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-num">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if incomes.has_next %}
+                    <a href="?page={{ incomes.next_page_number }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-right"></i></a>
+                    <a href="?page={{ incomes.paginator.num_pages }}&per_page={{ request.GET.per_page|default:20 }}" class="btn-page-nav"><i class="fa fa-angle-double-right"></i></a>
+                {% else %}
+                    <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-right"></i></button>
+                    <button type="button" class="btn-page-nav" disabled><i class="fa fa-angle-double-right"></i></button>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── ADD INCOME MODAL ── -->
+<div id="addIncomeModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5><i class="fa fa-plus-circle" style="margin-right:8px;"></i> Record Income</h5>
+            <button type="button" class="modal-close" onclick="closeAddIncomeModal()">&times;</button>
+        </div>
+        <form method="POST" action="{% url 'finance:add_income' %}" id="addIncomeForm">
+            {% csrf_token %}
+            <div class="modal-body">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Income Head <span class="text-danger">*</span></label>
+                        <select id="category" name="category" class="form-control" required>
+                            <option value="">Select Category...</option>
+                            <option value="Donations">Donations</option>
+                            <option value="Grants">Grants</option>
+                            <option value="Insurance Claims">Insurance Claims</option>
+                            <option value="Rent">Rent</option>
+                            <option value="Services">Services</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reference">Receipt / Reference No. <span class="text-danger">*</span></label>
+                        <input type="text" id="reference" name="reference" class="form-control"
+                               placeholder="INC-2026-001" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="transaction_date">Income Date <span class="text-danger">*</span></label>
+                        <input type="date" id="transaction_date" name="transaction_date"
+                               class="form-control" value="{% now 'Y-m-d' %}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (Kshs.) <span class="text-danger">*</span></label>
+                        <input type="number" id="amount" name="amount" step="0.01"
+                               class="form-control" placeholder="0.00" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="description">Description (include who paid) <span class="text-danger">*</span></label>
+                        <textarea id="description" name="description" class="form-control" rows="3"
+                                  placeholder="e.g. Donation from ABC Foundation" required></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal-action close-modal" onclick="closeAddIncomeModal()">
+                    <i class="fa fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="btn-modal-action save">
+                    <i class="fa fa-save"></i> Save Income
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── VIEW INCOME MODAL ── -->
+<div id="incomeModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5><i class="fa fa-file-text-o" style="margin-right:8px;"></i> Income Details</h5>
+            <button type="button" class="modal-close" onclick="closeIncomeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="incomeModalBody"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-action close-modal" onclick="closeIncomeModal()">
+                <i class="fa fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ── SEARCH ──
+    const searchInput = document.getElementById('ledgerSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function () {
+            const term = this.value.toLowerCase();
+            document.querySelectorAll('#incomeTable tbody tr').forEach(row => {
+                if (row.querySelector('.empty-table-placeholder')) return;
+                row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+            });
+        });
+    }
+
+    // ── ENTRIES PER PAGE ──
+    const entriesPerPage = document.getElementById('entriesPerPage');
+    if (entriesPerPage) {
+        entriesPerPage.addEventListener('change', function () {
+            const url = new URL(window.location.href);
+            url.searchParams.set('per_page', this.value);
+            url.searchParams.set('page', 1);
+            window.location.href = url.toString();
+        });
+    }
+
+    // ── ADD INCOME MODAL ──
+    window.openAddIncomeModal = function () {
+        document.getElementById('addIncomeModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        const refInput = document.getElementById('reference');
+        if (refInput && !refInput.value) {
+            const year = new Date().getFullYear();
+            const rand = String(Math.floor(Math.random() * 9000) + 1000);
+            refInput.value = `INC-${year}-${rand}`;
+        }
+    };
+
+    window.closeAddIncomeModal = function () {
+        document.getElementById('addIncomeModal').classList.remove('active');
+        document.body.style.overflow = '';
+        const form = document.getElementById('addIncomeForm');
+        if (form) form.reset();
+    };
+
+    // ── VIEW INCOME MODAL (reads data-* from the clicked row) ──
+    function detailRow(label, value) {
+        return `<div style="display:grid;grid-template-columns:140px 1fr;border-bottom:1px solid #f1f5f9;">
+            <span style="padding:7px 12px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;background:#f8fafc;border-right:1px solid #f1f5f9;">${label}</span>
+            <span style="padding:7px 12px;font-size:13px;color:#0f172a;">${value}</span>
+        </div>`;
+    }
+
+    window.openIncomeModal = function (row) {
+        const d = row.dataset;
+        document.getElementById('incomeModalBody').innerHTML = `
+            <div style="border:1px solid #e2e8f0;">
+                ${detailRow('Reference', `<span class="badge-bill">${d.reference}</span>`)}
+                ${detailRow('Date', d.date)}
+                ${detailRow('Income Head', d.category)}
+                ${detailRow('Description', d.description)}
+                ${detailRow('Status', d.status)}
+                ${detailRow('Recorded By', d.user)}
+                ${detailRow('Amount', `<strong style="color:#16a34a;">Kshs. ${d.amount}</strong>`)}
+            </div>`;
+        document.getElementById('incomeModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeIncomeModal = function () {
+        document.getElementById('incomeModal').classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    // ── CLOSE ON BACKDROP CLICK ──
+    ['incomeModal', 'addIncomeModal'].forEach(id => {
+        document.getElementById(id).addEventListener('click', function (e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+    });
+
+    // ── CLOSE ON ESC ──
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeIncomeModal();
+            closeAddIncomeModal();
+        }
+    });
+});
+</script>
+
 {% endblock %}

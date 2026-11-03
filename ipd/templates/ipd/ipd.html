@@ -69,9 +69,11 @@
     <div class="ledger-action-row">
       <h2>IPD Patients</h2>
       <div class="ledger-btn-group"> 
-        <a href="" class="btn-hms-primary">
+        <a href="{% url 'ipd:admit_patient' %}" class="btn-hms-primary">
           <i class="fa fa-file-text-o"></i> + Admit Patient 
         </a>
+
+        
         
         <a href="" class="btn-hms-secondary">        
           <i class="fa fa-medkit"></i> Discharge Patient     
@@ -123,20 +125,30 @@
         <tbody>
           {% for ipd_patient in ipd_patients %}
           <tr>
-            <td><span class="badge-bill">{{ ipd_patient.ipd_number }}</span></td>
+
+            
+
+            <td><span class="badge-bill">IPD-{{ ipd_patient.id }}</span></td>
+
             <td><strong>{{ ipd_patient.case_id }}</strong></td>
             <td title="{{ ipd_patient.patient.full_name }}">
               <strong class="patient-name-text">{{ ipd_patient.patient.full_name }}</strong>
             </td>
             <td>{{ ipd_patient.patient.gender|default:"-" }}</td>
             <td>{{ ipd_patient.patient.phone_number|default:"-" }}</td>
-            <td>Dr. {{ ipd_patient.consultant_doctor|default:"-" }}</td>
+
+            <td>Dr. {{ ipd_patient.doctor.full_name|default:"-" }}</td>
+
             <td>
               <span style="font-weight:600;">
                 {{ ipd_patient.bed_number|default:"-" }}
-                {% if ipd_patient.ward_name %}
-                  <span style="font-size:10px; color:#718096; display:block;">{{ ipd_patient.ward_name }}</span>
-                {% endif %}
+
+                {% if ipd_patient.ward %}
+
+                  <span style="font-size:10px; color:#718096; display:block;">{{ ipd_patient.ward }}</span>
+                
+                
+                  {% endif %}
               </span>
             </td>
             <td>

@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Blood Donor Details{% endblock %}
+
+{% block content %}
+<style>
+  /* .bd-card{background:#fff;border:1px solid #dde1e7;border-radius:3px;margin:6px} */
+  .bd-card{position:fixed;inset:0;z-index:2000;margin:0;border:0;border-radius:0;background:#fff;display:flex;flex-direction:column;overflow:auto}
+  #bd-form{display:flex;flex-direction:column;flex:1}
+  .bd-body{flex:1}
+
+
+  .bd-head{background:#1f2433;color:#fff;font-weight:700;font-size:16px;padding:14px;display:flex;justify-content:space-between;align-items:center}
+  .bd-close{color:#fff;text-decoration:none;font-size:22px;line-height:1}
+  .bd-body{padding:12px 12px 20px}
+  .bd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 18px;margin-bottom:12px}
+  .bd-full{grid-column:1/-1}
+  .bd-f label{display:block;font-size:12px;font-weight:600;color:#222;margin-bottom:4px}
+  .bd-f label b{color:#d9534f;font-weight:400}
+  .bd-f input,.bd-f select,.bd-f textarea{width:100%;padding:7px;border:1px solid #ccd;border-radius:2px;font-size:12px;background:#fff}
+  .bd-split{display:grid;grid-template-columns:1fr 1fr;gap:18px;border-top:1px solid #e3e6ec;padding-top:16px;margin-top:8px}
+  .bd-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;margin-bottom:8px}
+  .bd-row .pct{width:90px;text-align:right;border:0;border-bottom:1px solid #ccd;padding:4px;font-size:12px}
+  .bd-num{min-width:110px;text-align:right;font-size:15px;font-weight:700;border-bottom:1px solid #ccd;padding:2px 0}
+  .bd-net{border:0!important;border-bottom:1px solid #ccd!important;text-align:right;font-size:15px!important;font-weight:700;width:110px!important}
+  .bd-pay{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:10px}
+  .bd-foot{background:#ebebeb;padding:10px 12px;display:flex;justify-content:flex-end;gap:8px}
+  .bd-btn{background:#1f2433;color:#fff;border:0;border-radius:2px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer}
+  .bd-err{background:#fdeaea;color:#a33;font-size:12px;padding:8px 12px;margin:0 12px 10px}
+  @media(max-width:900px){.bd-grid,.bd-split,.bd-pay{grid-template-columns:1fr}}
+</style>
+
+<div class="bd-card">
+  <div class="bd-head">
+    <span>Blood Donor Details</span>
+    <a href="{% url 'bloodbank:bloodbank_home' %}" class="bd-close" title="Close">&times;</a>
+  </div>
+
+  <form method="post" id="bd-form">
+    {% csrf_token %}
+    {% if form.errors %}<div class="bd-err">Please fix the required fields and try again.</div>{% endif %}
+
+    <div class="bd-body">
+      <div class="bd-grid">
+        <div class="bd-f"><label>Blood Donor <b>*</b></label>{{ form.donor }}</div>
+        <div class="bd-f"><label>Donate Date <b>*</b></label>{{ form.donation_date }}</div>
+        <div class="bd-f"><label>Bag <b>*</b></label>{{ form.bag }}</div>
+        <div class="bd-f"><label>Volume</label>{{ form.quantity_ml }}</div>
+
+        <div class="bd-f"><label>Unit Type</label>
+          <select name="unit_type">
+            <option value="">Select</option>
+            <option value="ml">ml</option>
+            <option value="units">Units</option>
+          </select>
+        </div>
+        <div class="bd-f"><label>Lot</label>{{ form.lot }}</div>
+        <div class="bd-f"><label>Charge Category <b>*</b></label>{{ form.charge_category }}</div>
+        <div class="bd-f"><label>Charge Name <b>*</b></label>{{ form.charge_name }}</div>
+
+        <div class="bd-f"><label>Standard Charge (sh) <b>*</b></label>{{ form.standard_charge }}</div>
+
+        <div class="bd-f bd-full"><label>Institution</label>{{ form.institution }}</div>
+      </div>
+
+      <div class="bd-split">
+        <div class="bd-f"><label>Note</label>{{ form.notes }}</div>
+
+        <div>
+          <div class="bd-row"><span>Total (sh)</span><span class="bd-num" id="bd-total">0</span></div>
+          <div class="bd-row">
+            <span>Discount (sh)</span>
+            <span>{{ form.discount_percent }}</span>
+            <span class="bd-num" id="bd-disc">0</span>
+          </div>
+          <div class="bd-row">
+            <span>Tax (sh)</span>
+            <span>{{ form.tax_percent }}</span>
+            <span class="bd-num" id="bd-tax">0</span>
+          </div>
+          <div class="bd-row"><span>Net Amount (sh)</span>{{ form.net_amount }}</div>
+
+          <div class="bd-pay">
+            <div class="bd-f"><label>Payment Mode</label>{{ form.payment_mode }}</div>
+            <div class="bd-f"><label>Payment Amount (sh) <b>*</b></label>{{ form.payment_amount }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bd-foot">
+      <button type="button" class="bd-btn" id="bd-calc">&#9638; Calculate</button>
+      <button type="submit" class="bd-btn">&#10004; Save</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+  var pct = $('id_discount_percent'), taxp = $('id_tax_percent');
+  pct.classList.add('pct'); taxp.classList.add('pct');
+  pct.placeholder = 'Discount %'; taxp.placeholder = 'Tax %';
+  pct.removeAttribute('required'); taxp.removeAttribute('required');
+  $('id_net_amount').readOnly = true;
+  $('id_net_amount').classList.add('bd-net');
+
+  function calculate() {
+    var total = parseFloat($('id_standard_charge').value) || 0;
+    var disc = total * (parseFloat(pct.value) || 0) / 100;
+    var tax = (total - disc) * (parseFloat(taxp.value) || 0) / 100;
+    var net = total - disc + tax;
+    $('bd-total').textContent = total.toFixed(2);
+    $('bd-disc').textContent = disc.toFixed(2);
+    $('bd-tax').textContent = tax.toFixed(2);
+    $('id_net_amount').value = net.toFixed(2);
+    if (!$('id_payment_amount').value) $('id_payment_amount').value = net.toFixed(2);
+  }
+
+  $('bd-calc').addEventListener('click', calculate);
+  $('bd-form').addEventListener('submit', calculate);
+</script>
+{% endblock %}

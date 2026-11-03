@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admit Patient | Eagles Mission Hospital</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  html, body { margin:0; padding:0; font-family:Arial, sans-serif; }
+
+.admit-wrap { background:#fff; border:1px solid #e2e8f0; }
+.admit-topbar { background:#20243a; padding:6px 10px; display:flex; align-items:center; gap:16px; }
+.admit-topbar select { width:480px; max-width:100%; height:26px; border:1px solid #ccc; background:#fff; }
+.btn-new-patient { background:#fff; border:none; padding:4px 10px; font-size:12px; font-weight:600; cursor:pointer; }
+.admit-close { margin-left:auto; color:#fff; font-size:22px; text-decoration:none; line-height:1; }
+
+
+.admit-body { display:flex; min-height:calc(100vh - 80px); }
+
+.admit-left { flex:1; padding:14px; }
+.admit-right { width:450px; background:#f3f3f3; padding:14px; }
+.row-3 { display:flex; gap:18px; margin-bottom:14px; }
+.row-3 .fld { flex:1; }
+.fld { margin-bottom:12px; }
+.fld label { display:block; font-size:12px; font-weight:600; color:#333; margin-bottom:4px; }
+.fld label .req { color:hsl(347, 77%, 50%); }
+.fld input, .fld select, .fld textarea { width:100%; border:1px solid #cfd4dc; padding:6px 8px; font-size:12px; background:#fff; box-sizing:border-box; }
+.fld input:disabled { background:#e5e7eb; }
+.fld textarea { resize:vertical; }
+.two-col { display:flex; gap:18px; }
+.two-col .fld { flex:1; }
+.admit-footer { background:#e9e9e9; padding:6px 14px; text-align:right; border-top:1px solid #ddd; }
+.btn-save { background:#20243a; color:#fff; border:none; padding:7px 16px; font-size:12px; font-weight:600; cursor:pointer; }
+@media (max-width:900px){ .admit-body{flex-direction:column;} .admit-right{width:auto;} }
+</style>
+
+</head>
+<body>
+
+
+<form method="post" class="admit-wrap" id="admitForm">
+  {% csrf_token %}
+
+  <div class="admit-topbar">
+    <select name="patient" id="patientSelect" required>
+      <option value=""></option>
+      {% for p in patients %}
+        <option value="{{ p.id }}">{{ p.full_name }}</option>
+      {% endfor %}
+    </select>
+    <button type="button" class="btn-new-patient"><i class="fa fa-plus"></i> New Patient</button>
+    <a href="javascript:history.back()" class="admit-close" title="Close">&times;</a>
+  </div>
+
+  <div class="admit-body">
+    <div class="admit-left">
+      <div class="row-3">
+        <div class="fld"><label>Symptoms Type</label><input type="text" name="symptoms_type"></div>
+        <div class="fld"><label>Symptoms Title</label><input type="text" name="symptoms_title"></div>
+        <div class="fld" style="flex:1.5;"><label>Symptoms Description</label><textarea name="symptoms_description" rows="2"></textarea></div>
+      </div>
+      <div class="fld"><label>Note</label><textarea name="note" rows="3"></textarea></div>
+    </div>
+
+    <div class="admit-right">
+      <div class="fld">
+        <label>Admission Date <span class="req">*</span></label>
+        <input type="datetime-local" name="admission_date" id="admissionDate" required>
+      </div>
+
+      <div class="two-col">
+        <div class="fld"><label>Case</label><input type="text" name="case_id"></div>
+        <div class="fld"><label>Insurance</label><input type="text" name="insurance" disabled></div>
+      </div>
+
+      <div class="two-col">
+        <div class="fld"><label>Casualty</label>
+          <select name="casualty"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+        <div class="fld"><label>Old Patient</label>
+          <select name="old_patient"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="fld"><label>Credit Limit (sh) <span class="req">*</span></label>
+          <input type="number" name="credit_limit" value="1000" required>
+        </div>
+        <div class="fld"><label>Reference</label><input type="text" name="reference"></div>
+      </div>
+
+      <div class="fld">
+        <label>Consultant Doctor <span class="req">*</span></label>
+        <select name="consultant_doctor" required>
+          <option value="">Select</option>
+          {% for d in doctors %}<option value="{{ d.id }}">{{ d.full_name }}</option>{% endfor %}
+        </select>
+      </div>
+
+      <div class="fld">
+        <label>Bed Group</label>
+        <select name="bed_group" id="bedGroup">
+          <option value="">Select</option>
+          {% for g in bed_groups %}<option value="{{ g.id }}">{{ g.name }}</option>{% endfor %}
+        </select>
+      </div>
+
+      <div class="fld">
+        <label>Bed Number <span class="req">*</span></label>
+        <select name="bed_number" id="bedNumber" required>
+          <option value="">Select</option>
+          {% for b in beds %}<option value="{{ b.id }}" data-group="{{ b.group_id }}">{{ b.name }}</option>{% endfor %}
+        </select>
+      </div>
+
+      <div class="fld" style="width:48%;">
+        <label>Live Consultation</label>
+        <select name="live_consultation"><option value="No">No</option><option value="Yes">Yes</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="admit-footer">
+    <button type="submit" class="btn-save"><i class="fa fa-check-circle"></i> Save</button>
+  </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Set admission date to now
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  document.getElementById('admissionDate').value = d.toISOString().slice(0, 16);
+
+  // Show only beds that belong to the chosen bed group
+  const group = document.getElementById('bedGroup');
+  const bed = document.getElementById('bedNumber');
+  group.addEventListener('change', function () {
+    bed.value = '';
+    for (const opt of bed.options) {
+      if (!opt.value) continue;
+      opt.hidden = this.value && opt.dataset.group !== this.value;
+    }
+  });
+});
+</script>
+
+</body>
+</html>

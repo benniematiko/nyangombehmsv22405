@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Add Components{% endblock %}
+
+{% block content %}
+<style>
+  .cf-card{background:#fff;border:1px solid #dde1e7;border-radius:3px;margin:10px auto;max-width:980px}
+
+  .cf-head{background:#1f2433;color:#fff;font-weight:700;font-size:16px;padding:14px 14px;display:flex;justify-content:space-between;align-items:center}
+  .cf-close{color:#fff;text-decoration:none;font-size:20px;line-height:1}
+  .cf-close:hover{color:#ccc}
+
+
+
+  .cf-body{padding:12px 14px}
+  .cf-top{display:flex;gap:18px;margin-bottom:16px}
+  .cf-top label,.cf-th{font-size:12px;font-weight:600;color:#333}
+  .cf-top label span,.cf-th span{color:#d9534f}
+  .cf-top select{display:block;width:220px;margin-top:4px;padding:6px;border:1px solid #ccd;border-radius:2px;font-size:12px;background:#fff}
+  .cf-grid{display:grid;grid-template-columns:230px repeat(2,1fr) 1fr 1fr 1fr;gap:4px 4px;align-items:center}
+  .cf-th{padding:6px 0;border-bottom:1px solid #e3e6ec}
+  .cf-name{display:flex;align-items:center;gap:6px;font-size:13px;padding:8px 0}
+  .cf-grid input[type=text],.cf-grid input[type=number],.cf-grid select{width:100%;padding:6px;border:1px solid #ccd;border-radius:2px;font-size:12px;background:#fff}
+  .cf-grid input:disabled,.cf-grid select:disabled{background:#f5f6fa}
+  .cf-foot{display:flex;justify-content:flex-end;border-top:1px solid #e3e6ec;padding:12px 14px}
+  .cf-btn{background:#1f2433;color:#fff;border:0;border-radius:2px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer}
+  .cf-cancel{align-self:center;margin-right:14px;font-size:12px;color:#555;text-decoration:none}
+  @media(max-width:800px){.cf-grid{grid-template-columns:1fr 1fr}.cf-name{grid-column:1/-1}}
+</style>
+
+<div class="cf-card">
+
+  <div class="cf-head">
+    <span>Add Components</span>
+    <a href="{% url 'bloodbank:bloodbank_home' %}" class="cf-close" title="Close">&times;</a>
+  </div>
+
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="cf-body">
+      <div class="cf-top">
+        <label>Blood Group <span>*</span>
+          <select name="blood_type" required>
+            {% for code, label in blood_types %}
+            <option value="{{ code }}" {% if code == selected_blood_type %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Bag <span>*</span>
+          <select name="bag_type" required>
+            <option value="">Select</option>
+            {% for b in bag_types %}<option value="{{ b }}">{{ b }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+
+      <div class="cf-grid">
+        <div class="cf-th">Components Name <span>*</span></div>
+        <div class="cf-th">Bag <span>*</span></div>
+        <div class="cf-th">Volume</div>
+        <div class="cf-th">Unit</div>
+        <div class="cf-th">Lot <span>*</span></div>
+        <div class="cf-th">Institution</div>
+
+        {% for key, label in rows %}
+        <label class="cf-name"><input type="checkbox" name="selected" value="{{ key }}" class="cf-check"> {{ label }}</label>
+        <input type="number" min="1" name="bags_{{ key }}" class="cf-need" disabled>
+        <input type="number" min="0" name="volume_{{ key }}" disabled>
+        <select name="unit_{{ key }}" disabled>
+          <option value="">Select</option>
+          <option value="ml">ml</option>
+          <option value="units">Units</option>
+        </select>
+        <input type="text" name="lot_{{ key }}" class="cf-need" disabled>
+        <input type="text" name="institution_{{ key }}" disabled>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="cf-foot">
+      <a href="{% url 'bloodbank:bloodbank_home' %}" class="cf-cancel">Cancel</a>
+      <button type="submit" class="cf-btn">&#10004; Save</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.querySelectorAll('.cf-check').forEach(function (box) {
+    box.addEventListener('change', function () {
+      var row = [];
+      var el = box.parentElement.nextElementSibling;
+      for (var i = 0; i < 5; i++) { row.push(el); el = el.nextElementSibling; }
+      row.forEach(function (f) {
+        f.disabled = !box.checked;
+        if (f.classList.contains('cf-need')) f.required = box.checked;
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -20,6 +20,7 @@ urlpatterns = [
     # Donation URLs
     path('donations/', views.donation_list, name='donation_list'),
     path('donations/create/', views.donation_create, name='donation_create'),
+    path('components/create/', views.component_create, name='component_create'),
     
     # Blood Request URLs
     path('requests/', views.blood_request_list, name='request_list'),

@@ -5,35 +5,76 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.db.models import Sum, Count, Q, F
 from django.core.paginator import Paginator
-from .models import Donor, BloodStock, Donation, BloodRequest
-from .forms import DonorForm, BloodRequestForm, DonationForm
+from .models import Donor, BloodStock, Donation, BloodRequest, Component
+from .forms import DonorForm, BloodRequestForm, DonationForm, ComponentForm
 from datetime import datetime, timedelta
 
 def is_admin_or_staff(user):
     return user.is_staff or user.is_superuser
 
+
+BLOOD_ORDER = ['O+', 'B-', 'A-', 'O-', 'AB+', 'AB-', 'A+', 'B+']
 @login_required
 def bloodbank_home(request):
-    """Blood bank home/dashboard view"""
-    context = {
-        'total_donors': Donor.objects.count(),
-        'available_donors': Donor.objects.filter(is_available=True).count(),
-        'total_donations': Donation.objects.filter(status='completed').count(),
-        'pending_requests': BloodRequest.objects.filter(status='pending').count(),
-        'blood_stocks': BloodStock.objects.all(),
-        'low_stock': BloodStock.objects.filter(quantity_ml__lt=F('min_threshold_ml')),
-        'critical_stock': BloodStock.objects.filter(quantity_ml__lt=(F('min_threshold_ml') / 2)),
-        'recent_donations': Donation.objects.filter(status='completed').order_by('-donation_date')[:5],
-        'urgent_requests': BloodRequest.objects.filter(priority='urgent', status='pending'),
-        'total_blood_quantity': BloodStock.objects.aggregate(total=Sum('quantity_ml'))['total'] or 0,
-    }
-    return render(request, 'bloodbank/bloodbank_home.html', context)
+    """Blood bank status page"""
+    blood_types = []
+    for name in BLOOD_ORDER:
+        donations = (Donation.objects
+                     .filter(status='completed', blood_type=name)
+                     .select_related('donor')
+                     .order_by('-donation_date'))
+        bags = [{
+            'bags': f'{d.quantity_ml} ml',
+            'lot': f'D-{d.id}',
+            'institution': d.donor.city,
+        } for d in donations]
+        blood_types.append({
+            'name': name,
+            'blood_bags': bags,  
+
+            'components': [{
+                'bags': c.bags,
+                'lot': c.lot,
+                'component': c.get_component_display(),
+            } for c in Component.objects.filter(blood_type=name)],
+
+        })
+    return render(request, 'bloodbank/bloodbank_home.html', {'blood_types': blood_types})
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def bloodbank_home(request):
+#     """Blood bank home/dashboard view"""
+#     context = {
+#         'total_donors': Donor.objects.count(),
+#         'available_donors': Donor.objects.filter(is_available=True).count(),
+#         'total_donations': Donation.objects.filter(status='completed').count(),
+#         'pending_requests': BloodRequest.objects.filter(status='pending').count(),
+#         'blood_stocks': BloodStock.objects.all(),
+#         'low_stock': BloodStock.objects.filter(quantity_ml__lt=F('min_threshold_ml')),
+#         'critical_stock': BloodStock.objects.filter(quantity_ml__lt=(F('min_threshold_ml') / 2)),
+#         'recent_donations': Donation.objects.filter(status='completed').order_by('-donation_date')[:5],
+#         'urgent_requests': BloodRequest.objects.filter(priority='urgent', status='pending'),
+#         'total_blood_quantity': BloodStock.objects.aggregate(total=Sum('quantity_ml'))['total'] or 0,
+#     }
+#     return render(request, 'bloodbank/bloodbank_home.html', context)
+
 
 @login_required
 def donor_list(request):
     """List all donors with search and filter"""
     donors = Donor.objects.all().order_by('-created_at')
-    
+
     # Search functionality
     search_query = request.GET.get('search', '')
     if search_query:
@@ -43,31 +84,44 @@ def donor_list(request):
             Q(email__icontains=search_query) |
             Q(phone__icontains=search_query)
         )
-    
+
     # Filter by blood type
     blood_type = request.GET.get('blood_type', '')
     if blood_type:
         donors = donors.filter(blood_type=blood_type)
-    
+
     # Filter by availability
     availability = request.GET.get('availability', '')
     if availability == 'available':
         donors = donors.filter(is_available=True)
     elif availability == 'unavailable':
         donors = donors.filter(is_available=False)
-    
-    paginator = Paginator(donors, 20)
+
+    # Records per page
+    per_page_options = [10, 25, 50, 100]
+    try:
+        per_page = int(request.GET.get('per_page', 100))
+    except ValueError:
+        per_page = 100
+    if per_page not in per_page_options:
+        per_page = 100
+
+    paginator = Paginator(donors, per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     context = {
         'page_obj': page_obj,
         'blood_types': Donor.BLOOD_TYPES,
         'search_query': search_query,
         'selected_blood_type': blood_type,
         'selected_availability': availability,
+        'per_page': per_page,
+        'per_page_options': per_page_options,
     }
     return render(request, 'bloodbank/donor_list.html', context)
+
+
 
 @login_required
 def donor_detail(request, donor_id):
@@ -148,27 +202,45 @@ def blood_stock(request):
 
 @login_required
 @user_passes_test(is_admin_or_staff)
+
 def donation_create(request):
-    """Record a new donation"""
+    """Record a new blood donation"""
     if request.method == 'POST':
         form = DonationForm(request.POST)
         if form.is_valid():
             donation = form.save(commit=False)
-            # Set blood type from donor if not specified
-            if not donation.blood_type and donation.donor:
-                donation.blood_type = donation.donor.blood_type
+            donation.blood_type = donation.donor.blood_type
+            donation.status = 'completed'
             donation.save()
-            messages.success(request, f'Donation recorded successfully!')
-            return redirect('bloodbank:donation_list')
+            messages.success(request, 'Blood donor details saved successfully!')
+            return redirect('bloodbank:bloodbank_home')
     else:
-        form = DonationForm()
+        form = DonationForm(initial={'donation_date': timezone.localtime().strftime('%Y-%m-%dT%H:%M')})
+
+    return render(request, 'bloodbank/donation_form.html', {'form': form})
+
+
+# def donation_create(request):
+#     """Record a new donation"""
+#     if request.method == 'POST':
+#         form = DonationForm(request.POST)
+#         if form.is_valid():
+#             donation = form.save(commit=False)
+#             # Set blood type from donor if not specified
+#             if not donation.blood_type and donation.donor:
+#                 donation.blood_type = donation.donor.blood_type
+#             donation.save()
+#             messages.success(request, f'Donation recorded successfully!')
+#             return redirect('bloodbank:donation_list')
+#     else:
+#         form = DonationForm()
     
-    # Pass donor choices for the form
-    context = {
-        'form': form,
-        'title': 'Record Donation',
-    }
-    return render(request, 'bloodbank/donation_form.html', context)
+#     # Pass donor choices for the form
+#     context = {
+#         'form': form,
+#         'title': 'Record Donation',
+#     }
+#     return render(request, 'bloodbank/donation_form.html', context)
 
 @login_required
 def donation_list(request):
@@ -292,3 +364,51 @@ def blood_request_update(request, request_id):
         'status_choices': BloodRequest.STATUS_CHOICES,
     }
     return render(request, 'bloodbank/request_update.html', context)
+
+
+
+
+COMPONENT_ROWS = [
+    ('cryo', 'Cryo'),
+    ('rbc', 'Red Cells'),
+    ('wbc', 'White Cells & Granulocytes'),
+    ('plasma', 'Plasma'),
+    ('platelets', 'Platelets'),
+]
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def component_create(request):
+    """Add blood components (several rows at once)"""
+    if request.method == 'POST':
+        blood_type = request.POST.get('blood_type', '')
+        bag_type = request.POST.get('bag_type', '')
+        saved = 0
+        for key in request.POST.getlist('selected'):
+            bags = request.POST.get(f'bags_{key}', '').strip()
+            lot = request.POST.get(f'lot_{key}', '').strip()
+            volume = request.POST.get(f'volume_{key}', '').strip()
+            if not (bags.isdigit() and lot):
+                continue
+            Component.objects.create(
+                blood_type=blood_type,
+                bag_type=bag_type,
+                component=key,
+                bags=int(bags),
+                volume=int(volume) if volume.isdigit() else None,
+                unit=request.POST.get(f'unit_{key}', 'ml'),
+                lot=lot,
+                institution=request.POST.get(f'institution_{key}', '').strip(),
+            )
+            saved += 1
+        if saved:
+            messages.success(request, f'{saved} component(s) added successfully!')
+            return redirect('bloodbank:bloodbank_home')
+        messages.error(request, 'Tick a component and fill Bag and Lot.')
+
+    return render(request, 'bloodbank/component_form.html', {
+        'blood_types': Donor.BLOOD_TYPES,
+        'selected_blood_type': request.GET.get('blood_type', ''),
+        'rows': COMPONENT_ROWS,
+        'bag_types': ['Single', 'Double', 'Triple', 'Quadruple'],
+    })

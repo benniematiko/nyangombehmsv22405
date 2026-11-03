@@ -93,15 +93,43 @@ def add_expense(request):
     return redirect('finance:expenses')
 
 
+
+
+
+@login_required
+def income_list(request):
+    """Display list of all income records"""
+    incomes = FinanceTransaction.objects.filter(
+        transaction_type='Income'
+    ).order_by('-payment_date', '-created_at')
+
+    search_query = request.GET.get('search', '')
+    if search_query:
+        incomes = incomes.filter(
+            Q(reference__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(category__icontains=search_query)
+        )
+
+    paginator = Paginator(incomes, int(request.GET.get('per_page', 20)))
+    page_obj = paginator.get_page(request.GET.get('page', 1))
+
+    context = {
+        'incomes': page_obj,
+        'total_records': paginator.count,
+        'search_query': search_query,
+    }
+    return render(request, 'finance/add_income.html', context)
+
+
 @login_required
 def add_income(request):
     """Add income record"""
     if request.method == 'POST':
         try:
-            # Create income transaction
             transaction = FinanceTransaction.objects.create(
                 transaction_type='Income',
-                category=request.POST.get('category', 'other'),
+                category=request.POST.get('category', 'Other'),
                 amount=request.POST.get('amount'),
                 total_amount=request.POST.get('amount'),
                 description=request.POST.get('description'),
@@ -110,19 +138,15 @@ def add_income(request):
                 status='Completed',
                 created_by=request.user
             )
-            
+
             messages.success(request, f"Income of {transaction.amount} recorded successfully!")
-            return redirect(request.META.get('HTTP_REFERER', 'finance:expense_list'))
-            
+            return redirect('finance:income')
+
         except Exception as e:
             messages.error(request, f"Error recording income: {str(e)}")
-            return redirect('finance:expense_list')
-    
-    # GET request - render income form
-    context = {
-        'categories': FinanceTransaction.CATEGORY_CHOICES if hasattr(FinanceTransaction, 'CATEGORY_CHOICES') else [],
-    }
-    return render(request, 'finance/add_income.html', context)
+            return redirect('finance:income')
+
+    return redirect('finance:income')
 
 
 @login_required

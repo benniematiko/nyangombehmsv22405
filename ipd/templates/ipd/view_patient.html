@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}IPD Details | Eagles Mission Hospital{% endblock %}
+{% block content %}
+
+<style>
+.detail-card { background:#fff; border:1px solid #e2e8f0; padding:20px; max-width:900px; }
+.detail-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.detail-head h2 { margin:0; font-size:18px; }
+.detail-head a { color:#990000; text-decoration:none; font-size:13px; font-weight:600; }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 30px; }
+.detail-item label { display:block; font-size:11px; color:#64748b; font-weight:600; text-transform:uppercase; }
+.detail-item span { font-size:14px; color:#1e293b; }
+.detail-full { grid-column:1 / -1; }
+</style>
+
+<div class="detail-card">
+  <div class="detail-head">
+    <h2>IPD-{{ ipd.id }} | {{ ipd.patient.full_name }}</h2>
+    <a href="{% url 'ipd:ipd_home' %}">&larr; Back to IPD list</a>
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-item"><label>Status</label><span>{{ ipd.get_status_display }}</span></div>
+    <div class="detail-item"><label>Admission Date</label><span>{{ ipd.admission_date|date:"d M Y, H:i" }}</span></div>
+    <div class="detail-item"><label>Consultant Doctor</label><span>Dr. {{ ipd.doctor.full_name|default:"-" }}</span></div>
+    <div class="detail-item"><label>Ward / Bed</label><span>{{ ipd.ward|default:"-" }} / {{ ipd.bed_number|default:"-" }}</span></div>
+    <div class="detail-item"><label>Case ID</label><span>{{ ipd.case_id|default:"-" }}</span></div>
+    <div class="detail-item"><label>Credit Limit (sh)</label><span>{{ ipd.credit_limit }}</span></div>
+    <div class="detail-item"><label>Casualty</label><span>{{ ipd.casualty|yesno:"Yes,No" }}</span></div>
+    <div class="detail-item"><label>Old Patient</label><span>{{ ipd.old_patient|yesno:"Yes,No" }}</span></div>
+    <div class="detail-item"><label>Symptoms Type</label><span>{{ ipd.symptoms_type|default:"-" }}</span></div>
+    <div class="detail-item"><label>Symptoms Title</label><span>{{ ipd.symptoms_title|default:"-" }}</span></div>
+    <div class="detail-item detail-full"><label>Symptoms Description</label><span>{{ ipd.symptoms_description|default:"-" }}</span></div>
+    <div class="detail-item detail-full"><label>Note</label><span>{{ ipd.notes|default:"-" }}</span></div>
+    {% if ipd.discharge_date %}
+    <div class="detail-item"><label>Discharge Date</label><span>{{ ipd.discharge_date|date:"d M Y, H:i" }}</span></div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

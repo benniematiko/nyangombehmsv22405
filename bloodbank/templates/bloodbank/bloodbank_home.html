@@ -1,121 +1,116 @@
 {% extends 'base.html' %}
-
-{% block title %}Blood Bank Dashboard{% endblock %}
+{% block title %}Blood Bank Status{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>Blood Bank Management</h1>
-    
-    <!-- Statistics Cards -->
-    <div class="row mt-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <h5 class="card-title">Total Donors</h5>
-                    <h2 class="card-text">{{ total_donors }}</h2>
-                </div>
-            </div>
+<style>
+  .bb-card{background:#fff;border:1px solid #dde1e7;border-radius:3px;margin:6px}
+  .bb-head{display:flex;justify-content:space-between;align-items:center;
+           padding:10px 10px;border-bottom:1px solid #e3e6ec}
+  .bb-head h2{font-size:17px;font-weight:400;margin:0;color:#444}
+  .bb-btn{background:#1f2433;color:#fff;font-size:11px;font-weight:700;
+          padding:7px 9px;border-radius:2px;text-decoration:none;margin-left:3px;display:inline-block}
+  .bb-btn:hover{color:#fff;background:#000}
+  .bb-body{display:flex;padding:8px 10px 10px}
+  .bb-tabs{list-style:none;margin:0 14px 0 0;padding:0;width:70px;background:#eef0fb;align-self:flex-start}
+  .bb-tabs li{padding:11px 12px;font-size:12px;color:#555;cursor:pointer;
+              border-bottom:1px solid #fff;position:relative}
+  .bb-tabs li.active{background:#1f2433;color:#fff;font-weight:700}
+  .bb-tabs li.active::after{content:"";position:absolute;right:-14px;top:0;
+              border-left:14px solid #1f2433;border-top:17px solid transparent;border-bottom:17px solid transparent}
+  .bb-panes{flex:1;min-width:0}
+  .bb-pane{display:none;gap:18px}
+  .bb-pane.active{display:flex}
+  .bb-box{flex:1;min-width:0}
+  .bb-box-head{display:flex;justify-content:space-between;align-items:center;
+               background:#eef0fb;padding:6px 8px;font-size:14px;color:#333}
+  .bb-add{background:#1f2433;color:#fff;border:0;border-radius:2px;width:26px;height:24px;
+          margin-left:4px;font-weight:700;text-decoration:none;display:inline-block;text-align:center;line-height:24px}
+  .bb-add:hover{color:#fff;background:#000}
+  .bb-table{width:100%;border-collapse:collapse;font-size:12px}
+  .bb-table th{background:#f5f6fb;padding:9px 8px;text-align:left;font-weight:600;color:#333}
+  .bb-table th:last-child,.bb-table td:last-child{text-align:right}
+  .bb-table td{padding:8px;border-bottom:1px solid #eef0f4}
+  @media(max-width:768px){.bb-pane.active{flex-direction:column}.bb-head{flex-wrap:wrap}}
+</style>
+
+<div class="bb-card">
+  <div class="bb-head">
+    <h2>Blood Bank Status</h2>
+
+    <!-- <div>
+      <a href="#" class="bb-btn">&#9776; Donor Details</a>
+      <a href="#" class="bb-btn">&#9776; Blood Issue Details</a>
+      <a href="#" class="bb-btn">&#9776; Component Issue</a>
+    </div> -->
+
+    <diiv>
+        <a href="{% url 'bloodbank:donor_list' %}" class="bb-btn">&#9776; Donor Details</a>
+        <a href="{% url 'bloodbank:request_list' %}" class="bb-btn">&#9776; Blood Issue Details</a>
+        <a href="#" class="bb-btn">&#9776; Component Issue</a>
+    </diiv>    
+
+  </div>
+
+  <div class="bb-body">
+    <ul class="bb-tabs">
+      {% for bt in blood_types %}
+      <li data-target="pane-{{ forloop.counter }}" class="{% if forloop.first %}active{% endif %}">{{ bt.name }}</li>
+      {% endfor %}
+    </ul>
+
+    <div class="bb-panes">
+      {% for bt in blood_types %}
+      <div class="bb-pane {% if forloop.first %}active{% endif %}" id="pane-{{ forloop.counter }}">
+
+        <div class="bb-box">
+          <div class="bb-box-head">
+            <span>Blood</span>
+
+            <span>{{ bt.blood_bags|length }} Bags <a href="{% url 'bloodbank:donation_create' %}" class="bb-add">+</a></span>
+
+           
+
+          </div>
+          <table class="bb-table">
+            <thead><tr><th>Bags</th><th>Lot</th><th>Institution</th><th>Action</th></tr></thead>
+            <tbody>
+              {% for b in bt.blood_bags %}
+              <tr><td>{{ b.bags }}</td><td>{{ b.lot }}</td><td>{{ b.institution }}</td><td><a href="#">Edit</a></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <h5 class="card-title">Available Donors</h5>
-                    <h2 class="card-text">{{ available_donors }}</h2>
-                </div>
-            </div>
+
+        <div class="bb-box">
+          <div class="bb-box-head">
+            <span>Components</span>           
+
+            <span>{{ bt.components|length }} Bags <a href="{% url 'bloodbank:component_create' %}?blood_type={{ bt.name|urlencode }}" class="bb-add">+</a></span>
+
+          </div>
+          <table class="bb-table">
+            <thead><tr><th>Bags</th><th>Lot</th><th>Components</th><th>Action</th></tr></thead>
+            <tbody>
+              {% for c in bt.components %}
+              <tr><td>{{ c.bags }}</td><td>{{ c.lot }}</td><td>{{ c.component }}</td><td><a href="#">Edit</a></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <h5 class="card-title">Total Donations</h5>
-                    <h2 class="card-text">{{ total_donations }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <h5 class="card-title">Pending Requests</h5>
-                    <h2 class="card-text">{{ pending_requests }}</h2>
-                </div>
-            </div>
-        </div>
+
+      </div>
+      {% endfor %}
     </div>
-    
-    <!-- Blood Stock -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Blood Stock Levels</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        {% for stock in blood_stocks %}
-                        <div class="col-md-3 mb-3">
-                            <div class="card {% if stock.is_critical %}border-danger{% elif stock.is_low %}border-warning{% endif %}">
-                                <div class="card-body text-center">
-                                    <h3>{{ stock.blood_type }}</h3>
-                                    <p>{{ stock.quantity_ml }} ml</p>
-                                    <div class="progress">
-                                        <div class="progress-bar {% if stock.is_critical %}bg-danger{% elif stock.is_low %}bg-warning{% else %}bg-success{% endif %}" 
-                                             style="width: {{ stock.get_percentage }}%">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <p>No blood stock records found.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Recent Donations and Urgent Requests -->
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Recent Donations</h4>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        {% for donation in recent_donations %}
-                        <li class="list-group-item">
-                            {{ donation.donor.get_full_name }} - {{ donation.blood_type }}
-                            ({{ donation.quantity_ml }}ml)
-                            <small class="text-muted">{{ donation.donation_date|date:"M d, Y" }}</small>
-                        </li>
-                        {% empty %}
-                        <li class="list-group-item">No recent donations</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Urgent Blood Requests</h4>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        {% for request in urgent_requests %}
-                        <li class="list-group-item list-group-item-danger">
-                            {{ request.patient_name }} - {{ request.blood_type }}
-                            ({{ request.quantity_ml }}ml)
-                            <small class="text-muted">By: {{ request.required_by|date:"M d, Y" }}</small>
-                        </li>
-                        {% empty %}
-                        <li class="list-group-item">No urgent requests</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
+
+<script>
+  document.querySelectorAll('.bb-tabs li').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.bb-tabs li, .bb-pane').forEach(function (el) { el.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.target).classList.add('active');
+    });
+  });
+</script>
 {% endblock %}

@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.expense_list, name='expenses'),
     path('addexpense/', views.add_expense, name='addexpense'),
     path('addincome/', views.add_income, name='add_income'),      # ← fixed name
+    path('income/', views.income_list, name='income'),
     path('voucher/<int:expense_id>/details/', views.expense_details, name='expense_details'),
     path('voucher/<int:expense_id>/edit/', views.edit_expense, name='edit_expense'),
     path('voucher/<int:expense_id>/delete/', views.delete_expense, name='delete_expense'),

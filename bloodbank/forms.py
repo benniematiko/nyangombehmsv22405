@@ -1,5 +1,8 @@
 from django import forms
-from .models import Donor, BloodRequest, Donation
+
+from .models import Donor, BloodRequest, Donation, Component
+
+
 from django.contrib.auth.models import User
 
 class DonorForm(forms.ModelForm):
@@ -37,8 +40,37 @@ class BloodRequestForm(forms.ModelForm):
 class DonationForm(forms.ModelForm):
     class Meta:
         model = Donation
-        fields = ['donor', 'quantity_ml', 'blood_type', 'status', 'notes']
+        fields = [
+            'donor', 'donation_date', 'bag', 'quantity_ml', 'unit_type', 'lot',
+            'charge_category', 'charge_name', 'standard_charge', 'institution',
+            'notes', 'discount_percent', 'tax_percent', 'net_amount',
+            'payment_mode', 'payment_amount',
+        ]
         widgets = {
-            'donation_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'donation_date': forms.DateTimeInput(
+                attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
             'notes': forms.Textarea(attrs={'rows': 3}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['donation_date'].input_formats = ['%Y-%m-%dT%H:%M']
+        for name in ['quantity_ml', 'discount_percent', 'tax_percent', 'net_amount']:
+            self.fields[name].required = False
+        for name in ['bag', 'charge_category', 'charge_name',
+                     'standard_charge', 'payment_amount']:
+            self.fields[name].required = True
+
+    def clean(self):
+        data = super().clean()
+        for name in ['quantity_ml', 'discount_percent', 'tax_percent', 'net_amount']:
+            if data.get(name) in (None, ''):
+                data[name] = 0
+        return data
+
+
+
+class ComponentForm(forms.ModelForm):
+    class Meta:
+        model = Component
+        fields = ['blood_type', 'component', 'bags', 'lot']

@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import IPDPatient
+from .models import IPDPatient, BedGroup, Bed
+
+admin.site.register(BedGroup)
+admin.site.register(Bed)
+
 
 @admin.register(IPDPatient)
 class IPDPatientAdmin(admin.ModelAdmin):
@@ -7,9 +11,9 @@ class IPDPatientAdmin(admin.ModelAdmin):
     list_filter = ['status', 'admission_date']
     search_fields = ['patient__full_name', 'diagnosis', 'admission_reason']
     date_hierarchy = 'admission_date'
-    
+
     readonly_fields = ['admission_date', 'updated_at']
-    
+
     fieldsets = (
         ('Patient Information', {
             'fields': ('patient', 'doctor', 'diagnosis', 'admission_reason')
